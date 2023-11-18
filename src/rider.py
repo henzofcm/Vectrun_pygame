@@ -3,7 +3,7 @@ from entity import *
 
 class Rider(Entity):
     def __init__(self, number):
-        super().__init__(self)
+        super().__init__()
         self._number = number
         self._path = [(0, 0)]
 
