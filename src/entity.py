@@ -3,10 +3,12 @@ from abc import ABCMeta
 
 
 class Entity(pygame.sprite.Sprite, metaclass=ABCMeta):
-    def __init__(self, image_path, x_y):
+    def __init__(self, image_path, x_y, scale_size):
         super().__init__()
-        self._image = pygame.image.load(image_path).convert_alpha()
-        self._rect = self._image.get_rect(topleft=x_y)
+        self.image = pygame.image.load(image_path).convert_alpha()
+        self.image = pygame.transform.smoothscale(self.image, scale_size)
+        
+        self.rect = self.image.get_rect(topleft=x_y)
 
     def update(self):
         pass
