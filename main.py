@@ -16,8 +16,12 @@ SOUNDS_PATH = ASSET_PATH + "sounds/"
 FONTS_PATH = ASSET_PATH + "fonts/"
 
 # Tamanho da tela
-WIDTH = 1280
-HEIGHT = 720
+WIDTH = 850
+HEIGHT = 750
+
+# Tamanho do tabuleiro
+GRID_X = 750
+GRID_Y = 750
 
 # Inicializa
 pygame.init()
@@ -31,7 +35,10 @@ pygame.display.set_icon(pygame.image.load(TEXTURE_PATH + "icon.png"))
 fps_clock = pygame.time.Clock()
 
 # Aqui vai ser criado todos os objetos (jogadores, deck, menus)
-menu_1 = menu.Grid_Game(TEXTURE_PATH + "grid.png", (WIDTH / 2 - 300, 0), 600, 600)
+menu_1 = menu.Grid_Game(TEXTURE_PATH + "grid.png", (0, 0), GRID_X, GRID_Y)
+player_1 = rider.Player(1, 69.8, 69.8)
+player_2 = rider.Player(2, 375, 244.2)
+player_3 = rider.Player(3, 375, 331.2)
 
 # Loop do jogo
 while True:
@@ -43,10 +50,16 @@ while True:
 
     # Aqui vão ser atualizados todos objetos (cada um com seu update())
     menu_1.update()
+    player_1.update()
+    player_2.update()
+    player_3.update()
 
 
     # Aqui vão ser mostrado tudo o que foi atualizado
     screen.blit(menu_1._image, menu_1._rect)
+    screen.blit(player_1._image, player_1._rect)
+    screen.blit(player_2._image, player_2._rect)
+    screen.blit(player_3._image, player_3._rect)
 
 
     # Enfim atualiza o display
