@@ -9,11 +9,11 @@ class Rider(Entity):
 
         # Cria o rider, diminui a imagem e centraliza sua possição
         super().__init__("assets/textures/" + archive, x_y, scale_size)
-        self._rect = self._image.get_rect(center=x_y)
+        self.rect = self.image.get_rect(center=x_y)
 
         # Atributos adicionais
         self._number = number
-        self._path = [(0, 0)]
+        self._path = [x_y, x_y]
         self._velocity = 1
 
         # Salva a cor da moto
@@ -31,15 +31,7 @@ class Player(Rider):
     def __init___(self, number, x_y, scale_size):
         super().__init__(number, x_y, scale_size)
 
-    def choice_preview(self, vector, screen):
-        # Calcula posição inicial e final no tabuleiro
-        start = self._path[-1]
-        end = (start[0] + vector[0], start[1] + vector[1])
-
-        # Desenha a linha ligando esses pontos
-        pygame.draw.line(screen, self._color, start, end, width=2)
-
-    def choice_update(self, vector):
+    def update(self, vector, time):
         # Calcula a posição inicial e final no tabuleiro
         start = self._path[-1]
         end = (start[0] + vector[0], start[1] + vector[1])
@@ -48,18 +40,13 @@ class Player(Rider):
         delta_x = end[0] - start[0]
         delta_y = end[1] - start[1]
 
-        # Gerador que pausa a cada tempo (dt = 0.05)
-        for time in range(0, delta_x / self._velocity, 0.05):
-            self._rect.centerx = self._rect.centerx + delta_x * time / self._velocity
-            self._rect.centery = self._rect.centery + delta_y * time / self._velocity
+        # Atualiza a posição
+        self.rect.centerx = self.rect.centerx + delta_x * time / self._velocity
+        self.rect.centery = self.rect.centery + delta_y * time / self._velocity
 
-            yield self._rect.center
-
-    def update(self, choice, vector):
-        # Quando o jogador clicar na carta, choice será True
-        if choice:
-            self.choice_update(vector)
-            self._path.append(self._rect.center)
+        self._path.append(self.rect.center)
+        # Debugger
+        print(f"Choice updated for {self._color}: {self.rect.center}")
 
 
 class Bot(Rider):
