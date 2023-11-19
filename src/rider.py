@@ -18,13 +18,13 @@ class Rider(Entity):
 
         # Salva a cor da moto
         if number == 1:
-            self._color = "blue"
+            self._color = "#258dc2"
         elif number == 2:
-            self._color = "orange"
+            self._color = "#ec6716"
         elif number == 3:
-            self._color = "red"
+            self._color = "#cb101a"
         elif number == 4:
-            self._color = "yellow"
+            self._color = "#ffb001"
 
 
 class Player(Rider):
@@ -45,6 +45,7 @@ class Player(Rider):
         self.rect.centery = self.rect.centery + delta_y * time / self._velocity
 
         self._path.append(self.rect.center)
+        
         # Debugger
         print(f"Choice updated for {self._color}: {self.rect.center}")
 
