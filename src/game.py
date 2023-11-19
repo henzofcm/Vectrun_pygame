@@ -2,34 +2,15 @@ import pygame
 import sys
 from entity import *
 from rider import *
+from config import *
 
-# Define caminho de todas as pastas que usaremos
-ASSET_PATH = "assets/"
-TEXTURE_PATH = ASSET_PATH + "textures/"
-MUSIC_PATH = ASSET_PATH + "music/"
-SOUNDS_PATH = ASSET_PATH + "sounds/"
-FONTS_PATH = ASSET_PATH + "fonts/"
-
-# Tamanho do tabuleiro
-GRID_X = 750
-GRID_Y = 750
-
-# Tamanho da moto
-RIDER_X = 50
-RIDER_Y = 25
-
-# Tamanho da carta
-CARD_X = 150
-CARD_Y = 100
 
 class Grid_Game(Entity):
     def __init__(self, image_path, x_y, scale_size, bot_number):
         super().__init__(image_path, x_y, scale_size)
 
-        # Timer interno, eventualmente útil
+        # Timer interno e um holder pra quando o jogador clicar na carta
         self._timer = 0
-
-        # Se o jogador clicar nas cartas, será true
         self._clicked = False
 
         # Cria o jogador
@@ -68,8 +49,17 @@ class Grid_Game(Entity):
         if self._clicked:
             if self._player.sprite.rect.center < (500, 500):
                 self._player.update(vector, self._timer)
+                self._bots.update(vector, self._timer)
             
                 self._timer += 0.05
             else:
                 self._timer = 0
                 self._clicked = False
+
+    def choice_preview(self, vector, screen):
+        # Pega o ponto inicial e final da reta
+        start = self._player.sprite._path[-1]
+        end = (start[0] + vector[0], start[1] + vector[1])
+
+        # Desenha a linha
+        pygame.draw.line(screen, self._player.sprite._color, start, end, width = 6)
