@@ -1,7 +1,9 @@
 import pygame
 import sys
+
 from entity import *
 from rider import *
+from deck import *
 from config import *
 
 
@@ -24,10 +26,12 @@ class Grid_Game(Entity):
 
         self._bots = pygame.sprite.Group(__bot_list)
 
-       # Cria as cartas do jogador e o deck
-        for card in range(3):
-            pass
+       # Cria o deck e as cartas do jogador
+        self._deck = Deck(TEXTURE_PATH + "cards/")
+        self._player.sprite._cards = []
 
+        for foo in range(3):
+            self._player.sprite._cards.append(self._deck.draw_card())
 
     def update(self):
         # Eventos principais deste menu
