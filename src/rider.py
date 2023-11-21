@@ -3,11 +3,11 @@ from entity import *
 
 
 class Rider(Entity):
-    def __init__(self, number, x_y, scale_size):
+    def __init__(self, number, x_y, scale_size, deck):
         # Carrega texturas diferentes dependendo do nº do jogador
         archive = "rider_" + str(number) + ".png"
 
-        # Cria o rider, diminui a imagem e centraliza sua possição
+        # Cria o rider e centraliza sua possição
         super().__init__("assets/textures/" + archive, x_y, scale_size)
         self.rect = self.image.get_rect(center=x_y)
 
@@ -15,6 +15,15 @@ class Rider(Entity):
         self._number = number
         self._path = [x_y, x_y]
         self._velocity = 1
+
+        # Salva a mão de cartas do jogador
+        self._hand = pygame.sprite.Group()
+
+        for foo in range(3):
+            card = deck.draw_card()
+            card.rect.topleft = (800, 320 + foo*125)
+
+            self._hand.add(card)
 
         # Salva a cor da moto
         if number == 1:
@@ -31,10 +40,15 @@ class Player(Rider):
     def __init___(self, number, x_y, scale_size):
         super().__init__(number, x_y, scale_size)
 
-    def update(self, vector, time):
+    def update(self):
+        self._hand.update()
+
+        pass
+
+    def update_choice(self, card, time):
         # Calcula a posição inicial e final no tabuleiro
         start = self._path[-1]
-        end = (start[0] + vector[0], start[1] + vector[1])
+        end = (start[0] + card[0], start[1] + card[1])
 
         # Diferença que a moto deverá andar
         delta_x = end[0] - start[0]

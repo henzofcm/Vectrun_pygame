@@ -10,9 +10,20 @@ class Card(Entity):
         # Direção do vetor
         self.value = value
 
+    def update(self, screen):
+        # Testa se houve colisão com o mouse
+        mouse_pos = pygame.mouse.get_pos()
+
+        if self.rect.collidepoint(mouse_pos):
+            rect_pos = (self.rect.left - 5, self.rect.top - 5)
+            rect_size = (self.rect.width + 10, self.rect.height + 10)
+
+            rectangle = pygame.Rect(rect_pos, rect_size)
+
+            pygame.draw.rect(screen, "#258dc2", rectangle, width=10)
 
 class Deck(Entity):
-    def __init__(self, card_path):
+    def __init__(self, card_path, scale_size):
         super().__init__(card_path + "card_back.png", (0, 0), (0, 0))
 
         self.cards = []
@@ -30,7 +41,7 @@ class Deck(Entity):
                 card_name = "card_" + str(__card_count) + ".png"
 
                 # Cria a carta em si
-                card = Card(card_path + card_name, (0, 0), (150, 100), value=(x, y))
+                card = Card(card_path + card_name, (0, 0), scale_size, value=(x, y))
                 self.cards.append(card)
 
                 __card_count += 1

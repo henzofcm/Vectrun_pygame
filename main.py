@@ -20,7 +20,7 @@ pygame.display.set_icon(pygame.image.load(TEXTURE_PATH + "icon.png"))
 fps_clock = pygame.time.Clock()
 
 # Grid_Game já cria todos objetos internamente (jogador, bots, cartas)
-grid_game = game.Grid_Game(TEXTURE_PATH + "grid.png", (0, 0), (GRID_X, GRID_Y), 1)
+grid_game = game.Grid_Game(TEXTURE_PATH + "grid.png", (0, 0), (GRID_X, GRID_Y), 0)
 
 # Loop do jogo
 while True:
@@ -36,10 +36,17 @@ while True:
 
     pygame.draw.lines(screen, grid_game._player.sprite._color, False, grid_game._player.sprite._path, width=6)
 
+    # Desenha o contorno das cartas
+    grid_game._player.sprite._hand.update(screen)
+
     # Faz blit no jogador e nos bots
     grid_game._player.draw(screen)
+    grid_game._player.sprite._hand.draw(screen)
+
     grid_game._bots.draw(screen)
 
     # Enfim atualiza o display
     pygame.display.update()
     fps_clock.tick(30)
+
+    screen.fill("#000000")

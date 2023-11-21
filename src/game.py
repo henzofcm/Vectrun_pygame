@@ -15,23 +15,21 @@ class Grid_Game(Entity):
         self._timer = 0
         self._clicked = False
 
+        # Cria o deck
+        self._deck = Deck(TEXTURE_PATH + "cards/", (CARD_X, CARD_Y))
+
         # Cria o jogador
-        self._player = Player(1, (GRID_X / 2, GRID_Y / 2), (RIDER_X, RIDER_Y))
+        self._player = Player(1, (GRID_X / 2, GRID_Y / 2), (RIDER_X, RIDER_Y), self._deck)
         self._player = pygame.sprite.GroupSingle(self._player)
 
         # Cria os bots
         __bot_list = []
+
         for bot in range(bot_number):
-            __bot_list.append(Player(bot + 2, (GRID_X / 2 - 45, GRID_Y / 2 - 45), (RIDER_X, RIDER_Y)))
+            __bot_list.append(Player(bot + 2, (GRID_X / 2 - 45, GRID_Y / 2 - 45), (RIDER_X, RIDER_Y), self._deck))
 
         self._bots = pygame.sprite.Group(__bot_list)
-
-       # Cria o deck e as cartas do jogador
-        self._deck = Deck(TEXTURE_PATH + "cards/")
-        self._player.sprite._cards = []
-
-        for foo in range(3):
-            self._player.sprite._cards.append(self._deck.draw_card())
+        print(len(self._deck.cards))
 
     def update(self):
         # Eventos principais deste menu
@@ -52,8 +50,8 @@ class Grid_Game(Entity):
         # Se selecionar a carta, roda a animação
         if self._clicked:
             if self._player.sprite.rect.center < (500, 500):
-                self._player.update(vector, self._timer)
-                self._bots.update(vector, self._timer)
+                self._player.sprite.update_choice(vector, self._timer)
+                self._bots.sprite.update_choice(vector, self._timer)
             
                 self._timer += 0.05
             else:
