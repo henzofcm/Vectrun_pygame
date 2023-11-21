@@ -14,6 +14,8 @@ class Grid_Game(Entity):
         # Timer interno e um holder pra quando o jogador clicar na carta
         self._timer = 0
         self._clicked = False
+        self._clicked_card = None
+        self._where_to_go = (0, 0)
 
         # Cria o deck
         self._deck = Deck(TEXTURE_PATH + "cards/", (CARD_X, CARD_Y))
@@ -29,7 +31,6 @@ class Grid_Game(Entity):
             __bot_list.append(Player(bot + 2, (GRID_X / 2 - 45, GRID_Y / 2 - 45), (RIDER_X, RIDER_Y), self._deck))
 
         self._bots = pygame.sprite.Group(__bot_list)
-        print(len(self._deck.cards))
 
     def update(self):
         # Eventos principais deste menu
@@ -43,20 +44,37 @@ class Grid_Game(Entity):
                     pygame.quit()
                     sys.exit()
 
-                if event.key == pygame.K_SPACE and not self._clicked:
-                    self._clicked = 1
+        # Se o jogador clicar na carta, _clicked = True
+        if pygame.mouse.get_pressed()[0] and not self._clicked:
+            for card in self._player.sprite._hand.sprites():
+                if card.rect.collidepoint(pygame.mouse.get_pos()):
+                    self._clicked = True
+                    self._clicked_card = card
 
-        vector = (10, 10)
-        # Se selecionar a carta, roda a animação
+                    # CÓDIGO RUIM, MUDAR PRO PLAYER DEPOIS
+                    self._where_to_go = self._player.sprite._path[-1]
+                    self._where_to_go = (card.value[0] * DISTANCE + self._where_to_go[0], -card.value[1] * DISTANCE + self._where_to_go[1]) 
+
+        # Se tiver clicado, roda a animação
         if self._clicked:
-            if self._player.sprite.rect.center < (500, 500):
-                self._player.sprite.update_choice(vector, self._timer)
-                self._bots.sprite.update_choice(vector, self._timer)
+            if self._player.sprite.rect.center != self._where_to_go:
+                self._player.sprite.update_choice(self._clicked_card, self._timer, DISTANCE)
             
                 self._timer += 0.05
             else:
+                # Retorna _timer e _clicked pra 0
                 self._timer = 0
                 self._clicked = False
+
+                # Pesca uma nova carta e adiciona à mão do player
+                card = self._deck.draw_card()
+                card.rect.topleft = self._clicked_card.rect.topleft
+
+                self._player.sprite._hand.add(card)
+
+                # Remove a carta usada do player e limpa _clicked_card
+                self._player.sprite._hand.remove(self._clicked_card)
+                self._clicked_card = None
 
     def choice_preview(self, vector, screen):
         # Pega o ponto inicial e final da reta

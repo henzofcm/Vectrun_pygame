@@ -45,10 +45,10 @@ class Player(Rider):
 
         pass
 
-    def update_choice(self, card, time):
+    def update_choice(self, card, time, DISTANCE):
         # Calcula a posição inicial e final no tabuleiro
         start = self._path[-1]
-        end = (start[0] + card[0], start[1] + card[1])
+        end = (start[0] + card.value[0], start[1] + card.value[1])
 
         # Diferença que a moto deverá andar
         delta_x = end[0] - start[0]
@@ -56,7 +56,7 @@ class Player(Rider):
 
         # Atualiza a posição
         self.rect.centerx = self.rect.centerx + delta_x * time / self._velocity
-        self.rect.centery = self.rect.centery + delta_y * time / self._velocity
+        self.rect.centery = self.rect.centery - delta_y * time / self._velocity
 
         self._path.append(self.rect.center)
         

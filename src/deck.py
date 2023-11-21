@@ -14,6 +14,7 @@ class Card(Entity):
         # Testa se houve colisão com o mouse
         mouse_pos = pygame.mouse.get_pos()
 
+        # Se houver, desenha um retângulo envolta da carta
         if self.rect.collidepoint(mouse_pos):
             rect_pos = (self.rect.left - 5, self.rect.top - 5)
             rect_size = (self.rect.width + 10, self.rect.height + 10)
@@ -21,6 +22,7 @@ class Card(Entity):
             rectangle = pygame.Rect(rect_pos, rect_size)
 
             pygame.draw.rect(screen, "#258dc2", rectangle, width=10)
+
 
 class Deck(Entity):
     def __init__(self, card_path, scale_size):
