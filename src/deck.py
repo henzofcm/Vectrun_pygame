@@ -22,6 +22,9 @@ class Card(Entity):
             rectangle = pygame.Rect(rect_pos, rect_size)
 
             pygame.draw.rect(screen, "#258dc2", rectangle, width=10)
+            return True
+        
+        return False
 
 
 class Deck(Entity):

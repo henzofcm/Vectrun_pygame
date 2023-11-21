@@ -24,20 +24,17 @@ grid_game = game.Grid_Game(TEXTURE_PATH + "grid.png", (0, 0), (GRID_X, GRID_Y), 
 
 # Loop do jogo
 while True:
-    # Aqui vão ser atualizados os menus (que atualizam tudo)
-    grid_game.update()
-
     # Faz blit no tabuleiro
     screen.blit(grid_game.image, grid_game.rect)
+
+    # Aqui vão ser atualizados os menus (que atualizam tudo)
+    grid_game.update(screen)
 
     # Desenha as linhas dos jogadores
     for bot in grid_game._bots.sprites():
         pygame.draw.lines(screen, bot._color, False, bot._path, width=6)
 
     pygame.draw.lines(screen, grid_game._player.sprite._color, False, grid_game._player.sprite._path, width=6)
-
-    # Desenha o contorno das cartas
-    grid_game._player.sprite._hand.update(screen)
 
     # Faz blit no jogador e nos bots
     grid_game._player.draw(screen)

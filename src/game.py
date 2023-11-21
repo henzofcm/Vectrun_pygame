@@ -32,7 +32,7 @@ class Grid_Game(Entity):
 
         self._bots = pygame.sprite.Group(__bot_list)
 
-    def update(self):
+    def update(self, screen):
         # Eventos principais deste menu
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -44,6 +44,9 @@ class Grid_Game(Entity):
                     pygame.quit()
                     sys.exit()
 
+        # Desenha o contorno das cartas
+        self.choice_preview(screen)
+
         # Se o jogador clicar na carta, _clicked = True
         if pygame.mouse.get_pressed()[0] and not self._clicked:
             for card in self._player.sprite._hand.sprites():
@@ -53,11 +56,14 @@ class Grid_Game(Entity):
 
                     # CÓDIGO RUIM, MUDAR PRO PLAYER DEPOIS
                     self._where_to_go = self._player.sprite._path[-1]
-                    self._where_to_go = (card.value[0] * DISTANCE + self._where_to_go[0], -card.value[1] * DISTANCE + self._where_to_go[1]) 
+                    self._where_to_go = (card.value[0] * DISTANCE + self._where_to_go[0], -card.value[1] * DISTANCE + self._where_to_go[1])
+
+                    if self._clicked_card.value[0] < 0:
+                        self._where_to_go = (-self._where_to_go[0], -self._where_to_go[1])
 
         # Se tiver clicado, roda a animação
         if self._clicked:
-            if self._player.sprite.rect.center != self._where_to_go:
+            if self._player.sprite.rect.center <= self._where_to_go:
                 self._player.sprite.update_choice(self._clicked_card, self._timer, DISTANCE)
             
                 self._timer += 0.05
@@ -76,10 +82,13 @@ class Grid_Game(Entity):
                 self._player.sprite._hand.remove(self._clicked_card)
                 self._clicked_card = None
 
-    def choice_preview(self, vector, screen):
-        # Pega o ponto inicial e final da reta
-        start = self._player.sprite._path[-1]
-        end = (start[0] + vector[0], start[1] + vector[1])
+    def choice_preview(self, screen):
+        # Verifica se o mouse está em cima da carta
+        for card in self._player.sprite._hand.sprites():
+            if card.update(screen) and not self._clicked:
+                # Pega o ponto inicial e final da reta
+                start = self._player.sprite._path[-1]
+                end = (start[0] + card.value[0] * DISTANCE, start[1] - card.value[1] * DISTANCE)
 
-        # Desenha a linha
-        pygame.draw.line(screen, self._player.sprite._color, start, end, width = 6)
+                # Desenha a linha
+                pygame.draw.line(screen, self._player.sprite._color, start, end, width = 6)
