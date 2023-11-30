@@ -10,21 +10,15 @@ class Card(Entity):
         # Direção do vetor
         self.value = value
 
-    def update(self, screen):
+    def update(self):
         # Testa se houve colisão com o mouse
         mouse_pos = pygame.mouse.get_pos()
 
-        # Se houver, desenha um retângulo envolta da carta
+        # Se houver, retorna True
         if self.rect.collidepoint(mouse_pos):
-            rect_pos = (self.rect.left - 5, self.rect.top - 5)
-            rect_size = (self.rect.width + 10, self.rect.height + 10)
-
-            rectangle = pygame.Rect(rect_pos, rect_size)
-
-            pygame.draw.rect(screen, "#258dc2", rectangle, width=10)
             return True
-        
-        return False
+        else:
+            return False
 
 
 class Deck(Entity):
@@ -58,7 +52,7 @@ class Deck(Entity):
         # Se o deck estiver vazio, randomiza drawn_cards
         if not self.cards:
             random.shuffle(self.drawn_cards)
-            self.cards = self.drawn_cards
+            self.cards = self.drawn_cards.copy()
 
             # Limpa as cartas tiradas
             self.drawn_cards.clear()
