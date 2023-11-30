@@ -21,6 +21,7 @@ RIDER_Y = 25
 # Tamanho da carta
 CARD_X = 150
 CARD_Y = 100
+CARD_SELECTED_WIDTH = 5
 
 # Distância, em pixels, de cada vértice do tabuleiro
 DISTANCE = 44.7

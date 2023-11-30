@@ -1,6 +1,6 @@
 import pygame
 from entity import *
-
+from config import *
 
 class Rider(Entity):
     def __init__(self, number, x_y, scale_size, deck):
@@ -21,7 +21,7 @@ class Rider(Entity):
 
         for foo in range(3):
             card = deck.draw_card()
-            card.rect.topleft = (800, 320 + foo*125)
+            card.rect.topleft = (GRID_X + 50, GRID_Y / 2- 55 + foo * 125)
 
             self._hand.add(card)
 
@@ -45,14 +45,14 @@ class Player(Rider):
 
         pass
 
-    def update_choice(self, card, time, DISTANCE):
+    def update_choice(self, card, time):
         # Calcula a posição inicial e final no tabuleiro
         start = self._path[-1]
         end = (start[0] + card.value[0], start[1] + card.value[1])
 
         # Diferença que a moto deverá andar
-        delta_x = end[0] - start[0]
-        delta_y = end[1] - start[1]
+        delta_x = card.value[0]
+        delta_y = card.value[1]
 
         # Atualiza a posição
         self.rect.centerx = self.rect.centerx + delta_x * time / self._velocity
