@@ -1,8 +1,9 @@
 import pygame
+from abc import ABCMeta
 from entity import *
 from config import *
 
-class Rider(Entity):
+class Rider(Entity, metaclass=ABCMeta):
     def __init__(self, number, x_y, scale_size, deck):
         # Carrega texturas diferentes dependendo do nº do jogador
         archive = "rider_" + str(number) + ".png"
@@ -14,7 +15,9 @@ class Rider(Entity):
         # Atributos adicionais
         self._number = number
         self._path = [x_y, x_y]
-        self._velocity = 1
+        self._velocity = 1 / 2
+        self._temp_x = self.rect.centerx
+        self._temp_y = self.rect.centery
 
         # Salva a mão de cartas do jogador
         self._hand = pygame.sprite.Group()
@@ -43,20 +46,20 @@ class Player(Rider):
     def update(self):
         self._hand.update()
 
-        pass
+        return
 
     def update_choice(self, card, time):
-        # Calcula a posição inicial e final no tabuleiro
-        start = self._path[-1]
-        end = (start[0] + card.value[0], start[1] + card.value[1])
-
         # Diferença que a moto deverá andar
         delta_x = card.value[0]
         delta_y = card.value[1]
 
-        # Atualiza a posição
-        self.rect.centerx = self.rect.centerx + delta_x * time / self._velocity
-        self.rect.centery = self.rect.centery - delta_y * time / self._velocity
+        # Valores temporários para não perder precisão no movimento
+        self._temp_x = self._temp_x + time * delta_x / self._velocity
+        self._temp_y = self._temp_y - time * delta_y / self._velocity
+
+        # Atualiza a posição (e converte para inteiro)
+        self.rect.centerx = self._temp_x
+        self.rect.centery = self._temp_y
 
         self._path.append(self.rect.center)
         

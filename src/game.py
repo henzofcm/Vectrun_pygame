@@ -15,7 +15,7 @@ class Grid_Game(Entity):
         self._timer = 0
         self._clicked = False
         self._clicked_card = None
-        self._where_to_go = (0, 0)
+        self._player_target = (0, 0)
 
         # Cria o deck
         self._deck = Deck(TEXTURE_PATH + "cards/", (CARD_X, CARD_Y))
@@ -51,48 +51,9 @@ class Grid_Game(Entity):
         # Desenha o contorno das cartas
         self.choice_preview(screen)
 
-        # Se tiver clicado, roda a animação
+        # Se tiver clicado, roda o movimento do jogador
         if self._clicked:
-            if self._clicked_card.value[0] >= 0:
-                if self._player.sprite.rect.center <= self._where_to_go:
-                    self._player.sprite.update_choice(self._clicked_card, self._timer)
-            
-                    self._timer += 0.05
-                else:
-                    # Retorna _timer e _clicked pra 0
-                    self._timer = 0
-                    self._clicked = False
-
-                    # Pesca uma nova carta e adiciona à mão do player
-                    card = self._deck.draw_card()
-                    card.rect.topleft = self._clicked_card.rect.topleft
-
-                    self._player.sprite._hand.add(card)
-
-                    # Remove a carta usada do player e limpa _clicked_card
-                    self._player.sprite._hand.remove(self._clicked_card)
-                    self._clicked_card = None
-            else:
-                if self._player.sprite.rect.center >= self._where_to_go:
-                    self._player.sprite.update_choice(self._clicked_card, self._timer)
-            
-                    self._timer += 0.05
-                else:
-                    # Retorna _timer e _clicked pra 0
-                    self._timer = 0
-                    self._clicked = False
-
-                    # Pesca uma nova carta e adiciona à mão do player
-                    card = self._deck.draw_card()
-                    card.rect.topleft = self._clicked_card.rect.topleft
-
-                    self._player.sprite._hand.add(card)
-
-                    # Remove a carta usada do player e limpa _clicked_card
-                    self._player.sprite._hand.remove(self._clicked_card)
-                    self._clicked_card = None
-        
-        
+            self.move_player()
 
     def choice_preview(self, screen):
         # Verifica se o mouse está em cima da carta
@@ -105,7 +66,6 @@ class Grid_Game(Entity):
                 if not self._clicked:
                     self.__preview_selected_path(card, screen)
 
-
     @staticmethod
     def __preview_selected_card(card, screen):
         # Desenha o contorno da carta selecionada
@@ -116,7 +76,6 @@ class Grid_Game(Entity):
 
         pygame.draw.rect(screen, "#258dc2", rectangle, width=2 * CARD_SELECTED_WIDTH)
 
-
     def __preview_selected_path(self, card, screen):
         # Pega o ponto inicial e final da reta
         start = self._player.sprite._path[-1]
@@ -125,7 +84,6 @@ class Grid_Game(Entity):
         # Desenha a linha
         pygame.draw.line(screen, self._player.sprite._color, start, end, width = 6)
 
-
     def __card_clicked(self):
         # Se o jogador clicar na carta, _clicked = True
         for card in self._player.sprite._hand.sprites():
@@ -133,7 +91,55 @@ class Grid_Game(Entity):
                 self._clicked = True
                 self._clicked_card = card
 
-                # CÓDIGO RUIM, MUDAR PRO PLAYER DEPOIS
-                self._where_to_go = self._player.sprite._path[-1]
-                self._where_to_go = (card.value[0] * DISTANCE + self._where_to_go[0], -card.value[1] * DISTANCE + self._where_to_go[1])
+                # CÓDIGO RUIM, MUDAR PRO PLAYER DEPOIS (ou não)
+                self._player_target = self._player.sprite._path[-1]
+                self._player_target = (card.value[0] * DISTANCE + self._player_target[0], -card.value[1] * DISTANCE + self._player_target[1])
 
+    def __set_temp_variables(self):
+            # Variáveis temporárias para não duplicar o código depois
+            self.__temp_player_center = self._player.sprite.rect.center
+            self.__temp_player_target = self._player_target
+
+            # Dependendo do valor da carta, muda a coordenada relativa
+            if self._clicked_card.value[0] < 0:
+                self.__temp_player_center = (-self.__temp_player_center[0], self.__temp_player_center[1])
+                self.__temp_player_target = (-self.__temp_player_target[0], self.__temp_player_target[1])
+
+            if self._clicked_card.value[1] > 0:
+                self.__temp_player_center = (self.__temp_player_center[0], -self.__temp_player_center[1])
+                self.__temp_player_target = (self.__temp_player_target[0], -self.__temp_player_target[1])
+
+    def move_player(self):
+        # Atualiza as variáveis __temp_player
+        self.__set_temp_variables()
+
+        # Move o jogador de acordo com essa desigualdade (quase sempre satisfeita)
+        if self.__temp_player_center[0] < self.__temp_player_target[0]:
+            self._player.sprite.update_choice(self._clicked_card, self._timer)
+        
+            self._timer += 0.05
+
+        # No caso não-tão-raro de vetores (0, y), move o jogador de acordo
+        elif self._clicked_card.value[0] == 0 and self.__temp_player_center[1] < self.__temp_player_target[1]:
+            self._player.sprite.update_choice(self._clicked_card, self._timer)
+        
+            self._timer += 0.05
+        
+        # Se ficou parado, reseta o movimento
+        else:
+            self.__reset_player_movement()
+
+    def __reset_player_movement(self):
+         # Retorna _timer e _clicked pra 0
+        self._timer = 0
+        self._clicked = False
+
+        # Pesca uma nova carta e adiciona à mão do player
+        card = self._deck.draw_card()
+        card.rect.topleft = self._clicked_card.rect.topleft
+
+        self._player.sprite._hand.add(card)
+
+        # Remove a carta usada do player e limpa _clicked_card
+        self._player.sprite._hand.remove(self._clicked_card)
+        self._clicked_card = None
