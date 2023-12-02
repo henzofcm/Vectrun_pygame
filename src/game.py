@@ -55,6 +55,9 @@ class Grid_Game(Entity):
         if self._clicked:
             self.move_player()
 
+        # Verifica colisões
+        self.check_collision()
+
     def choice_preview(self, screen):
         # Verifica se o mouse está em cima da carta
         for card in self._player.sprite._hand.sprites():
@@ -82,7 +85,7 @@ class Grid_Game(Entity):
         end = (start[0] + card.value[0] * DISTANCE, start[1] - card.value[1] * DISTANCE)
 
         # Desenha a linha
-        pygame.draw.line(screen, self._player.sprite._color, start, end, width = 6)
+        pygame.draw.line(screen, self._player.sprite._color, start, end, width = 4)
 
     def __card_clicked(self):
         # Se o jogador clicar na carta, _clicked = True
@@ -94,20 +97,6 @@ class Grid_Game(Entity):
                 # CÓDIGO RUIM, MUDAR PRO PLAYER DEPOIS (ou não)
                 self._player_target = self._player.sprite._path[-1]
                 self._player_target = (card.value[0] * DISTANCE + self._player_target[0], -card.value[1] * DISTANCE + self._player_target[1])
-
-    def __set_temp_variables(self):
-            # Variáveis temporárias para não duplicar o código depois
-            self.__temp_player_center = self._player.sprite.rect.center
-            self.__temp_player_target = self._player_target
-
-            # Dependendo do valor da carta, muda a coordenada relativa
-            if self._clicked_card.value[0] < 0:
-                self.__temp_player_center = (-self.__temp_player_center[0], self.__temp_player_center[1])
-                self.__temp_player_target = (-self.__temp_player_target[0], self.__temp_player_target[1])
-
-            if self._clicked_card.value[1] > 0:
-                self.__temp_player_center = (self.__temp_player_center[0], -self.__temp_player_center[1])
-                self.__temp_player_target = (self.__temp_player_target[0], -self.__temp_player_target[1])
 
     def move_player(self):
         # Atualiza as variáveis __temp_player
@@ -129,6 +118,20 @@ class Grid_Game(Entity):
         else:
             self.__reset_player_movement()
 
+    def __set_temp_variables(self):
+            # Variáveis temporárias para não duplicar o código depois
+            self.__temp_player_center = self._player.sprite.rect.center
+            self.__temp_player_target = self._player_target
+
+            # Dependendo do valor da carta, muda a coordenada relativa
+            if self._clicked_card.value[0] < 0:
+                self.__temp_player_center = (-self.__temp_player_center[0], self.__temp_player_center[1])
+                self.__temp_player_target = (-self.__temp_player_target[0], self.__temp_player_target[1])
+
+            if self._clicked_card.value[1] > 0:
+                self.__temp_player_center = (self.__temp_player_center[0], -self.__temp_player_center[1])
+                self.__temp_player_target = (self.__temp_player_target[0], -self.__temp_player_target[1])
+
     def __reset_player_movement(self):
          # Retorna _timer e _clicked pra 0
         self._timer = 0
@@ -143,3 +146,18 @@ class Grid_Game(Entity):
         # Remove a carta usada do player e limpa _clicked_card
         self._player.sprite._hand.remove(self._clicked_card)
         self._clicked_card = None
+
+    def check_collision(self):
+        # Laceia todos jogadores para colidir com a fronteira
+        for rider in pygame.sprite.Group(self._bots.sprites(), (self._player.sprite)).sprites():
+            # Morre se colidir com as barras verticais
+            if rider.rect.centerx > GRID_X - BORDER or rider.rect.centerx < BORDER:
+                rider.kill()
+
+            # E também se colidir com as horizontais
+            if rider.rect.centery > GRID_Y - BORDER or rider.rect.centery < BORDER:
+                rider.kill()
+
+        # Verifica se colidiram entre si
+        pygame.sprite.groupcollide(self._player, self._bots, True, True)
+
