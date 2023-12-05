@@ -32,14 +32,15 @@ while True:
 
     # Desenha as linhas dos jogadores
     for bot in grid_game._bots.sprites():
-        pygame.draw.lines(screen, bot._color, False, bot._path, width=6)
+        pygame.draw.lines(screen, bot._color, False, bot._path + [bot.rect.center], width=6)
 
-    pygame.draw.lines(screen, grid_game._player.sprite._color, False, grid_game._player.sprite._path + [grid_game._player.sprite.rect.center], width=6)
+    if grid_game._player.sprite:
+        pygame.draw.lines(screen, grid_game._player.sprite._color, False, grid_game._player.sprite._path + [grid_game._player.sprite.rect.center], width=6)
+
+        grid_game._player.sprite._hand.draw(screen)
 
     # Faz blit no jogador e nos bots
     grid_game._player.draw(screen)
-    grid_game._player.sprite._hand.draw(screen)
-
     grid_game._bots.draw(screen)
 
     # Enfim atualiza o display

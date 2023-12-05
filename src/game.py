@@ -49,14 +49,16 @@ class Grid_Game(Entity):
                     self.__card_clicked()
 
         # Desenha o contorno das cartas
-        self.choice_preview(screen)
+        if self._player.sprite:
+            self.choice_preview(screen)
 
         # Se tiver clicado, roda o movimento do jogador
-        if self._clicked:
+        if self._clicked and self._player.sprite:
             self.move_player()
 
         # Verifica colisões
-        self.check_collision()
+        if self._player or self._bots:
+            self.check_collision()
 
     def choice_preview(self, screen):
         # Verifica se o mouse está em cima da carta
@@ -105,12 +107,14 @@ class Grid_Game(Entity):
         # Move o jogador de acordo com essa desigualdade (quase sempre satisfeita)
         if self.__temp_player_center[0] + 2 < self.__temp_player_target[0]:
             self._player.sprite.update_choice(self._clicked_card, self._timer)
+            self.check_line_cross(self._player.sprite)
         
             self._timer += 0.05
 
         # No caso não-tão-raro de vetores (0, y), move o jogador de acordo
         elif self._clicked_card.value[0] == 0 and self.__temp_player_center[1] + 2 < self.__temp_player_target[1]:
             self._player.sprite.update_choice(self._clicked_card, self._timer)
+            self.check_line_cross(self._player.sprite)
         
             self._timer += 0.05
         
@@ -164,3 +168,16 @@ class Grid_Game(Entity):
         # Verifica se colidiram entre si
         pygame.sprite.groupcollide(self._player, self._bots, True, True)
 
+    def check_line_cross(self, rider):
+        # Cria um grupo temporário com todos jogadores menos o rider atual
+        __temp_group = pygame.sprite.Group(self._bots.sprites(), (self._player.sprite))
+        __temp_group.remove(rider)
+
+        # Testa se ele colide com a linha de cada um deles
+        for enemy in __temp_group:
+            # Talvez manter a linha interna a cada rider?
+            __temp_line = pygame.draw.lines(pygame.Surface((100, 100)), enemy._color, False, enemy._path + [rider.rect.center], width=6)
+
+            if __temp_line.collidepoint(rider.rect.center):
+                rider.kill()
+                return
