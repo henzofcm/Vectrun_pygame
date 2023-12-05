@@ -21,7 +21,7 @@ class Grid_Game(Entity):
         self._deck = Deck(TEXTURE_PATH + "cards/", (CARD_X, CARD_Y))
 
         # Cria o jogador
-        self._player = Player(1, (GRID_X / 2, GRID_Y / 2), (RIDER_X, RIDER_Y), self._deck)
+        self._player = Player(1, (GRID_X / 2 - 2, GRID_Y / 2 - 2), (RIDER_X, RIDER_Y), self._deck)
         self._player = pygame.sprite.GroupSingle(self._player)
 
         # Cria os bots
@@ -103,13 +103,13 @@ class Grid_Game(Entity):
         self.__set_temp_variables()
 
         # Move o jogador de acordo com essa desigualdade (quase sempre satisfeita)
-        if self.__temp_player_center[0] < self.__temp_player_target[0]:
+        if self.__temp_player_center[0] + 2 < self.__temp_player_target[0]:
             self._player.sprite.update_choice(self._clicked_card, self._timer)
         
             self._timer += 0.05
 
         # No caso não-tão-raro de vetores (0, y), move o jogador de acordo
-        elif self._clicked_card.value[0] == 0 and self.__temp_player_center[1] < self.__temp_player_target[1]:
+        elif self._clicked_card.value[0] == 0 and self.__temp_player_center[1] + 2 < self.__temp_player_target[1]:
             self._player.sprite.update_choice(self._clicked_card, self._timer)
         
             self._timer += 0.05
@@ -146,6 +146,9 @@ class Grid_Game(Entity):
         # Remove a carta usada do player e limpa _clicked_card
         self._player.sprite._hand.remove(self._clicked_card)
         self._clicked_card = None
+
+        # Salva a posição final do jogador no seu _path
+        self._player.sprite._path.append(self._player.sprite.rect.center)
 
     def check_collision(self):
         # Laceia todos jogadores para colidir com a fronteira

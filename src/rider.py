@@ -1,4 +1,5 @@
 import pygame
+import math
 from abc import ABCMeta
 from entity import *
 from config import *
@@ -63,13 +64,10 @@ class Player(Rider):
         self._temp_y = self._temp_y - time * delta_y / self._velocity
 
         # Atualiza a posição (e converte para inteiro)
-        self.rect.centerx = self._temp_x
-        self.rect.centery = self._temp_y
+        self.rect.centerx = round(self._temp_x)
+        self.rect.centery = round(self._temp_y)
 
-        self._path.append(self.rect.center)
-        
-        # Debugger
-        print(f"Choice updated for {self._color}: {self.rect.center}")
+        #self._path.append(self.rect.center)
 
 
 class Bot(Rider):
