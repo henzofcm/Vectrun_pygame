@@ -66,10 +66,11 @@ class Grid_Game(Entity):
         if self._player or self._bots:
             self.check_collision()
 
-        # Desenha as linhas dos jogadores
+        # Desenha as linhas dos bots
         for bot in self._bots.sprites():
             pygame.draw.lines(screen, bot._color, False, bot._path + [bot.rect.center], width=6)
 
+        # Desenha as linhas do jogador e suas cartas
         if self._player.sprite:
             pygame.draw.lines(screen, self._player.sprite._color, False, self._player.sprite._path + [self._player.sprite.rect.center], width=6)
 
