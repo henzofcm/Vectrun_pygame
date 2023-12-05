@@ -53,6 +53,11 @@ class Player(Rider):
         delta_x = card.value[0]
         delta_y = card.value[1]
 
+        # Reinicia a posição em cada nova animação
+        if time == 0:
+            self._temp_x = self.rect.centerx
+            self._temp_y = self.rect.centery
+
         # Valores temporários para não perder precisão no movimento
         self._temp_x = self._temp_x + time * delta_x / self._velocity
         self._temp_y = self._temp_y - time * delta_y / self._velocity

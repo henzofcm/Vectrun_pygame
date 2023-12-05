@@ -25,4 +25,4 @@ CARD_Y = 100
 CARD_SELECTED_WIDTH = 5
 
 # Distância, em pixels, de cada vértice do tabuleiro
-DISTANCE = 43.3
+DISTANCE = 43.5
