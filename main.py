@@ -34,7 +34,7 @@ while True:
     for bot in grid_game._bots.sprites():
         pygame.draw.lines(screen, bot._color, False, bot._path, width=6)
 
-    pygame.draw.lines(screen, grid_game._player.sprite._color, False, grid_game._player.sprite._path, width=6)
+    pygame.draw.lines(screen, grid_game._player.sprite._color, False, grid_game._player.sprite._path + [grid_game._player.sprite.rect.center], width=6)
 
     # Faz blit no jogador e nos bots
     grid_game._player.draw(screen)
