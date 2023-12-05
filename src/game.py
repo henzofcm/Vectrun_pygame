@@ -11,7 +11,7 @@ class Grid_Game(Entity):
     def __init__(self, image_path, x_y, scale_size, bot_number):
         super().__init__(image_path, x_y, scale_size)
 
-        # Timer interno e um holder pra quando o jogador clicar na carta
+        # Timer interno e holders pra quando o jogador clicar na carta
         self._timer = 0
         self._clicked = False
         self._clicked_card = None
@@ -32,6 +32,9 @@ class Grid_Game(Entity):
 
         self._bots = pygame.sprite.Group(__bot_list)
 
+        # Menu para onde o jogador decidir ir
+        self.next_menu = "none"
+
     def update(self, screen):
         # Eventos principais deste menu
         for event in pygame.event.get():
@@ -48,6 +51,9 @@ class Grid_Game(Entity):
                 if event.button == 1 and not self._clicked:
                     self.__card_clicked()
 
+        # Desenha o tabuleiro no layer mais baixo
+        screen.blit(self.image, self.rect)
+
         # Desenha o contorno das cartas
         if self._player.sprite:
             self.choice_preview(screen)
@@ -59,6 +65,22 @@ class Grid_Game(Entity):
         # Verifica colisões
         if self._player or self._bots:
             self.check_collision()
+
+        # Desenha as linhas dos jogadores
+        for bot in self._bots.sprites():
+            pygame.draw.lines(screen, bot._color, False, bot._path + [bot.rect.center], width=6)
+
+        if self._player.sprite:
+            pygame.draw.lines(screen, self._player.sprite._color, False, self._player.sprite._path + [self._player.sprite.rect.center], width=6)
+
+            self._player.sprite._hand.draw(screen)
+
+        return False
+
+    def draw(self, screen):
+        # Faz blit no jogador e nos bots
+        self._player.draw(screen)
+        self._bots.draw(screen)
 
     def choice_preview(self, screen):
         # Verifica se o mouse está em cima da carta
