@@ -1,6 +1,9 @@
 import pygame
 import random
+
 from abc import ABCMeta
+from game import Game_Grid
+
 from entity import *
 from config import *
 
@@ -89,4 +92,13 @@ class Bot(Rider):
             return random.choice(self._hand.sprites())
         
     def preview_movement(self):
-        pass
+        # Pega o ponto inicial e final do vetor
+        start = self._path[-1]
+        end = (start[0] + card.value[0] * DISTANCE, start[1] - card.value[1] * DISTANCE)
+
+        # Se colidir com as fronteiras retorna
+        if Game_Grid.check_border_collisions(end):
+            return True
+        
+        # Adicionar outras colisões depois
+

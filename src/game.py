@@ -180,16 +180,26 @@ class Grid_Game(Entity):
     def check_collision(self):
         # Laceia todos jogadores para colidir com a fronteira
         for rider in pygame.sprite.Group(self._bots.sprites(), (self._player.sprite)).sprites():
-            # Morre se colidir com as barras verticais
-            if rider.rect.centerx > GRID_X - BORDER or rider.rect.centerx < BORDER:
-                rider.kill()
-
-            # E também se colidir com as horizontais
-            if rider.rect.centery > GRID_Y - BORDER or rider.rect.centery < BORDER:
+            if self.check_border_collision(rider.rect.center):
                 rider.kill()
 
         # Verifica se colidiram entre si
-        pygame.sprite.groupcollide(self._player, self._bots, True, True)
+        self.check_riders_collision(self._player, self._bots)
+
+    @staticmethod
+    def check_border_collision(rider_position):
+        # Morre se colidir com as barras verticais
+            if rider_position[0] > GRID_X - BORDER or rider_position[0] < BORDER:
+                return True
+
+            # E também se colidir com as horizontais
+            if rider_position[1] > GRID_Y - BORDER or rider_position[1] < BORDER:
+                return True
+
+    @staticmethod
+    def check_riders_collision(group_1, group_2):
+        # Mata ambos grupos se colidirem
+        pygame.sprite.groupcollide(group_1, group_2, True, True)
 
     def check_line_cross(self, rider):
         # Cria um grupo temporário com todos jogadores menos o rider atual
