@@ -4,6 +4,7 @@ import sys
 from entity import *
 from rider import *
 from deck import *
+import utilities
 from config import *
 
 
@@ -31,6 +32,9 @@ class Grid_Game(Entity):
             __bot_list.append(Player(bot + 2, (GRID_X / 2 - 45, GRID_Y / 2 - 45), (RIDER_X, RIDER_Y), self._deck))
 
         self._bots = pygame.sprite.Group(__bot_list)
+
+        # Grupo com todos personagens animados (bots e player)
+        self._all_riders = pygame.sprite.Group(self._bots.sprites(), (self._player.sprite))
 
         # Menu para onde o jogador decidir ir
         self.next_menu = "none"
@@ -62,20 +66,20 @@ class Grid_Game(Entity):
         if self._clicked and self._player.sprite:
             self.move_player()
 
-        # Verifica colisões
-        if self._player or self._bots:
-            self.check_collision()
-
         # Desenha as linhas dos bots
         for bot in self._bots.sprites():
-            pygame.draw.lines(screen, bot._color, False, bot._path + [bot.rect.center], width=6)
+            bot.line = pygame.draw.lines(screen, bot._color, False, bot._path + [bot.rect.center], width=6)
 
         # Desenha as linhas do jogador e suas cartas
         if self._player.sprite:
-            pygame.draw.lines(screen, self._player.sprite._color, False, self._player.sprite._path + [self._player.sprite.rect.center], width=6)
+            self._player.sprite.line = pygame.draw.lines(screen, self._player.sprite._color, False, self._player.sprite._path + [self._player.sprite.rect.center], width=6)
 
             self._player.sprite._hand.draw(screen)
 
+        # Verifica colisões
+        if self._player or self._bots:
+            self.check_collision()
+        print(self._player.sprite.line)
         return False
 
     def draw(self, screen):
@@ -130,14 +134,12 @@ class Grid_Game(Entity):
         # Move o jogador de acordo com essa desigualdade (quase sempre satisfeita)
         if self.__temp_player_center[0] + 2 < self.__temp_player_target[0]:
             self._player.sprite.update_choice(self._clicked_card, self._timer)
-            self.check_line_cross(self._player.sprite)
         
             self._timer += 0.05
 
         # No caso não-tão-raro de vetores (0, y), move o jogador de acordo
         elif self._clicked_card.value[0] == 0 and self.__temp_player_center[1] + 2 < self.__temp_player_target[1]:
             self._player.sprite.update_choice(self._clicked_card, self._timer)
-            self.check_line_cross(self._player.sprite)
         
             self._timer += 0.05
         
@@ -178,39 +180,16 @@ class Grid_Game(Entity):
         self._player.sprite._path.append(self._player.sprite.rect.center)
 
     def check_collision(self):
-        # Laceia todos jogadores para colidir com a fronteira
-        for rider in pygame.sprite.Group(self._bots.sprites(), (self._player.sprite)).sprites():
-            if self.check_border_collision(rider.rect.center):
+        # Laceia todos jogadores
+        for rider in self._all_riders.sprites():
+            # Morrem se colidirem com a fronteira
+            if utilities.check_border_collision(rider.rect.center):
+                rider.kill()
+
+            # Morrem se alguém passar na linha dos outros
+            if utilities.check_line_cross(self._all_riders, rider):
                 rider.kill()
 
         # Verifica se colidiram entre si
-        self.check_riders_collision(self._player, self._bots)
+        #utilities.check_riders_collision(self._player, self._bots)
 
-    @staticmethod
-    def check_border_collision(rider_position):
-        # Morre se colidir com as barras verticais
-            if rider_position[0] > GRID_X - BORDER or rider_position[0] < BORDER:
-                return True
-
-            # E também se colidir com as horizontais
-            if rider_position[1] > GRID_Y - BORDER or rider_position[1] < BORDER:
-                return True
-
-    @staticmethod
-    def check_riders_collision(group_1, group_2):
-        # Mata ambos grupos se colidirem
-        pygame.sprite.groupcollide(group_1, group_2, True, True)
-
-    def check_line_cross(self, rider):
-        # Cria um grupo temporário com todos jogadores menos o rider atual
-        __temp_group = pygame.sprite.Group(self._bots.sprites(), (self._player.sprite))
-        __temp_group.remove(rider)
-
-        # Testa se ele colide com a linha de cada um deles
-        for enemy in __temp_group:
-            # Talvez manter a linha interna a cada rider?
-            __temp_line = pygame.draw.lines(pygame.Surface((100, 100)), enemy._color, False, enemy._path + [rider.rect.center], width=6)
-
-            if __temp_line.collidepoint(rider.rect.center):
-                rider.kill()
-                return

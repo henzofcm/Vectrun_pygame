@@ -5,7 +5,8 @@ import sys
 sys.path.append("src/")
 
 # Importa todo o pacote de src/
-from src import *
+from src import game
+from src import menu
 from config import *
 
 # Inicializa
@@ -20,7 +21,7 @@ pygame.display.set_icon(pygame.image.load(TEXTURE_PATH + "icon.png"))
 fps_clock = pygame.time.Clock()
 
 # Grid_Game já cria todos objetos internamente (jogador, bots, cartas)
-current_menu = game.Grid_Game(TEXTURE_PATH + "grid.png", (0, 0), (GRID_X, GRID_Y), 0)
+current_menu = game.Grid_Game(TEXTURE_PATH + "grid.png", (0, 0), (GRID_X, GRID_Y), 1)
 
 # Loop do jogo
 while True:

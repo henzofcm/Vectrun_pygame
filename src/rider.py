@@ -1,10 +1,8 @@
 import pygame
 import random
 
-from abc import ABCMeta
-from game import Game_Grid
-
 from entity import *
+from utilities import *
 from config import *
 
 class Rider(Entity):
@@ -70,35 +68,35 @@ class Bot(Rider):
     def __init___(self, number, x_y, scale_size):
         super().__init__(number, x_y, scale_size)
 
-    def choose_card(self):
+    def choose_card(self, all_riders):
         choices = []
 
         # Laceia cada carda e decide se o movimento é válido ou não
         for card in self._hand.sprites():
-            decision = self.preview_movement(card)
-            choices.append(decision)
+            # Se for, adiciona à lista choices
+            if self.__preview_movement(card, all_riders):
+                choices.append(card)
 
         # Se algum for válido, retorna um entre eles
-        if any(choices):
-            valid_cards = []
-
-            for x, y in enumerate(choices):
-                valid_cards.append(self._hand.sprites()[x]) if y else None
-
-            return random.choice(valid_cards)
-        
-        # Se não houver nenhum, qualquer um valerá
+        if choices:
+            return random.choice(choices)
+        # Se não houver nenhum, qualquer carta da mão valerá
         else:
             return random.choice(self._hand.sprites())
         
-    def preview_movement(self):
+    def __preview_movement(self, card, all_riders):
         # Pega o ponto inicial e final do vetor
         start = self._path[-1]
         end = (start[0] + card.value[0] * DISTANCE, start[1] - card.value[1] * DISTANCE)
 
         # Se colidir com as fronteiras retorna
         if Game_Grid.check_border_collisions(end):
-            return True
+            return False
         
-        # Adicionar outras colisões depois
+        # Se colidir com as linhas de outrem retorna
+        if Game_Grid.check_line_cross(all_riders, self):
+            return False
+        
+        # Se não colidir com nada, a carta é válida
+        return True
 
