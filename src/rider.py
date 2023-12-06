@@ -2,7 +2,7 @@ import pygame
 import random
 
 from entity import *
-from utilities import *
+import utilities
 from config import *
 
 class Rider(Entity):
@@ -90,11 +90,11 @@ class Bot(Rider):
         end = (start[0] + card.value[0] * DISTANCE, start[1] - card.value[1] * DISTANCE)
 
         # Se colidir com as fronteiras retorna
-        if Game_Grid.check_border_collisions(end):
+        if utilities.check_border_collision(end):
             return False
         
         # Se colidir com as linhas de outrem retorna
-        if Game_Grid.check_line_cross(all_riders, self):
+        if utilities.check_line_cross(all_riders, self):
             return False
         
         # Se não colidir com nada, a carta é válida

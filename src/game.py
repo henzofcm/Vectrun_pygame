@@ -38,6 +38,8 @@ class Grid_Game(Entity):
 
         # Menu para onde o jogador decidir ir
         self.next_menu = "none"
+        self._turn = 0
+        self._turn_stage = 0
 
     def update(self, screen):
         # Eventos principais deste menu
@@ -64,7 +66,7 @@ class Grid_Game(Entity):
 
         # Se tiver clicado, roda o movimento do jogador
         if self._clicked and self._player.sprite:
-            self.move_player()
+            self.move_player(self._player.sprite)
 
         # Desenha as linhas dos bots
         for bot in self._bots.sprites():
@@ -79,7 +81,7 @@ class Grid_Game(Entity):
         # Verifica colisões
         if self._player or self._bots:
             self.check_collision()
-        print(self._player.sprite.line)
+
         return False
 
     def draw(self, screen):
@@ -127,29 +129,29 @@ class Grid_Game(Entity):
                 self._player_target = self._player.sprite._path[-1]
                 self._player_target = (card.value[0] * DISTANCE + self._player_target[0], -card.value[1] * DISTANCE + self._player_target[1])
 
-    def move_player(self):
+    def move_player(self, rider):
         # Atualiza as variáveis __temp_player
-        self.__set_temp_variables()
+        self.__set_temp_variables(rider)
 
         # Move o jogador de acordo com essa desigualdade (quase sempre satisfeita)
         if self.__temp_player_center[0] + 2 < self.__temp_player_target[0]:
-            self._player.sprite.update_choice(self._clicked_card, self._timer)
+            rider.update_choice(self._clicked_card, self._timer)
         
             self._timer += 0.05
 
         # No caso não-tão-raro de vetores (0, y), move o jogador de acordo
         elif self._clicked_card.value[0] == 0 and self.__temp_player_center[1] + 2 < self.__temp_player_target[1]:
-            self._player.sprite.update_choice(self._clicked_card, self._timer)
+            rider.update_choice(self._clicked_card, self._timer)
         
             self._timer += 0.05
         
         # Se ficou parado, reseta o movimento
         else:
-            self.__reset_player_movement()
+            self.__reset_player_movement(rider)
 
-    def __set_temp_variables(self):
+    def __set_temp_variables(self, rider):
             # Variáveis temporárias para não duplicar o código depois
-            self.__temp_player_center = self._player.sprite.rect.center
+            self.__temp_player_center = rider.rect.center
             self.__temp_player_target = self._player_target
 
             # Dependendo do valor da carta, muda a coordenada relativa
@@ -161,7 +163,7 @@ class Grid_Game(Entity):
                 self.__temp_player_center = (self.__temp_player_center[0], -self.__temp_player_center[1])
                 self.__temp_player_target = (self.__temp_player_target[0], -self.__temp_player_target[1])
 
-    def __reset_player_movement(self):
+    def __reset_player_movement(self, rider):
          # Retorna _timer e _clicked pra 0
         self._timer = 0
         self._clicked = False
@@ -170,14 +172,14 @@ class Grid_Game(Entity):
         card = self._deck.draw_card()
         card.rect.topleft = self._clicked_card.rect.topleft
 
-        self._player.sprite._hand.add(card)
+        rider._hand.add(card)
 
         # Remove a carta usada do player e limpa _clicked_card
-        self._player.sprite._hand.remove(self._clicked_card)
+        rider._hand.remove(self._clicked_card)
         self._clicked_card = None
 
         # Salva a posição final do jogador no seu _path
-        self._player.sprite._path.append(self._player.sprite.rect.center)
+        rider._path.append(rider.rect.center)
 
     def check_collision(self):
         # Laceia todos jogadores

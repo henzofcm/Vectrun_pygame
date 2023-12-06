@@ -19,12 +19,16 @@ def check_line_cross(players_group, rider):
 
     # Testa se ele colide com a linha de cada um dos outros
     for enemy in temp_group:
-        if enemy.line.collidepoint(rider.rect.center):
-            return True
+        for index in range(1, len(enemy._path)):
+            temp_coord = rider.rect.clipline(enemy._path[index - 1], enemy._path[index])
+
+            # Se a linha colidir, desenpacota a tupla que clipline retorna
+            if temp_coord:
+                return True
             
     return False
 
 def check_riders_collision(group_1, group_2):
-     # Mata ambos sprites se colidirem
-        pygame.sprite.groupcollide(group_1, group_2, True, True)
+    # Mata ambos sprites se colidirem
+    pygame.sprite.groupcollide(group_1, group_2, True, True)
         
