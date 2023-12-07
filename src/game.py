@@ -16,12 +16,7 @@ class Grid_Game(Entity):
         self.next_menu = "none"
         self._game_turn = 0
         self._mov_stage = -1
-
-        # Timer interno e holders pra quando o jogador clicar na carta
-        self._timer = 0
         self._clicked = False
-        self._clicked_card = None
-        self._player_target = (0, 0)
 
         # Cria o deck
         self._deck = Deck(TEXTURE_PATH + "cards/", (CARD_X, CARD_Y))
@@ -128,56 +123,12 @@ class Grid_Game(Entity):
         return None
             
     def move_player(self, rider):
-        # Atualiza as variáveis __temp_player
-        self.__set_temp_variables(rider)
-
-        # Move o jogador de acordo com essa desigualdade (quase sempre satisfeita)
-        if self.__temp_player_center[0] + 2 < self.__temp_player_target[0]:
-            rider.update_choice(self._clicked_card, self._timer)
-        
-            self._timer += 0.05
-
-        # No caso não-tão-raro de vetores (0, y), move o jogador de acordo
-        elif self._clicked_card.value[0] == 0 and self.__temp_player_center[1] + 2 < self.__temp_player_target[1]:
-            rider.update_choice(self._clicked_card, self._timer)
-        
-            self._timer += 0.05
-        
+        # Move o rider
+        if rider.update(self._deck):
+            pass
         # Se ficou parado, reseta o movimento
         else:
-            self.__reset_player_movement(rider)
             self.__next_player_movement()
-
-    def __set_temp_variables(self, rider):
-        # Variáveis temporárias para não duplicar o código depois
-        self.__temp_player_center = rider.rect.center
-        self.__temp_player_target = self._player_target
-
-        # Dependendo do valor da carta, muda a coordenada relativa
-        if self._clicked_card.value[0] < 0:
-            self.__temp_player_center = (-self.__temp_player_center[0], self.__temp_player_center[1])
-            self.__temp_player_target = (-self.__temp_player_target[0], self.__temp_player_target[1])
-
-        if self._clicked_card.value[1] > 0:
-            self.__temp_player_center = (self.__temp_player_center[0], -self.__temp_player_center[1])
-            self.__temp_player_target = (self.__temp_player_target[0], -self.__temp_player_target[1])
-
-    def __reset_player_movement(self, rider):
-        # Retorna _timer para 0
-        self._timer = 0
-
-        # Pesca uma nova carta e adiciona à mão do rider
-        card = self._deck.draw_card()
-        card.rect.topleft = self._clicked_card.rect.topleft
-
-        rider._hand.add(card)
-
-        # Remove a carta usada do rider e limpa _clicked_card
-        rider._hand.remove(self._clicked_card)
-        self._clicked_card = None
-
-        # Salva a posição final do jogador no seu _path
-        rider._path.append(rider.rect.center)
 
     def __end_turn(self):
         # Só reverte o estado do jogo e adiciona um turno
@@ -205,11 +156,8 @@ class Grid_Game(Entity):
         if not card:
             card = next_player.choose_card(self._all_riders)
 
-        # Atualiza o estado
-        self._clicked_card = card
-
-        self._player_target = next_player._path[-1]
-        self._player_target = (card.value[0] * DISTANCE + self._player_target[0], -card.value[1] * DISTANCE + self._player_target[1])
+        # Atualiza o estado do próximo jogador
+        next_player.select_card(card)
 
     def check_collision(self, rider):
         # Testa colisão com a fronteira
@@ -231,7 +179,6 @@ class Grid_Game(Entity):
 
     def __kill_rider(self, rider):
         # Mata o rider
-        self.__reset_player_movement(rider)
         rider.kill()
 
         # Avança o turno

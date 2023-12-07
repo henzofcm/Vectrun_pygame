@@ -38,7 +38,40 @@ class Rider(Entity):
         elif number == 4:
             self._color = "#ffb001"
 
-    def update_choice(self, card, time):
+        # Atributos de estado
+        self.__timer = 0
+        self.state_alive = True
+        self.clicked_card = None
+
+    def update(self, deck):
+        # Roda animação de movimento se estiver vivo
+        if self.state_alive:
+            return self.move_rider(deck)
+        # E animação de morte caso contrário
+        else:
+            pass
+
+    def move_rider(self, deck):
+        self.__set_temp_variables()
+
+        # Move o jogador de acordo com essa desigualdade (quase sempre satisfeita)
+        if self.__temp_player_center[0] + 2 < self.__temp_player_target[0]:
+            self.__change_move(self.clicked_card, self.__timer)
+        
+            self.__timer += 0.05
+        # No caso não-tão-raro de vetores (0, y), move o jogador de acordo
+        elif self.clicked_card.value[0] == 0 and self.__temp_player_center[1] + 2 < self.__temp_player_target[1]:
+            self.__change_move(self.clicked_card, self.__timer)
+        
+            self.__timer += 0.05
+        # Se ficou parado, reseta o movimento
+        else:
+            self.__reset_movement(deck)
+            return False
+        
+        return True
+
+    def __change_move(self, card, time):
         # Diferença que a moto deverá andar
         delta_x = card.value[0]
         delta_y = card.value[1]
@@ -56,6 +89,43 @@ class Rider(Entity):
         self.rect.centerx = round(self.__temp_x)
         self.rect.centery = round(self.__temp_y)
 
+    def __set_temp_variables(self):
+        # Variáveis temporárias que poupam código no movimento
+        self.__temp_player_center = self.rect.center
+        self.__temp_player_target = self.__player_target
+
+        # Dependendo do valor da carta, muda a coordenada relativa
+        if self.clicked_card.value[0] < 0:
+            self.__temp_player_center = (-self.__temp_player_center[0], self.__temp_player_center[1])
+            self.__temp_player_target = (-self.__temp_player_target[0], self.__temp_player_target[1])
+
+        if self.clicked_card.value[1] > 0:
+            self.__temp_player_center = (self.__temp_player_center[0], -self.__temp_player_center[1])
+            self.__temp_player_target = (self.__temp_player_target[0], -self.__temp_player_target[1])
+
+    def __reset_movement(self, deck):
+        # Retorna _timer para 0
+        self.__timer = 0
+
+        # Pesca uma nova carta e adiciona à mão
+        card = deck.draw_card()
+        card.rect.topleft = self.clicked_card.rect.topleft
+
+        self._hand.add(card)
+
+        # Remove a carta usada e limpa _clicked_card
+        self._hand.remove(self.clicked_card)
+        self._last_card = self.clicked_card
+        self.clicked_card = None
+
+        # Salva a posição final do jogador no seu _path
+        self._path.append(self.rect.center)
+
+    def select_card(self, card):
+        self.clicked_card = card
+
+        self.__player_target = self._path[-1]
+        self.__player_target = (card.value[0] * DISTANCE + self.__player_target[0], -card.value[1] * DISTANCE + self.__player_target[1])
 
 class Player(Rider):
     def __init___(self, number, x_y, scale_size):
