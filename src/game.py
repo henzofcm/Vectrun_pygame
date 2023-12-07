@@ -71,7 +71,8 @@ class Grid_Game(Entity):
             pygame.draw.lines(screen, bot._color, False, bot._path + [bot.rect.center], width=6)
 
         if self._player.sprite:
-            pygame.draw.lines(screen, self._player.sprite._color, False, self._player.sprite._path + [self._player.sprite.rect.center], width=6)
+            pygame.draw.lines(screen, self._player.sprite._color, False,
+                              self._player.sprite._path + [self._player.sprite.rect.center], width=6)
 
             self._player.sprite._hand.draw(screen)
 
@@ -88,7 +89,7 @@ class Grid_Game(Entity):
             if card.update():
                 # Desenha o contorno
                 self.__preview_selected_card(card, screen)
-                
+
                 # Se não houver clicado antes, mostra a trajetória da carta
                 if not self._clicked:
                     self.__preview_selected_path(card, screen)
@@ -109,7 +110,7 @@ class Grid_Game(Entity):
         end = (start[0] + card.value[0] * DISTANCE, start[1] - card.value[1] * DISTANCE)
 
         # Desenha a linha
-        pygame.draw.line(screen, self._player.sprite._color, start, end, width = 4)
+        pygame.draw.line(screen, self._player.sprite._color, start, end, width=4)
 
     def __card_clicked(self):
         # Se o jogador clicar na carta, _clicked = True
@@ -120,7 +121,8 @@ class Grid_Game(Entity):
 
                 # CÓDIGO RUIM, MUDAR PRO PLAYER DEPOIS (ou não)
                 self._player_target = self._player.sprite._path[-1]
-                self._player_target = (card.value[0] * DISTANCE + self._player_target[0], -card.value[1] * DISTANCE + self._player_target[1])
+                self._player_target = (
+                card.value[0] * DISTANCE + self._player_target[0], -card.value[1] * DISTANCE + self._player_target[1])
 
     def move_player(self):
         # Atualiza as variáveis __temp_player
@@ -130,36 +132,36 @@ class Grid_Game(Entity):
         if self.__temp_player_center[0] + 2 < self.__temp_player_target[0]:
             self._player.sprite.update_choice(self._clicked_card, self._timer)
             self.check_line_cross(self._player.sprite)
-        
+
             self._timer += 0.05
 
         # No caso não-tão-raro de vetores (0, y), move o jogador de acordo
         elif self._clicked_card.value[0] == 0 and self.__temp_player_center[1] + 2 < self.__temp_player_target[1]:
             self._player.sprite.update_choice(self._clicked_card, self._timer)
             self.check_line_cross(self._player.sprite)
-        
+
             self._timer += 0.05
-        
+
         # Se ficou parado, reseta o movimento
         else:
             self.__reset_player_movement()
 
     def __set_temp_variables(self):
-            # Variáveis temporárias para não duplicar o código depois
-            self.__temp_player_center = self._player.sprite.rect.center
-            self.__temp_player_target = self._player_target
+        # Variáveis temporárias para não duplicar o código depois
+        self.__temp_player_center = self._player.sprite.rect.center
+        self.__temp_player_target = self._player_target
 
-            # Dependendo do valor da carta, muda a coordenada relativa
-            if self._clicked_card.value[0] < 0:
-                self.__temp_player_center = (-self.__temp_player_center[0], self.__temp_player_center[1])
-                self.__temp_player_target = (-self.__temp_player_target[0], self.__temp_player_target[1])
+        # Dependendo do valor da carta, muda a coordenada relativa
+        if self._clicked_card.value[0] < 0:
+            self.__temp_player_center = (-self.__temp_player_center[0], self.__temp_player_center[1])
+            self.__temp_player_target = (-self.__temp_player_target[0], self.__temp_player_target[1])
 
-            if self._clicked_card.value[1] > 0:
-                self.__temp_player_center = (self.__temp_player_center[0], -self.__temp_player_center[1])
-                self.__temp_player_target = (self.__temp_player_target[0], -self.__temp_player_target[1])
+        if self._clicked_card.value[1] > 0:
+            self.__temp_player_center = (self.__temp_player_center[0], -self.__temp_player_center[1])
+            self.__temp_player_target = (self.__temp_player_target[0], -self.__temp_player_target[1])
 
     def __reset_player_movement(self):
-         # Retorna _timer e _clicked pra 0
+        # Retorna _timer e _clicked pra 0
         self._timer = 0
         self._clicked = False
 
@@ -198,7 +200,8 @@ class Grid_Game(Entity):
         # Testa se ele colide com a linha de cada um deles
         for enemy in __temp_group:
             # Talvez manter a linha interna a cada rider?
-            __temp_line = pygame.draw.lines(pygame.Surface((100, 100)), enemy._color, False, enemy._path + [rider.rect.center], width=6)
+            __temp_line = pygame.draw.lines(pygame.Surface((100, 100)), enemy._color, False,
+                                            enemy._path + [rider.rect.center], width=6)
 
             if __temp_line.collidepoint(rider.rect.center):
                 rider.kill()
