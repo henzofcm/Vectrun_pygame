@@ -89,12 +89,18 @@ class Bot(Rider):
         start = self._path[-1]
         end = (start[0] + card.value[0] * DISTANCE, start[1] - card.value[1] * DISTANCE)
 
-        # Se colidir com as fronteiras retorna
+        # Se for colidir com as fronteiras retorna
         if utilities.check_border_collision(end):
             return False
         
-        # Se colidir com as linhas de outrem retorna
-        if utilities.check_line_cross(all_riders, self):
+        # Sprite temporário na posição futura
+        future_self = pygame.sprite.Sprite()
+        future_self.rect = pygame.rect.Rect((0, 0), self.rect.size)
+        future_self.rect.center = end
+        future_self._path = self._path
+
+        # Se for colidir com as linhas de outrem retorna
+        if utilities.check_line_cross(all_riders, future_self):
             return False
         
         # Se não colidir com nada, a carta é válida

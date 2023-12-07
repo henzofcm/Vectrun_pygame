@@ -54,35 +54,32 @@ class Grid_Game(Entity):
                     sys.exit()
 
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 1 and not self._clicked:
+                if event.button == 1 and not self._clicked and self._player:
                     self.__validate_click()
 
-        # Desenha o tabuleiro no layer mais baixo
-        screen.blit(self.image, self.rect)
-
-        # Se tiver clicado, roda o movimento do jogador ou dos bots
+        # Se tiver clicado, roda o movimento do jogador ou dos bots e testa colisão
         if self._clicked and self._all_riders:
             self.move_player(self._all_riders.sprites()[self._mov_stage])
+            self.check_collision(self._all_riders.sprites()[self._mov_stage])
+
+        return False
+
+    def draw(self, screen):
+        # Desenha o tabuleiro no layer mais baixo
+        screen.blit(self.image, self.rect)
 
         # Desenha as linhas dos riders
         for rider in self._all_riders.sprites():
             rider.line = pygame.draw.lines(screen, rider._color, False, rider._path + [rider.rect.center], width=6)
 
-        # Verifica colisões
-        if self._all_riders:
-            self.check_collision()
-
-        return False
-
-    def draw(self, screen):
-        # Faz blit no jogador e nos bots
-        self._bots.draw(screen)
-        self._player.draw(screen)
-
         # Desenha o contorno e as cartas
         if self._player.sprite:
             self.choice_preview(screen)
             self._player.sprite._hand.draw(screen)
+
+        # Faz blit no jogador e nos bots
+        self._bots.draw(screen)
+        self._player.draw(screen)
 
     def choice_preview(self, screen):
         # Verifica se o mouse está em cima da carta
@@ -185,8 +182,13 @@ class Grid_Game(Entity):
     def __end_turn(self):
         # Só reverte o estado do jogo e adiciona um turno
         self._game_turn += 1
-        self._mov_stage = -1
         self._clicked = False
+
+        # Quando o jogador estiver morto pula sua vez
+        if self._player:
+            self._mov_stage = -1
+        else:
+            self._mov_stage = 0
 
     def __next_player_movement(self, card=None):
         self._mov_stage += 1
@@ -195,7 +197,7 @@ class Grid_Game(Entity):
         if self._mov_stage == len(self._all_riders):
             self.__end_turn()
             return
-
+        
         # Caso contrário, prepara o jogo para rodar mais uma animação
         next_player = self._all_riders.sprites()[self._mov_stage]
 
@@ -203,35 +205,36 @@ class Grid_Game(Entity):
         if not card:
             card = next_player.choose_card(self._all_riders)
 
+        # Atualiza o estado
         self._clicked_card = card
 
         self._player_target = next_player._path[-1]
         self._player_target = (card.value[0] * DISTANCE + self._player_target[0], -card.value[1] * DISTANCE + self._player_target[1])
 
-    def check_collision(self):
-        # Laceia todos jogadores
-        for rider in self._all_riders.sprites():
-            # Testa colisão com a fronteira
-            if utilities.check_border_collision(rider.rect.center):
-                # Lembra de acabar o turno se for o último jogador
-                if self._mov_stage + 1 == len(self._all_riders.sprites()):
-                    self.__end_turn()
+    def check_collision(self, rider):
+        # Testa colisão com a fronteira
+        if utilities.check_border_collision(rider.rect.center):
+            self.__kill_rider(rider)
+            return
 
-                # Mata o rider
-                self.__reset_player_movement(rider)
-                rider.kill()
+        # Testa colisão com as linhas
+        if utilities.check_line_cross(self._all_riders, rider):
+            # No raro caso de colidir no primeiro turno vai de fato ser eliminado
+            if not self._game_turn or rider.rect.center == (GRID_X / 2 - 2, GRID_Y / 2 - 2):
                 return
 
-            # Testa colisão com as linhas
-            if utilities.check_line_cross(self._all_riders, rider) and self._game_turn:
-                # Lembra de acabar o turno se for o último jogador
-                if self._mov_stage + 1 == len(self._all_riders.sprites()):
-                    self.__end_turn()
-
-                # Mata o rider
-                self.__reset_player_movement(rider)
-                rider.kill()
-                return
+            self.__kill_rider(rider)
+            return
 
         # Verifica se colidiram entre si
         #utilities.check_riders_collision(self._player, self._bots)
+
+    def __kill_rider(self, rider):
+        # Mata o rider
+        self.__reset_player_movement(rider)
+        rider.kill()
+
+        # Avança o turno
+        self._mov_stage -= 1
+        self.__next_player_movement()
+
