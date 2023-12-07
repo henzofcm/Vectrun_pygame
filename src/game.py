@@ -34,12 +34,12 @@ class Grid_Game(Entity):
         __bot_list = []
 
         for bot in range(bot_number):
-            __bot_list.append(Bot(bot + 2, (GRID_X / 2 - 45, GRID_Y / 2 - 45), (RIDER_X, RIDER_Y), self._deck))
+            __bot_list.append(Bot(bot + 2, (GRID_X / 2 - 2, GRID_Y / 2 - 2), (RIDER_X, RIDER_Y), self._deck))
 
-        self._bots = pygame.sprite.Group(__bot_list)
+        self._bots = pygame.sprite.OrderedUpdates(__bot_list[::-1])
 
         # Grupo com todos personagens animados (bots e player)
-        self._all_riders = pygame.sprite.Group((self._player.sprite), self._bots.sprites())
+        self._all_riders = pygame.sprite.Group((self._player.sprite), self._bots.sprites()[::-1])
 
     def update(self, screen):
         # Eventos principais deste menu
@@ -60,11 +60,6 @@ class Grid_Game(Entity):
         # Desenha o tabuleiro no layer mais baixo
         screen.blit(self.image, self.rect)
 
-        # Desenha o contorno e as cartas
-        if self._player.sprite:
-            self.choice_preview(screen)
-            self._player.sprite._hand.draw(screen)
-
         # Se tiver clicado, roda o movimento do jogador ou dos bots
         if self._clicked and self._all_riders:
             self.move_player(self._all_riders.sprites()[self._mov_stage])
@@ -81,8 +76,13 @@ class Grid_Game(Entity):
 
     def draw(self, screen):
         # Faz blit no jogador e nos bots
-        self._player.draw(screen)
         self._bots.draw(screen)
+        self._player.draw(screen)
+
+        # Desenha o contorno e as cartas
+        if self._player.sprite:
+            self.choice_preview(screen)
+            self._player.sprite._hand.draw(screen)
 
     def choice_preview(self, screen):
         # Verifica se o mouse está em cima da carta
@@ -182,15 +182,18 @@ class Grid_Game(Entity):
         # Salva a posição final do jogador no seu _path
         rider._path.append(rider.rect.center)
 
+    def __end_turn(self):
+        # Só reverte o estado do jogo e adiciona um turno
+        self._game_turn += 1
+        self._mov_stage = -1
+        self._clicked = False
+
     def __next_player_movement(self, card=None):
         self._mov_stage += 1
 
         # Se todos jogadores tiverem se movimentado, acaba o turno
         if self._mov_stage == len(self._all_riders):
-            self._game_turn += 1
-            self._mov_stage = -1
-            self._clicked = False
-
+            self.__end_turn()
             return
 
         # Caso contrário, prepara o jogo para rodar mais uma animação
@@ -208,14 +211,27 @@ class Grid_Game(Entity):
     def check_collision(self):
         # Laceia todos jogadores
         for rider in self._all_riders.sprites():
-            # Morrem se colidirem com a fronteira
+            # Testa colisão com a fronteira
             if utilities.check_border_collision(rider.rect.center):
-                rider.kill()
+                # Lembra de acabar o turno se for o último jogador
+                if self._mov_stage + 1 == len(self._all_riders.sprites()):
+                    self.__end_turn()
 
-            # Morrem se alguém passar na linha dos outros
-            if utilities.check_line_cross(self._all_riders, rider):
+                # Mata o rider
+                self.__reset_player_movement(rider)
                 rider.kill()
+                return
+
+            # Testa colisão com as linhas
+            if utilities.check_line_cross(self._all_riders, rider) and self._game_turn:
+                # Lembra de acabar o turno se for o último jogador
+                if self._mov_stage + 1 == len(self._all_riders.sprites()):
+                    self.__end_turn()
+
+                # Mata o rider
+                self.__reset_player_movement(rider)
+                rider.kill()
+                return
 
         # Verifica se colidiram entre si
         #utilities.check_riders_collision(self._player, self._bots)
-
