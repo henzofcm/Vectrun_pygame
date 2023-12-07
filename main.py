@@ -19,9 +19,11 @@ pygame.display.set_icon(pygame.image.load(TEXTURE_PATH + "icon.png"))
 # Cria o relógio interno do FPS
 fps_clock = pygame.time.Clock()
 
-current_state = game_state.Game_State()
+# Cria um objeto para controlar a transição de telas
+current_state = game_state.Game_State(screen)
 
 while current_state.running:
+    # Exibe o jogo
     current_state.curr_menu.display_menu()
     current_state.game_loop()
 
@@ -29,7 +31,7 @@ while current_state.running:
     pygame.display.update()
     fps_clock.tick(30)
 
-    screen.fill("#000000")
+    screen.fill(BLACK)
 
 pygame.quit()
 sys.exit()
