@@ -21,12 +21,12 @@ pygame.display.set_icon(pygame.image.load(TEXTURE_PATH + "icon.png"))
 fps_clock = pygame.time.Clock()
 
 # Grid_Game já cria todos objetos internamente (jogador, bots, cartas)
-current_menu = game.Grid_Game(TEXTURE_PATH + "grid.png", (0, 0), (GRID_X, GRID_Y), 1)
+current_menu = game.Grid_Game(TEXTURE_PATH + "grid.png", (0, 0), (GRID_X, GRID_Y), 3)
 
 # Loop do jogo
 while True:
     # Se o jogador trocar de menu, current_menu muda de acordo
-    if current_menu.update(screen):
+    if current_menu.update():
         if current_menu.next_menu == "start":
             current_menu = menu.Start_Menu()
         elif current_menu.next_menu == "config":

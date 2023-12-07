@@ -127,12 +127,36 @@ class Rider(Entity):
         self.__player_target = self._path[-1]
         self.__player_target = (card.value[0] * DISTANCE + self.__player_target[0], -card.value[1] * DISTANCE + self.__player_target[1])
 
-class Player(Rider):
-    def __init___(self, number, x_y, scale_size):
-        super().__init__(number, x_y, scale_size)
+@utilities.Singleton
+class Player():
+    def __init__(self, number, x_y, scale_size, deck):
+        # Cria um grupo com as cartas do jogador
+        self.__wrapper = Rider(number, x_y, scale_size, deck)
+        self.__wrapper._hand = pygame.sprite.Group(self.__wrapper._hand)
 
-        # Cria um grupo para as cartas, que serão desenhadas no grid_game
-        self._hand = pygame.sprite.Group(self._hand)
+        # Cria um envoltório entorno de um Rider
+        self.__wrapper = pygame.sprite.GroupSingle(self.__wrapper)
+
+    def __getattr__(self, attrvalue):
+        # Pega o atributo do sprite e não do grupo
+        return getattr(self.__wrapper.sprite, attrvalue)
+    
+    def __bool__(self):
+        # Retorna o booleano do SingleGroup
+        return bool(self.__wrapper)
+    
+    def sprite(self):
+        # Retorna o sprite do SingleGroup
+        return self.__wrapper.sprite
+        
+    def update(self):
+        # Atualiza o SingleGroup
+        return self.__wrapper.update()
+
+    def draw(self, screen):
+        # Desenha o SingleGroup
+        return self.__wrapper.draw(screen)
+
 
 class Bot(Rider):
     def __init___(self, number, x_y, scale_size):

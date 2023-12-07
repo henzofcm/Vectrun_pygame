@@ -40,3 +40,17 @@ def check_riders_collision(group_1, group_2):
     # Mata ambos sprites se colidirem
     pygame.sprite.groupcollide(group_1, group_2, True, True)
         
+class Singleton():
+    def __init__(self, cls):
+        # Salva a classe original
+        self.aClass = cls
+        self.instance = None
+
+    def __call__(self, *args, **kwargs):
+        # Usa o mesmo objeto em todas chamadas
+        print(*args, **kwargs)
+        if self.instance is None:
+            self.instance = self.aClass(*args, **kwargs)
+
+        return self.instance
+    

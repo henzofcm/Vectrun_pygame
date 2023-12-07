@@ -23,7 +23,6 @@ class Grid_Game(Entity):
 
         # Cria o jogador
         self._player = Player(1, (GRID_X / 2 - 2, GRID_Y / 2 - 2), (RIDER_X, RIDER_Y), self._deck)
-        self._player = pygame.sprite.GroupSingle(self._player)
 
         # Cria os bots
         __bot_list = []
@@ -34,9 +33,9 @@ class Grid_Game(Entity):
         self._bots = pygame.sprite.OrderedUpdates(__bot_list[::-1])
 
         # Grupo com todos personagens animados (bots e player)
-        self._all_riders = pygame.sprite.Group((self._player.sprite), self._bots.sprites()[::-1])
+        self._all_riders = pygame.sprite.Group((self._player.sprite()), self._bots.sprites()[::-1])
 
-    def update(self, screen):
+    def update(self):
         # Eventos principais deste menu
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -68,9 +67,9 @@ class Grid_Game(Entity):
             rider.line = pygame.draw.lines(screen, rider._color, False, rider._path + [rider.rect.center], width=6)
 
         # Desenha o contorno e as cartas
-        if self._player.sprite:
+        if self._player:
             self.choice_preview(screen)
-            self._player.sprite._hand.draw(screen)
+            self._player._hand.draw(screen)
 
         # Faz blit no jogador e nos bots
         self._bots.draw(screen)
@@ -78,7 +77,7 @@ class Grid_Game(Entity):
 
     def choice_preview(self, screen):
         # Verifica se o mouse está em cima da carta
-        for card in self._player.sprite._hand.sprites():
+        for card in self._player._hand.sprites():
             if card.update():
                 # Desenha o contorno
                 self.__preview_selected_card(card, screen)
@@ -99,11 +98,11 @@ class Grid_Game(Entity):
 
     def __preview_selected_path(self, card, screen):
         # Pega o ponto inicial e final da reta
-        start = self._player.sprite._path[-1]
+        start = self._player._path[-1]
         end = (start[0] + card.value[0] * DISTANCE, start[1] - card.value[1] * DISTANCE)
 
         # Desenha a linha
-        pygame.draw.line(screen, self._player.sprite._color, start, end, width = 4)
+        pygame.draw.line(screen, self._player._color, start, end, width = 4)
 
     def __validate_click(self):
         # Verifica em qual carta clicou
@@ -116,7 +115,7 @@ class Grid_Game(Entity):
 
     def __card_clicked(self):
         # Se o jogador clicar na carta, _clicked = True
-        for card in self._player.sprite._hand.sprites():
+        for card in self._player._hand.sprites():
             if card.update():
                 return card
             
