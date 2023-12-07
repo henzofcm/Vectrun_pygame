@@ -42,6 +42,7 @@ class Rider(Entity):
         self.__timer = 0
         self.state_alive = True
         self.clicked_card = None
+        self._last_card = (0, 0)
 
     def update(self, deck):
         # Roda animação de movimento se estiver vivo
@@ -130,11 +131,8 @@ class Rider(Entity):
 @utilities.Singleton
 class Player():
     def __init__(self, number, x_y, scale_size, deck):
-        # Cria um grupo com as cartas do jogador
-        self.__wrapper = Rider(number, x_y, scale_size, deck)
-        self.__wrapper._hand = pygame.sprite.Group(self.__wrapper._hand)
-
         # Cria um envoltório entorno de um Rider
+        self.__wrapper = Rider(number, x_y, scale_size, deck)
         self.__wrapper = pygame.sprite.GroupSingle(self.__wrapper)
 
     def __getattr__(self, attrvalue):
@@ -157,7 +155,6 @@ class Player():
         # Desenha o SingleGroup
         return self.__wrapper.draw(screen)
 
-
 class Bot(Rider):
     def __init___(self, number, x_y, scale_size):
         super().__init__(number, x_y, scale_size)
@@ -177,7 +174,7 @@ class Bot(Rider):
         # Se não houver nenhum, qualquer carta da mão valerá
         else:
             return random.choice(self._hand.sprites())
-        
+
     def __preview_movement(self, card, all_riders):
         # Pega o ponto inicial e final do vetor
         start = self._path[-1]
@@ -192,9 +189,10 @@ class Bot(Rider):
         future_self.rect = pygame.rect.Rect((0, 0), self.rect.size)
         future_self.rect.center = end
         future_self._path = self._path
+        future_self._last_card = self._last_card
 
         # Se for colidir com as linhas de outrem retorna
-        if utilities.check_line_cross(all_riders, future_self):
+        if utilities.check_line_cross(all_riders, future_self, card):
             return False
         
         # Se não colidir com nada, a carta é válida

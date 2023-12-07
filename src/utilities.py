@@ -12,7 +12,7 @@ def check_border_collision(rider_position):
         
     return False
 
-def check_line_cross(players_group, rider):
+def check_line_cross(players_group, rider, card=None):
     # Cria um grupo com todos jogadores menos o rider atual
     temp_group = players_group.copy()
     temp_group.remove(rider)
@@ -34,6 +34,18 @@ def check_line_cross(players_group, rider):
         if temp_coord:
             return True
             
+    # Se não passou card usa a que estiver salva
+    if not card:
+        card = rider.clicked_card
+
+        # Caso clicked_card for None, usa uma carta inexistente
+        if not card:
+            card = (10, 10)
+
+    # E então compara com o último vetor usado (para quando voltar no mesmo caminho)
+    if (card[0], card[1]) == (-rider._last_card[0], -rider._last_card[1]):
+        return True
+
     return False
 
 def check_riders_collision(group_1, group_2):
@@ -48,7 +60,6 @@ class Singleton():
 
     def __call__(self, *args, **kwargs):
         # Usa o mesmo objeto em todas chamadas
-        print(*args, **kwargs)
         if self.instance is None:
             self.instance = self.aClass(*args, **kwargs)
 
