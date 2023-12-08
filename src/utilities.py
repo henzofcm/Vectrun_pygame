@@ -12,7 +12,7 @@ def check_border_collision(rider_position):
         
     return False
 
-def check_line_cross(players_group, rider, card=None):
+def check_line_collision(players_group, rider, card=None):
     # Cria um grupo com todos jogadores menos o rider atual
     temp_group = players_group.copy()
     temp_group.remove(rider)
@@ -40,16 +40,52 @@ def check_line_cross(players_group, rider, card=None):
 
     # E então compara com o último vetor usado: se for múltiplo e contrário
     # Ao anterior deve haver colisão
-    print([x.value for x in rider._hand.sprites()])
-    if not card[0] and not rider._last_card[0]:
-        if card[1] * rider._last_card[1] < 0:
+    if __last_vector_collision(card, rider._last_card):
+        return True
+
+    return False
+
+def __last_vector_collision(card, last_card):
+    # Se algum valor de (x, y) for 0 verifica apenas o outro valor
+    if not card[0] and not last_card[0]:
+        if card[1] * last_card[1] < 0:
             return True
-    elif not card[1] and not rider._last_card[1]:
-        if card[0] * rider._last_card[0] < 0:
+    elif not card[1] and not last_card[1]:
+        if card[0] * last_card[0] < 0:
             return True
+    # Se nenhum for, verifica se são proporcionais
     elif card[0] != 0 and card[1] != 0:
-        if rider._last_card[0] / card[0] == rider._last_card[1] / card[1]:
+        if last_card[0] / card[0] == last_card[1] / card[1]:
+            if last_card[0] / card[0] < 0:
+                return True
+    else:
+        return False
+
+def check_line_cross(players_group, player, line, card=None):
+    # Cria um grupo com todos jogadores menos o rider atual
+    temp_group = players_group.copy()
+    temp_group.remove(player)
+
+    # Se a linha colidir com o caminho de outro rider retorna True
+    for rider in temp_group.sprites():
+        if line.overlap(rider.line_mask, (0, 0)):
+            print("Enemy", end=' ')
+            print(line.overlap_area(rider.line_mask, (0, 0)))
             return True
+        
+    # Se a linha colidir com alguma das próprias retorna True
+    if line.overlap(player._last_line_mask, (0, 0)):
+        print("Self", end=' ')
+        print(line.overlap_area(player.line_mask, (0, 0)))
+        return True
+    
+    # Se não passou card usa a que estiver salva
+    if not card:
+        card = player.clicked_card
+    
+    # E verifica se elas não são contrárias
+    if __last_vector_collision(card, player._last_card):
+        return True
 
     return False
 

@@ -64,7 +64,7 @@ class Grid_Game(Entity):
 
         # Desenha as linhas dos riders
         for rider in self._all_riders.sprites():
-            rider.line = pygame.draw.lines(screen, rider._color, False, rider._path + [rider.rect.center], width=6)
+            pygame.draw.lines(screen, rider._color, False, rider._path + [rider.rect.center], width=6)
 
         # Desenha o contorno e as cartas
         if self._player:
@@ -176,7 +176,7 @@ class Grid_Game(Entity):
                 rider.kill()
                 continue
 
-            if utilities.check_line_cross(self._all_riders, rider) and self._game_turn:
+            if utilities.check_line_collision(self._all_riders, rider) and self._game_turn:
                 rider.kill()
                 continue
 
@@ -187,7 +187,7 @@ class Grid_Game(Entity):
             return
 
         # Testa colisão com as linhas
-        if utilities.check_line_cross(self._all_riders, rider) and self._game_turn:
+        if utilities.check_line_collision(self._all_riders, rider) and self._game_turn:
             self.__kill_rider(rider)
             return
 

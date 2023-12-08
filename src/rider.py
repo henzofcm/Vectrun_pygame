@@ -14,9 +14,6 @@ class Rider(Entity):
         super().__init__("assets/textures/" + archive, x_y, scale_size)
         self.rect = self.image.get_rect(center=x_y)
 
-        # Máscara para ter colisões mais precisas
-        self.mask = pygame.rect.Rect(x_y, (RIDER_X / 5 - 2, RIDER_Y / 5 - 1))
-
         # Atributos adicionais
         self._number = number
         self._path = [x_y, x_y]
@@ -46,6 +43,11 @@ class Rider(Entity):
         self.state_alive = True
         self.clicked_card = None
         self._last_card = (0, 0)
+
+        # Máscaras para colisões mais precisas
+        self.mask = pygame.rect.Rect(x_y, (RIDER_X / 5 - 2, RIDER_Y / 5 - 1))
+
+        self.line_mask = self._get_line_mask(self._color, (-10, -10), (-10, -10))
 
     def update(self, deck):
         # Roda animação de movimento se estiver vivo
@@ -126,6 +128,22 @@ class Rider(Entity):
         # Salva a posição final do jogador no seu _path
         self._path.append(self.rect.center)
 
+        # Cria uma mascára para a linha e a adiciona em line_mask
+        temp_mask = self._get_line_mask(self._color, self._path[-2], self._path[-1])
+
+        self._last_line_mask = self.line_mask.copy()
+        self.line_mask.draw(temp_mask, (0, 0))
+
+    @staticmethod
+    def _get_line_mask(color,start, end):
+        # Cria uma superfície em preto
+        temp_surf = pygame.Surface((GRID_X, GRID_Y))
+        temp_surf.set_colorkey((0, 0, 0))
+
+        # Desenha a linha e retorna a máscara
+        pygame.draw.line(temp_surf, color, start, end, width=6)
+        return pygame.mask.from_surface(temp_surf)
+
     def select_card(self, card):
         self.clicked_card = card
 
@@ -172,6 +190,8 @@ class Bot(Rider):
             if self.__preview_movement(card, all_riders):
                 choices.append(card)
 
+        print([x.value for x in self._hand.sprites()])
+        print([y.value for y in choices])
         # Se algum for válido, retorna um entre eles
         if choices:
             return random.choice(choices)
@@ -187,17 +207,12 @@ class Bot(Rider):
         # Se for colidir com as fronteiras retorna
         if utilities.check_border_collision(end):
             return False
-        
-        # Sprite temporário na posição futura
-        future_self = pygame.sprite.Sprite()
-        future_self.rect = pygame.rect.Rect((0, 0), self.rect.size)
-        future_self.rect.center = end
-        future_self._path = self._path
-        future_self._last_card = self._last_card
-        future_self.mask = self.mask
+
+        # Cria uma máscara para testar colisões futuras desta linha
+        line_mask = self._get_line_mask(self._color, start, end)
 
         # Se for colidir com as linhas de outrem retorna
-        if utilities.check_line_cross(all_riders, future_self, card):
+        if utilities.check_line_cross(all_riders, self, line_mask, card):
             return False
         
         # Se não colidir com nada, a carta é válida
