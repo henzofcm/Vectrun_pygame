@@ -21,9 +21,9 @@ class StateControl():
         self.screen = screen
 
         # Cria um objeto para cada uma das telas
-        self.main_menu = MainMenu(self, (TEXTURE_PATH + "vectrun_logo.png"), (WIDTH / 2, HEIGHT / 5), (LOGO_X, LOGO_Y))
-        self.options = OptionsMenu(self, (TEXTURE_PATH + "options_button.png"), (0, 0), (0, 0))
-        self.credits = CreditsMenu(self, (TEXTURE_PATH + "credits_button.png"), (0, 0), (0, 0))
+        self.main_menu = MainMenu(self, (TEXTURE_PATH + "vectrun_logo.png"), (WIDTH/2, HEIGHT/5), (LOGO_X, LOGO_Y))
+        self.options = OptionsMenu(self, (TEXTURE_PATH + "options_button.png"), (WIDTH/2, HEIGHT/6), (BUTTON_X, BUTTON_Y))
+        self.credits = CreditsMenu(self, (TEXTURE_PATH + "credits_button.png"), (WIDTH/2, HEIGHT/6), (BUTTON_X, BUTTON_Y))
         self.game_run = Grid_Game(TEXTURE_PATH + "grid.png", (0, 0), (GRID_X, GRID_Y), 0)
 
         # Define a tela inicial
@@ -31,6 +31,7 @@ class StateControl():
 
     def game_loop(self):
         while self.playing:
+            # Processa as entradas
             self.check_events()
 
             # Preenche a tela escondendo o Menu
@@ -41,6 +42,8 @@ class StateControl():
 
             # Atualiza a tela
             pygame.display.update()
+
+            # Reseta as entredas
             self.reset_keys()
 
     def check_events(self):
