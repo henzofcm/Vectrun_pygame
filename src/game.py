@@ -22,13 +22,13 @@ class Grid_Game(Entity):
         self._deck = Deck(TEXTURE_PATH + "cards/", (CARD_X, CARD_Y))
 
         # Cria o jogador
-        self._player = Player(1, (GRID_X / 2 - 2, GRID_Y / 2 - 2), (RIDER_X, RIDER_Y), self._deck)
+        self._player = Player(1, (GRID_X / 2 - 1, GRID_Y / 2 - 2), (RIDER_X, RIDER_Y), self._deck)
 
         # Cria os bots
         __bot_list = []
 
         for bot in range(bot_number):
-            __bot_list.append(Bot(bot + 2, (GRID_X / 2 - 2, GRID_Y / 2 - 2), (RIDER_X, RIDER_Y), self._deck))
+            __bot_list.append(Bot(bot + 2, (GRID_X / 2 - 1, GRID_Y / 2 - 2), (RIDER_X, RIDER_Y), self._deck))
 
         self._bots = pygame.sprite.OrderedUpdates(__bot_list[::-1])
 

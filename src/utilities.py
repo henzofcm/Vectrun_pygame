@@ -20,7 +20,7 @@ def check_line_cross(players_group, rider, card=None):
     # Testa se ele colide com a linha de cada um dos outros
     for enemy in temp_group:
         for index in range(2, len(enemy._path)):
-            temp_coord = rider.rect.clipline(enemy._path[index - 1], enemy._path[index])
+            temp_coord = rider.mask.clipline(enemy._path[index - 1], enemy._path[index])
 
             # Se a linha colidir, desenpacota a tupla que clipline retorna
             if temp_coord:
@@ -28,7 +28,7 @@ def check_line_cross(players_group, rider, card=None):
             
     # No caso de colidir com as próprias linhas
     for index in range(2, len(rider._path[:-1])):
-        temp_coord = rider.rect.clipline(rider._path[index - 1], rider._path[index])
+        temp_coord = rider.mask.clipline(rider._path[index - 1], rider._path[index])
 
         # Desenpacota a tupla que clipline retorna
         if temp_coord:

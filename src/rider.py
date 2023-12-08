@@ -10,9 +10,12 @@ class Rider(Entity):
         # Carrega texturas diferentes dependendo do nº do jogador
         archive = "rider_" + str(number) + ".png"
 
-        # Cria o rider e centraliza sua possição
+        # Cria o rider e centraliza sua posição
         super().__init__("assets/textures/" + archive, x_y, scale_size)
         self.rect = self.image.get_rect(center=x_y)
+
+        # Máscara para ter colisões mais precisas
+        self.mask = pygame.rect.Rect(x_y, (RIDER_X / 5 - 2, RIDER_Y / 5 - 1))
 
         # Atributos adicionais
         self._number = number
@@ -61,7 +64,7 @@ class Rider(Entity):
         
             self.__timer += 0.05
         # No caso não-tão-raro de vetores (0, y), move o jogador de acordo
-        elif self.clicked_card.value[0] == 0 and self.__temp_player_center[1] + 2 < self.__temp_player_target[1]:
+        elif self.clicked_card[0] == 0 and self.__temp_player_center[1] + 2 < self.__temp_player_target[1]:
             self.__change_move(self.clicked_card, self.__timer)
         
             self.__timer += 0.05
@@ -74,8 +77,8 @@ class Rider(Entity):
 
     def __change_move(self, card, time):
         # Diferença que a moto deverá andar
-        delta_x = card.value[0]
-        delta_y = card.value[1]
+        delta_x = card[0]
+        delta_y = card[1]
 
         # Reinicia a posição em cada nova animação
         if time == 0:
@@ -89,6 +92,7 @@ class Rider(Entity):
         # Atualiza a posição (e converte para inteiro)
         self.rect.centerx = round(self.__temp_x)
         self.rect.centery = round(self.__temp_y)
+        self.mask.center = self.rect.center
 
     def __set_temp_variables(self):
         # Variáveis temporárias que poupam código no movimento
@@ -96,11 +100,11 @@ class Rider(Entity):
         self.__temp_player_target = self.__player_target
 
         # Dependendo do valor da carta, muda a coordenada relativa
-        if self.clicked_card.value[0] < 0:
+        if self.clicked_card[0] < 0:
             self.__temp_player_center = (-self.__temp_player_center[0], self.__temp_player_center[1])
             self.__temp_player_target = (-self.__temp_player_target[0], self.__temp_player_target[1])
 
-        if self.clicked_card.value[1] > 0:
+        if self.clicked_card[1] > 0:
             self.__temp_player_center = (self.__temp_player_center[0], -self.__temp_player_center[1])
             self.__temp_player_target = (self.__temp_player_target[0], -self.__temp_player_target[1])
 
@@ -126,7 +130,7 @@ class Rider(Entity):
         self.clicked_card = card
 
         self.__player_target = self._path[-1]
-        self.__player_target = (card.value[0] * DISTANCE + self.__player_target[0], -card.value[1] * DISTANCE + self.__player_target[1])
+        self.__player_target = (card[0] * DISTANCE + self.__player_target[0], -card[1] * DISTANCE + self.__player_target[1])
 
 @utilities.Singleton
 class Player():
@@ -178,7 +182,7 @@ class Bot(Rider):
     def __preview_movement(self, card, all_riders):
         # Pega o ponto inicial e final do vetor
         start = self._path[-1]
-        end = (start[0] + card.value[0] * DISTANCE, start[1] - card.value[1] * DISTANCE)
+        end = (start[0] + card[0] * DISTANCE, start[1] - card[1] * DISTANCE)
 
         # Se for colidir com as fronteiras retorna
         if utilities.check_border_collision(end):
@@ -190,6 +194,7 @@ class Bot(Rider):
         future_self.rect.center = end
         future_self._path = self._path
         future_self._last_card = self._last_card
+        future_self.mask = self.mask
 
         # Se for colidir com as linhas de outrem retorna
         if utilities.check_line_cross(all_riders, future_self, card):
