@@ -16,8 +16,6 @@ class Button(Entity):
         is_over = self.rect.collidepoint(mouse_pos)
 
         if is_over:
-            if pygame.mouse.get_pressed()[0] :
-                print("A")
             return True
         else:
             return False
@@ -34,9 +32,6 @@ class Menu(Entity):
         self.adjustment_x, self.adjustment_y = -150, 15
         self.selected_button = None
 
-    def draw_cursor(self):
-        self.draw_text("*", 50, self.cursor_rect.x, self.cursor_rect.y)
-
     def draw_text(self, text, size, x, y ):
         self.font_name = pygame.font.get_default_font()
         font = pygame.font.Font(self.font_name,size)
@@ -49,31 +44,6 @@ class Menu(Entity):
         self.state_control.screen.blit(self.state_control.screen, (0, 0))
         pygame.display.update()
         self.state_control.reset_keys()
-
-    def select_button(self, button_list, direction):
-        buttons = button_list
-        selected_button = self.selected_button
-
-        for button in buttons:
-            if button.rect.collidepoint(pygame.mouse.get_pos()):
-                selected_button = button
-                break
-
-        if selected_button:
-            # Remove o destaque dos botões anteriores
-            for button in buttons:
-                button.selected = False
-
-            # Adiciona destaque ao botão selecionado
-            selected_button.selected = True
-
-            # Lógica para calcular a próxima posição no array usando aritmética modular
-            current_index = buttons.index(selected_button)
-            new_index = (current_index + direction) % len(buttons)
-            next_button = buttons[new_index]
-
-            self.cursor_rect.midtop = (next_button.rect.x + self.adjustment_x, next_button.rect.y + self.adjustment_y)
-            self.selected_button = next_button
 
 
 class MainMenu(Menu):
@@ -96,53 +66,39 @@ class MainMenu(Menu):
                                    (BUTTON_X, BUTTON_Y), "credits")
 
         # Adiciona os botões a um grupo
-        self.button_list = [self.btn_the_grid, self.btn_options, self.btn_credits]
-        self.buttons_group = pygame.sprite.Group(self.button_list)
-
-        # Mapeia os botões
-        self.key_mapping = {
-            "DOWN_KEY": {"the_grid": ("options", self.options_x, self.options_y),
-                         "options": ("credits", self.credits_x, self.credits_y),
-                         "credits": ("the_grid", self.start_x, self.start_y)},
-            "UP_KEY": {"the_grid": ("credits", self.credits_x, self.credits_y),
-                       "options": ("the_grid", self.start_x, self.start_y),
-                       "credits": ("options", self.options_x, self.options_y)}
-        }
-
-        # Mapeia as teclas para a seleção do menu
+        self.buttons_group = pygame.sprite.Group(self.btn_the_grid, self.btn_options, self.btn_credits)
 
     def display_menu(self):
         self.run_display = True
         while self.run_display:
-            self.state_control.check_events()
-            self.check_input()
-
+            # Preenche o fundo
             self.state_control.screen.fill(BLACK)
+
+            #Verifica as entradas e interação com os botões
+            self.state_control.check_events()
+            self.choice_preview(self.state_control.screen)
+            self.check_input()
 
             # Exibie o logo do jogo
             self.state_control.screen.blit(self.image, self.rect)
 
             # Insere os botões na tela:
-            self.state_control.screen.blit(self.btn_the_grid.image, self.btn_the_grid.rect)
-            self.state_control.screen.blit(self.btn_options.image, self.btn_options.rect)
-            self.state_control.screen.blit(self.btn_credits.image, self.btn_credits.rect)
-
-            # Exibe seleção dos botões selecionados
-            self.choice_preview(self.state_control.screen)
+            self.buttons_group.draw(self.state_control.screen)
 
             self.blit_screen()
 
     def choice_preview(self, screen):
-        # Verifica se o botão esquerdo do mouse é pressionado
-        mouse_clicked = pygame.mouse.get_pressed()[0]
-
         # Verifica se o mouse está em cima da carta
         for button in self.buttons_group:
-            if button.update() :
+            if button.update():
+                # Seleciona a tela equivalente ao botão
                 self.state = button.label
 
                 # Desenha o contorno
                 self.__preview_selected_button(button, screen)
+
+                # Verifica se o botão esquerdo do mouse é pressionado
+                mouse_clicked = pygame.mouse.get_pressed()[0]
 
                 if mouse_clicked or self.state_control.START_KEY:
                     self.button_clicked = True
@@ -160,10 +116,6 @@ class MainMenu(Menu):
         pygame.draw.rect(screen, RED, rectangle, width=2 * BUTTON_SELECTED_WIDTH)
 
     def check_input(self):
-        if self.state_control.DOWN_KEY:
-            self.select_button(self.button_list, 1)
-        elif self.state_control.UP_KEY:
-            self.select_button(self.button_list, -1)
         if self.state_control.ESC_KEY:
             self.state_control.running = False
             self.state_control.curr_menu.run_display = False
@@ -174,6 +126,7 @@ class MainMenu(Menu):
                 self.state_control.curr_menu = self.state_control.options
             elif self.state == "credits":
                 self.state_control.curr_menu = self.state_control.credits
+
             self.run_display = False
 
 
