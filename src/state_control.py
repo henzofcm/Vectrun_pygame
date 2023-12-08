@@ -5,11 +5,13 @@ from game import *
 from deck import *
 from config import *
 
-class Game_State():
+
+class StateControl():
     def __init__(self, screen):
         # Validação dos parâmetros
         if not isinstance(screen, pygame.Surface):
-            raise ValueError(f"O objeto passado ao iniciar o jogo deve ser do tipo pygame.Suface, mas foi passado {type(screen)}")
+            raise ValueError(
+                f"O objeto passado ao iniciar o jogo deve ser do tipo pygame.Suface, mas foi passado {type(screen)}")
 
         # Iniciação das variáveis de controle
         self.running, self.playing = True, False
@@ -19,7 +21,7 @@ class Game_State():
         self.screen = screen
 
         # Cria um objeto para cada uma das telas
-        self.main_menu = MainMenu(self, (TEXTURE_PATH + "vectrun_logo.png"), (WIDTH/2, HEIGHT/5), (LOGO_X, LOGO_Y))
+        self.main_menu = MainMenu(self, (TEXTURE_PATH + "vectrun_logo.png"), (WIDTH / 2, HEIGHT / 5), (LOGO_X, LOGO_Y))
         self.options = OptionsMenu(self, (TEXTURE_PATH + "options_button.png"), (0, 0), (0, 0))
         self.credits = CreditsMenu(self, (TEXTURE_PATH + "credits_button.png"), (0, 0), (0, 0))
         self.game_run = Grid_Game(TEXTURE_PATH + "grid.png", (0, 0), (GRID_X, GRID_Y), 0)

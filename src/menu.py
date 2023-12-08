@@ -28,7 +28,7 @@ class Menu(Entity):
         super().__init__(image_path, x_y, scale_size)
         self.rect = self.image.get_rect(center=x_y)
         self.BUTTON_CLICKED = False
-        self.game_state = game
+        self.state_control = game
         self.run_display = True
         self.cursor_rect = pygame.Rect(0, 0, 20, 20)
         self.adjustment_x, self.adjustment_y = -150, 15
@@ -42,12 +42,12 @@ class Menu(Entity):
         text_surface = font.render(text, True, WHITE)
         text_rect = text_surface.get_rect()
         text_rect.center = (x,y)
-        self.game_state.screen.blit(text_surface, text_rect)
+        self.state_control.screen.blit(text_surface, text_rect)
 
     def blit_screen(self):
-        self.game_state.screen.blit(self.game_state.screen, (0, 0))
+        self.state_control.screen.blit(self.state_control.screen, (0, 0))
         pygame.display.update()
-        self.game_state.reset_keys()
+        self.state_control.reset_keys()
 
 
 class MainMenu(Menu):
@@ -78,25 +78,24 @@ class MainMenu(Menu):
     def display_menu(self):
         self.run_display = True
         while self.run_display:
-            self.game_state.check_events()
+            self.state_control.check_events()
             self.check_input()
 
-            self.game_state.screen.fill(BLACK)
+            self.state_control.screen.fill(BLACK)
 
             # Exibie o logo do jogo
-            self.game_state.screen.blit(self.image, self.rect)
+            self.state_control.screen.blit(self.image, self.rect)
 
             # Insere os botões na tela:
-            # botão 1 - código:
-            self.game_state.screen.blit(self.btn_the_grid.image, self.btn_the_grid.rect)
-            self.game_state.screen.blit(self.btn_options.image, self.btn_options.rect)
-            self.game_state.screen.blit(self.btn_credits.image, self.btn_credits.rect)
+            self.state_control.screen.blit(self.btn_the_grid.image, self.btn_the_grid.rect)
+            self.state_control.screen.blit(self.btn_options.image, self.btn_options.rect)
+            self.state_control.screen.blit(self.btn_credits.image, self.btn_credits.rect)
 
             # Insere o cursor
             self.draw_cursor()
 
             # Verifica os botoes
-            self.choice_preview(self.game_state.screen)
+            self.choice_preview(self.state_control.screen)
 
             self.blit_screen()
 
@@ -118,7 +117,7 @@ class MainMenu(Menu):
         pygame.draw.rect(screen, RED, rectangle, width=2 * BUTTON_SELECTED_WIDTH)
 
     def move_cursor(self):
-        if self.game_state.DOWN_KEY:
+        if self.state_control.DOWN_KEY:
             if self.state == 'the_grid':
                 self.cursor_rect.midtop = (self.options_x + self.adjustment_x, self.options_y)
                 self.state = 'Options'
@@ -128,7 +127,7 @@ class MainMenu(Menu):
             elif self.state == 'Credits':
                 self.cursor_rect.midtop = (self.start_x + self.adjustment_x, self.start_y)
                 self.state = 'the_grid'
-        elif self.game_state.UP_KEY:
+        elif self.state_control.UP_KEY:
             if self.state == 'the_grid':
                 self.cursor_rect.midtop = (self.credits_x + self.adjustment_x, self.credits_y)
                 self.state = 'Credits'
@@ -142,46 +141,44 @@ class MainMenu(Menu):
     def check_input(self):
         self.move_cursor()
 
-        if self.game_state.ESC_KEY:
-            self.game_state.running = False
-            self.game_state.curr_menu.run_display = False
-        if self.game_state.START_KEY or self.BUTTON_CLICKED:
+        if self.state_control.ESC_KEY:
+            self.state_control.running = False
+            self.state_control.curr_menu.run_display = False
+        if self.state_control.START_KEY or self.BUTTON_CLICKED:
             if self.state == 'the_grid':
-                self.game_state.playing = True
+                self.state_control.playing = True
             elif self.state == 'Options':
-                self.game_state.curr_menu = self.game_state.options
+                self.state_control.curr_menu = self.state_control.options
             elif self.state == 'Credits':
-                self.game_state.curr_menu = self.game_state.credits
+                self.state_control.curr_menu = self.state_control.credits
             self.run_display = False
 
 
 class OptionsMenu(Menu):
     def __init__(self, game, image_path, x_y, scale_size):
         super().__init__(game, image_path, x_y, scale_size)
-        self.state = 'Volume'
-        self.volx, self.voly = (WIDTH/2), (HEIGHT/2 + 20)
-        self.controlsx, self.controlsy = (WIDTH/2), (HEIGHT/2 + 40)
-        self.cursor_rect.midtop = (self.volx + self.adjustment_x, self.voly)
 
     def display_menu(self):
         self.run_display = True
         while self.run_display:
-            self.game_state.check_events()
+            self.state_control.check_events()
             self.check_input()
 
-            self.game_state.screen.fill((0, 0, 0))
+            self.state_control.screen.fill(BLACK)
 
-            self.game_state.screen.blit(self.image, self.rect)
+            # Falta criar um menu de opções funcional (quando a música estiver implementada)
+
+            # Excluir essa linha
             self.draw_text('Options', 20, WIDTH / 2, HEIGHT / 2 - 30)
 
             self.blit_screen()
 
     def check_input(self):
-        if self.game_state.ESC_KEY:
-            self.game_state.curr_menu = self.game_state.main_menu
+        if self.state_control.ESC_KEY:
+            self.state_control.curr_menu = self.state_control.main_menu
             self.run_display = False
-        if self.game_state.BACK_KEY:
-            self.game_state.curr_menu = self.game_state.main_menu
+        if self.state_control.BACK_KEY:
+            self.state_control.curr_menu = self.state_control.main_menu
             self.run_display = False
 
 
@@ -192,45 +189,40 @@ class CreditsMenu(Menu):
     def display_menu(self):
         self.run_display = True
         while self.run_display:
-            self.game_state.check_events()
+            self.state_control.check_events()
             self.check_input()
 
             # Define a cor de fundo da tela
-            self.game_state.screen.fill(RED)
-
-            # Insere a imagem "Credits" na tela
-            self.game_state.screen.blit(self.image, self.rect)
+            self.state_control.screen.fill(BLACK)
 
             # Lista com o tamanhos das fontes
             font_size = [40, 30, 25]
-            # Lista com os espaçamentos
-            space_size = [60, 35]
+
             # Posição inicial
             txt_x = WIDTH / 2
             txt_y = HEIGHT / 5
 
             # Desenha os textos na tela
-            self.draw_text('A2 - LP - 2023',   font_size[0], txt_x, HEIGHT / 5)
-            self.draw_text('Credits',          font_size[0], txt_x, HEIGHT / 5 + 50)
+            self.draw_text('A2 - LP - 2023',   font_size[0], txt_x, HEIGHT/6)
 
-            self.draw_text('- Code by:',         font_size[1], txt_x, HEIGHT / 3 + 20)
+            self.draw_text('- Code by:',         font_size[1], txt_x, HEIGHT/4 + 20)
             self.draw_text('Beatriz Miranda Bezerra',
-                                                    font_size[2], txt_x, HEIGHT / 3 + 60)
+                                                    font_size[2], txt_x, HEIGHT/3)
             self.draw_text('Gustavo Murilo Cavalcante Carvalho',
-                                                    font_size[2], txt_x, HEIGHT / 3 + 95)
+                                                    font_size[2], txt_x, HEIGHT/3 + 40)
             self.draw_text('Henzo Felipe Carvalho de Mattos',
-                                                    font_size[2], txt_x, HEIGHT / 3 + 130)
+                                                    font_size[2], txt_x, HEIGHT/3 + 80)
 
             self.draw_text('- Art and Concept granted by:',
-                                                    font_size[1], txt_x, HEIGHT / 2 + 80)
-            self.draw_text('Tulio Coutinho Koneçny',    font_size[2], txt_x, HEIGHT / 2 + 120)
+                                                    font_size[1], txt_x, HEIGHT/2 + 40)
+            self.draw_text('Tulio Koneçny',    font_size[2], txt_x, HEIGHT/2 + 80)
 
             self.blit_screen()
 
     def check_input(self):
-        if self.game_state.ESC_KEY:
-            self.game_state.curr_menu = self.game_state.main_menu
+        if self.state_control.ESC_KEY:
+            self.state_control.curr_menu = self.state_control.main_menu
             self.run_display = False
-        if self.game_state.BACK_KEY:
-            self.game_state.curr_menu = self.game_state.main_menu
+        if self.state_control.BACK_KEY:
+            self.state_control.curr_menu = self.state_control.main_menu
             self.run_display = False

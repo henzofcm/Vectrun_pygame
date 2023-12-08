@@ -20,7 +20,7 @@ pygame.display.set_icon(pygame.image.load(TEXTURE_PATH + "icon.png"))
 fps_clock = pygame.time.Clock()
 
 # Cria um objeto para controlar a transição de telas
-current_state = game_state.Game_State(screen)
+current_state = state_control.StateControl(screen)
 
 while current_state.running:
     # Exibe o jogo
