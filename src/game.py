@@ -133,12 +133,12 @@ class Grid_Game(Entity):
         # Só reverte o estado do jogo e adiciona um turno
         self._game_turn += 1
         self._clicked = False
+        self._mov_stage = -1
 
         # Quando o jogador estiver morto pula sua vez
-        if self._player:
-            self._mov_stage = -1
-        else:
-            self._mov_stage = 0
+        if not self._player:
+            self._mov_stage += 1
+            self._clicked = True
 
     def __next_player_movement(self, card=None):
         self._mov_stage += 1
@@ -146,7 +146,18 @@ class Grid_Game(Entity):
         # Se todos jogadores tiverem se movimentado, acaba o turno
         if self._mov_stage == len(self._all_riders):
             self.__end_turn()
-            return
+
+            # No raro caso de colidirem no primeiro turno
+            if self._game_turn == 1:
+                self.__first_turn_collision()
+
+            # Quando o jogador não estiver vivo os bots jogarão entre si
+            if self._player:
+                return
+            
+            # Se todos morrerem também retorna
+            if not self._all_riders:
+                return
         
         # Caso contrário, prepara o jogo para rodar mais uma animação
         next_player = self._all_riders.sprites()[self._mov_stage]
@@ -158,6 +169,17 @@ class Grid_Game(Entity):
         # Atualiza o estado do próximo jogador
         next_player.select_card(card)
 
+    def __first_turn_collision(self):
+        # Verifica se alguém colidiu
+        for rider in self._all_riders.sprites()[::-1]:
+            if utilities.check_border_collision(rider.rect.center):
+                rider.kill()
+                continue
+
+            if utilities.check_line_cross(self._all_riders, rider) and self._game_turn:
+                rider.kill()
+                continue
+
     def check_collision(self, rider):
         # Testa colisão com a fronteira
         if utilities.check_border_collision(rider.rect.center):
@@ -165,11 +187,7 @@ class Grid_Game(Entity):
             return
 
         # Testa colisão com as linhas
-        if utilities.check_line_cross(self._all_riders, rider):
-            # No raro caso de colidir no primeiro turno vai de fato ser eliminado
-            if not self._game_turn or rider.rect.center == (GRID_X / 2 - 2, GRID_Y / 2 - 2):
-                return
-
+        if utilities.check_line_cross(self._all_riders, rider) and self._game_turn:
             self.__kill_rider(rider)
             return
 

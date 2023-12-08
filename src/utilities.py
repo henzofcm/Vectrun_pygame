@@ -38,9 +38,6 @@ def check_line_cross(players_group, rider, card=None):
     if not card:
         card = rider.clicked_card
 
-        # Caso clicked_card for None, usa uma carta inexistente
-        if not card:
-            card = (10, 10)
 
     # E então compara com o último vetor usado (para quando voltar no mesmo caminho)
     if (card[0], card[1]) == (-rider._last_card[0], -rider._last_card[1]):

@@ -121,7 +121,7 @@ class Rider(Entity):
         # Remove a carta usada e limpa _clicked_card
         self._hand.remove(self.clicked_card)
         self._last_card = self.clicked_card
-        self.clicked_card = None
+        self.clicked_card = (0, 0)
 
         # Salva a posição final do jogador no seu _path
         self._path.append(self.rect.center)
