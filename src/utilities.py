@@ -38,10 +38,18 @@ def check_line_cross(players_group, rider, card=None):
     if not card:
         card = rider.clicked_card
 
-
-    # E então compara com o último vetor usado (para quando voltar no mesmo caminho)
-    if (card[0], card[1]) == (-rider._last_card[0], -rider._last_card[1]):
-        return True
+    # E então compara com o último vetor usado: se for múltiplo e contrário
+    # Ao anterior deve haver colisão
+    print([x.value for x in rider._hand.sprites()])
+    if not card[0] and not rider._last_card[0]:
+        if card[1] * rider._last_card[1] < 0:
+            return True
+    elif not card[1] and not rider._last_card[1]:
+        if card[0] * rider._last_card[0] < 0:
+            return True
+    elif card[0] != 0 and card[1] != 0:
+        if rider._last_card[0] / card[0] == rider._last_card[1] / card[1]:
+            return True
 
     return False
 
