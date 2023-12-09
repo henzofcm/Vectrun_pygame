@@ -317,7 +317,16 @@ class GridGame(Entity):
         next_player.select_card(card)
 
     def __first_turn_collision(self):
-        # Verifica se alguém colidiu
+        """
+        Verifies if any rider has collided during the first turn.
+
+        This method checks if any rider has collided with the border or with other riders during the first turn of the game.
+        If a collision is detected, the corresponding rider is removed from the game.
+
+        Returns
+        -------
+            None
+        """
         for rider in self._all_riders.sprites()[::-1]:
             if utilities.check_border_collision(rider.rect.center):
                 rider.kill()
