@@ -251,15 +251,22 @@ class GridGame(Entity):
             self.__next_player_movement()
 
     def __end_turn(self):
-        # Só reverte o estado do jogo e adiciona um turno
-        self._game_turn += 1
-        self._clicked = False
-        self._mov_stage = -1
+            """
+            Reverses the game state and advances the turn.
 
-        # Quando o jogador estiver morto pula sua vez
-        if not self._player:
-            self._mov_stage += 1
-            self._clicked = True
+            Returns
+            -------
+                None
+            """
+            # Só reverte o estado do jogo e adiciona um turno
+            self._game_turn += 1
+            self._clicked = False
+            self._mov_stage = -1
+
+            # Quando o jogador estiver morto pula sua vez
+            if not self._player:
+                self._mov_stage += 1
+                self._clicked = True
 
     def __next_player_movement(self, card=None):
         self._mov_stage += 1
