@@ -1,12 +1,19 @@
 import pygame
 from config import *
 
-def check_border_collision(rider_position):
-    # Morre se colidir com as barras verticais
+def check_border_collision(rider_position: tuple) -> bool:
+    """
+    Checks if the rider's position collides with the grid borders.
+
+    Args:
+        rider_position (tuple): The current position of the rider (x, y).
+
+    Returns:
+        bool: True if there is a collision with the borders, False otherwise.
+    """
     if rider_position[0] > GRID_X - BORDER or rider_position[0] < BORDER:
         return True
 
-    # E também se colidir com as horizontais
     if rider_position[1] > GRID_Y - BORDER or rider_position[1] < BORDER:
         return True
         
