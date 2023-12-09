@@ -225,6 +225,24 @@ class GridGame(Entity):
         return None
             
     def move_player(self, rider):
+        """
+        Move the player's rider.
+
+        Parameters
+        ----------
+        rider : Rider
+            The rider object to be moved.
+
+        Returns
+        -------
+        None
+            This method does not return anything.
+
+        Notes
+        -----
+        If the rider is able to update its position on the deck, nothing happens.
+        If the rider is unable to update its position, the next player movement is reset.
+        """
         # Move o rider
         if rider.update(self._deck):
             pass
