@@ -197,7 +197,22 @@ def __hide_mask_origin(line_mask):
     return new_mask
 
 def check_riders_collision(group_1, group_2):
-    # Mata ambos sprites se colidirem
+    """
+    Check collision between two sprite groups and remove collided sprites.
+
+    Parameters
+    ----------
+    group_1 : pygame.sprite.Group
+        The first sprite group to check collision with.
+    group_2 : pygame.sprite.Group
+        The second sprite group to check collision with.
+
+    Returns
+    -------
+    None
+        This function does not return any value. It modifies the sprite groups in-place.
+
+    """
     pygame.sprite.groupcollide(group_1, group_2, True, True)
         
 class Singleton():
