@@ -4,16 +4,83 @@ import random
 
 
 class Card(Entity):
+    """
+    Represents a card object.
+
+    Parameters
+    ----------
+    image_path : str
+        The path to the image file for the card.
+    x_y : tuple
+        The x and y coordinates of the card's position.
+    scale_size : float
+        The scale size of the card.
+    value : int
+        The value of the card.
+
+    Attributes
+    ----------
+    value : int
+        The value of the card.
+
+    Methods
+    -------
+    __getitem__(key)
+        Get the value of the card at the specified index.
+    update()
+        Update the card's state.
+
+    """
+
     def __init__(self, image_path, x_y, scale_size, value):
+        """
+        Initialize a Card object.
+
+        Parameters
+        ----------
+        image_path : str
+            The path to the image file for the card.
+        x_y : tuple
+            The x and y coordinates of the card's position.
+        scale_size : float
+            The scale size of the card.
+        value : int
+            The value of the card.
+
+        Returns
+        -------
+        None
+        """
         super().__init__(image_path, x_y, scale_size)
 
         # Direção do vetor
         self.value = value
 
     def __getitem__(self, key):
+        """
+        Get the value of the card at the specified index.
+
+        Parameters
+        ----------
+        key : int
+            The index of the value to retrieve.
+
+        Returns
+        -------
+        int
+            The value of the card at the specified index.
+        """
         return self.value[key]
 
     def update(self):
+        """
+        Update the card's state.
+
+        Returns
+        -------
+        bool
+            True if the card collides with the mouse position, False otherwise.
+        """
         # Testa se houve colisão com o mouse
         mouse_pos = pygame.mouse.get_pos()
 
