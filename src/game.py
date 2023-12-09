@@ -166,6 +166,20 @@ class GridGame(Entity):
         pygame.draw.rect(screen, "#258dc2", rectangle, width=2 * CARD_SELECTED_WIDTH)
 
     def __preview_selected_path(self, card, screen):
+        """
+        Preview the selected path on the screen.
+
+        Parameters
+        ----------
+        card : Card
+            The selected card.
+        screen : pygame.Surface
+            The screen surface to draw on.
+
+        Returns
+        -------
+        None
+        """
         # Pega o ponto inicial e final da reta
         start = pygame.Vector2(self._player._path[-1])  # Converte para Vector2
         card_value = pygame.Vector2(card.value[0], -card.value[1])
@@ -177,7 +191,7 @@ class GridGame(Entity):
         for i in range(0, num_segments, 2):
             segment_start = start + card_value * i * DISTANCE / num_segments
             segment_end = start + card_value * (i + 1) * DISTANCE / num_segments
-            pygame.draw.line(screen, self._player._color, segment_start, segment_end, width=5)     
+            pygame.draw.line(screen, self._player._color, segment_start, segment_end, width=5)
         
     def __validate_click(self):
         # Verifica em qual carta clicou
