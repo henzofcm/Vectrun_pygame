@@ -7,7 +7,7 @@ class Card(Entity):
     """
     Represents a card object.
 
-    Parameters
+    Attributes
     ----------
     image_path : str
         The path to the image file for the card.
@@ -18,18 +18,14 @@ class Card(Entity):
     value : int
         The value of the card.
 
-    Attributes
-    ----------
-    value : int
-        The value of the card.
-
     Methods
     -------
-    __getitem__(key)
+    __init__(self, image_path, x_y, scale_size, value)
+        Initialize a Card object.
+    __getitem__(self, key)
         Get the value of the card at the specified index.
-    update()
+    update(self)
         Update the card's state.
-
     """
 
     def __init__(self, image_path, x_y, scale_size, value):
@@ -92,7 +88,28 @@ class Card(Entity):
 
 
 class Deck(Entity):
+    """
+    Represents a deck of cards.
+
+    Attributes
+    ----------
+    cards : list
+        A list of Card objects representing the cards in the deck.
+    drawn_cards : list
+        A list of Card objects representing the cards that have been drawn from the deck and are in play.
+    """
+
     def __init__(self, card_path, scale_size):
+        """
+        Initializes a Deck object.
+
+        Parameters
+        ----------
+        card_path : str
+            The path to the directory containing the card images.
+        scale_size : tuple
+            A tuple representing the scale size of the cards.
+        """
         super().__init__(card_path + "card_back.png", (0, 0), (0, 0))
 
         self.cards = []
@@ -119,25 +136,33 @@ class Deck(Entity):
         self.shuffle_deck()
 
     def shuffle_deck(self):
-        # Se o deck estiver vazio, randomiza drawn_cards
+        """
+        Shuffles the deck of cards.
+
+        If the deck is empty, the drawn cards are shuffled and added back to the deck.
+        Otherwise, the deck itself is shuffled.
+        """
         if not self.cards:
             random.shuffle(self.drawn_cards)
             self.cards = self.drawn_cards.copy()
-
-            # Limpa as cartas tiradas
             self.drawn_cards.clear()
-
-        # Caso contrário, randomiza o próprio deck
         else:
             random.shuffle(self.cards)
 
-
     def draw_card(self):
-        if not self.cards:  # Se o deck estiver vazio, embaralhe-o novamente
+        """
+        Draws a card from the deck.
+
+        If the deck is empty, it is shuffled again before drawing a card.
+
+        Returns:
+            Card: The card that was drawn from the deck.
+        """
+        if not self.cards:
             self.shuffle_deck()
 
-        card = self.cards.pop(0)  # Remove a primeira carta do deck
-        self.drawn_cards.append(card)  # Adiciona a carta às cartas tiradas
+        card = self.cards.pop(0)
+        self.drawn_cards.append(card)
 
         return card
 
