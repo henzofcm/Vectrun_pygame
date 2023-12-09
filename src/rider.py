@@ -149,10 +149,19 @@ class Rider(Entity):
         return pygame.mask.from_surface(temp_surf)
 
     def select_card(self, card):
+        # Seleciona a carta passada e define parametros internos do movimento
         self.clicked_card = card
 
         self.__player_target = self.rect.center
         self.__player_target = (card[0] * DISTANCE + self.__player_target[0], -card[1] * DISTANCE + self.__player_target[1])
+
+        # Se a carta for contraria a anterior, gira o rider
+        if self.clicked_card[0] * self._last_card[0] < 0:
+            self.image = pygame.transform.flip(self.image, True, False)
+        # No caso de ser o primeiro movimento, age de acordo
+        elif self._last_card == (0, 0) and self.clicked_card[0] < 0:
+            self.image = pygame.transform.flip(self.image, True, False)
+            
 
     def update_death(self):
         # TODO: Quando acabar os eventos de clock, apaga a imagem do rider
@@ -182,7 +191,6 @@ class Rider(Entity):
         card = (self.rect.center[0] - self._path[-1][0], self.rect.center[1] - self._path[-1][1])
         card = (- card[0] / DISTANCE, card[1] / DISTANCE)
 
-        print(card)
         # E a seleciona
         self.select_card(card)
 
