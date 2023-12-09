@@ -5,11 +5,15 @@ def check_border_collision(rider_position: tuple) -> bool:
     """
     Checks if the rider's position collides with the grid borders.
 
-    Args:
-        rider_position (tuple): The current position of the rider (x, y).
+    Parameters
+    ----------
+    rider_position : tuple
+        The current position of the rider (x, y).
 
-    Returns:
-        bool: True if there is a collision with the borders, False otherwise.
+    Returns
+    -------
+    bool
+        True if there is a collision with the borders, False otherwise.
     """
     if rider_position[0] > GRID_X - BORDER or rider_position[0] < BORDER:
         return True
@@ -18,6 +22,7 @@ def check_border_collision(rider_position: tuple) -> bool:
         return True
         
     return False
+
 
 def check_line_collision(players_group, rider, card=None):
     # Cria um grupo com todos jogadores menos o rider atual
@@ -45,12 +50,12 @@ def check_line_collision(players_group, rider, card=None):
     if not card:
         card = rider.clicked_card
 
-    # E então compara com o último vetor usado: se for múltiplo e contrário
-    # Ao anterior deve haver colisão
+    # E então compara com o último vetor usado: se for múltiplo e contrário ao anterior deve haver colisão
     if __last_vector_collision(card, rider._last_card):
         return True
 
     return False
+
 
 def __last_vector_collision(card, last_card):
     # Se algum valor de (x, y) for 0 verifica apenas o outro valor
