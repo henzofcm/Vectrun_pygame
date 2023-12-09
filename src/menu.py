@@ -97,11 +97,11 @@ class MainMenu(Menu):
         self.credits_x, self.credits_y = (WIDTH/2), (HEIGHT/2 + 200)
 
         # Define os botões dessa tela
-        self.btn_the_grid = Button(TEXTURE_PATH + "grid_logo.png", (self.start_x, self.start_y),
+        self.btn_the_grid = Button(TEXTURE_MENU_PATH + "grid_logo.png", (self.start_x, self.start_y),
                               (BUTTON_X, BUTTON_Y), "the_grid")
-        self.btn_options = Button(TEXTURE_PATH + "options_button.png", (self.options_x, self.options_y),
+        self.btn_options = Button(TEXTURE_MENU_PATH + "options_button.png", (self.options_x, self.options_y),
                                    (BUTTON_X, BUTTON_Y), "options_menu")
-        self.btn_credits = Button(TEXTURE_PATH + "credits_button.png", (self.credits_x, self.credits_y),
+        self.btn_credits = Button(TEXTURE_MENU_PATH + "credits_button.png", (self.credits_x, self.credits_y),
                                    (BUTTON_X, BUTTON_Y), "credits_menu")
 
         # Adiciona os botões a um grupo
@@ -155,17 +155,17 @@ class OptionsMenu(Menu):
         self.vol_dict = {"vol_1": 0, "vol_2": 0.25, "vol_3": 0.5, "vol_4": 0.75, "vol_5": 1}
 
         # Carrega as imagens a exibir
-        self.volume_image = Entity(TEXTURE_PATH + "volume_text.png", (self.vol_x - 30, self.vol_y), (BUTTON_X, BUTTON_Y))
+        self.volume_image = Entity(TEXTURE_MENU_PATH + "volume_text.png", (self.vol_x - 30, self.vol_y), (BUTTON_X, BUTTON_Y))
         self.volume_image.rect = self.volume_image.image.get_rect(center=(self.vol_x - 30, self.vol_y))
 
         # Define os botões dessa tela
-        self.btn_back = Button(TEXTURE_PATH + "back_button.png", (WIDTH / 2, (HEIGHT - 100)),
+        self.btn_back = Button(TEXTURE_MENU_PATH + "back_button.png", (WIDTH / 2, (HEIGHT - 100)),
                                (BUTTON_X, BUTTON_Y), "main_menu")
-        self.btn_vol_1 = Button(TEXTURE_PATH + "square_full.png", self.vol_position[0], (50,50), "vol_1")
-        self.btn_vol_2 = Button(TEXTURE_PATH + "square_full.png", self.vol_position[1], (50, 50), "vol_2")
-        self.btn_vol_3 = Button(TEXTURE_PATH + "square_full.png", self.vol_position[2], (50, 50), "vol_3")
-        self.btn_vol_4 = Button(TEXTURE_PATH + "square_full.png", self.vol_position[3], (50, 50), "vol_4")
-        self.btn_vol_5 = Button(TEXTURE_PATH + "square_full.png", self.vol_position[4], (50, 50), "vol_5")
+        self.btn_vol_1 = Button(TEXTURE_MENU_PATH + "square_full.png", self.vol_position[0], (50,50), "vol_1")
+        self.btn_vol_2 = Button(TEXTURE_MENU_PATH + "square_full.png", self.vol_position[1], (50, 50), "vol_2")
+        self.btn_vol_3 = Button(TEXTURE_MENU_PATH + "square_full.png", self.vol_position[2], (50, 50), "vol_3")
+        self.btn_vol_4 = Button(TEXTURE_MENU_PATH + "square_full.png", self.vol_position[3], (50, 50), "vol_4")
+        self.btn_vol_5 = Button(TEXTURE_MENU_PATH + "square_full.png", self.vol_position[4], (50, 50), "vol_5")
 
         # Adiciona os botões a um grupo
         self.buttons_group.add(self.btn_back)
@@ -221,10 +221,10 @@ class CreditsMenu(Menu):
         self.txt_y = HEIGHT / 4 + self.space_size[1]
 
         # Carrega a imagem da tela de fundo
-        self.background_image = pygame.image.load(TEXTURE_PATH + "background_credits.png").convert()
+        self.background_image = pygame.image.load(TEXTURE_MENU_PATH + "background_credits.png").convert()
 
         # Define os botões dessa tela
-        self.btn_back = Button(TEXTURE_PATH + "back_button.png", (WIDTH/2, (HEIGHT - 100)),
+        self.btn_back = Button(TEXTURE_MENU_PATH + "back_button.png", (WIDTH/2, (HEIGHT - 100)),
                                    (BUTTON_X, BUTTON_Y), "main_menu")
 
         # Adiciona os botões a um grupo
