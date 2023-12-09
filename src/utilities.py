@@ -1,6 +1,7 @@
 import pygame
 from config import *
 
+
 def check_border_collision(rider_position):
     # Morre se colidir com as barras verticais
     if rider_position[0] > GRID_X - BORDER or rider_position[0] < BORDER:
@@ -9,8 +10,9 @@ def check_border_collision(rider_position):
     # E também se colidir com as horizontais
     if rider_position[1] > GRID_Y - BORDER or rider_position[1] < BORDER:
         return True
-        
+
     return False
+
 
 def check_line_collision(players_group, rider, card=None):
     # Cria um grupo com todos jogadores menos o rider atual
@@ -25,7 +27,7 @@ def check_line_collision(players_group, rider, card=None):
             # Se a linha colidir, desenpacota a tupla que clipline retorna
             if temp_coord:
                 return True
-            
+
     # No caso de colidir com as próprias linhas
     for index in range(2, len(rider._path[:-1])):
         temp_coord = rider.mask.clipline(rider._path[index - 1], rider._path[index])
@@ -33,7 +35,7 @@ def check_line_collision(players_group, rider, card=None):
         # Desenpacota a tupla que clipline retorna
         if temp_coord:
             return True
-            
+
     # Se não passou card usa a que estiver salva
     if not card:
         card = rider.clicked_card
@@ -44,6 +46,7 @@ def check_line_collision(players_group, rider, card=None):
         return True
 
     return False
+
 
 def __last_vector_collision(card, last_card):
     # Se algum valor de (x, y) for 0 verifica apenas o outro valor
@@ -61,6 +64,7 @@ def __last_vector_collision(card, last_card):
     else:
         return False
 
+
 def check_line_cross(players_group, player, line, card=None):
     # Cria um grupo com todos jogadores menos o rider atual
     temp_group = players_group.copy()
@@ -69,7 +73,7 @@ def check_line_cross(players_group, player, line, card=None):
     # Se a linha colidir com o caminho de outro rider retorna True
     for rider in temp_group.sprites():
         temp_line = rider.line_mask
-        
+
         # No caso de ser o primeiro movimento do player é necessário esconder
         # A origem da linha do inimigo para que elas não colidam ali
         # Pois por ser o primeiro turno, todas sairão dali
@@ -79,20 +83,21 @@ def check_line_cross(players_group, player, line, card=None):
         # Verifica se houve overlap das linhas
         if line.overlap(temp_line, (0, 0)):
             return True
-        
+
     # Se a linha colidir com alguma das próprias retorna True
     if line.overlap(player._last_line_mask, (0, 0)):
         return True
-    
+
     # Se não passou card usa a que estiver salva
     if not card:
         card = player.clicked_card
-    
+
     # E verifica se elas não são contrárias
     if __last_vector_collision(card, player._last_card):
         return True
 
     return False
+
 
 def __hide_mask_origin(line_mask):
     new_mask = line_mask.copy()
@@ -106,11 +111,13 @@ def __hide_mask_origin(line_mask):
 
     return new_mask
 
+
 def check_riders_collision(group_1, group_2):
     # Mata ambos sprites se colidirem
     pygame.sprite.groupcollide(group_1, group_2, True, True)
-        
-class Singleton():
+
+
+class Singleton:
     def __init__(self, cls):
         # Salva a classe original
         self.aClass = cls
@@ -122,4 +129,3 @@ class Singleton():
             self.instance = self.aClass(*args, **kwargs)
 
         return self.instance
-    

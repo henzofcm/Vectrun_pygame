@@ -5,6 +5,7 @@ from entity import *
 import utilities
 from config import *
 
+
 class Rider(Entity):
     def __init__(self, number, x_y, scale_size, deck):
         # Carrega texturas diferentes dependendo do nº do jogador
@@ -50,15 +51,11 @@ class Rider(Entity):
         self.line_mask = self._get_line_mask(self._color, (-10, -10), (-10, -10))
         self._last_line_mask = self.line_mask
 
-    def update(self, deck):
-        # Roda animação de movimento se estiver vivo
-        if self.state_alive:
-            return self.move_rider(deck)
-        # E animação de morte caso contrário
-        else:
-            pass
+    def update(self):
+        # Muda a imagem do rider
+        pass
 
-    def move_rider(self, deck):
+    def move_rider(self, deck, backward=False):
         self.__set_temp_variables()
 
         # Move o jogador de acordo com essa desigualdade (quase sempre satisfeita)
@@ -73,7 +70,13 @@ class Rider(Entity):
             self.__timer += 0.05
         # Se ficou parado, reseta o movimento
         else:
-            self.__reset_movement(deck)
+            # Se for retrógrado, reseta de maneira diferente
+            if not backward:
+                self.__reset_movement(deck)
+            else:
+                self.reset_backward()
+                del self._path[-1]
+            
             return False
         
         return True
@@ -148,8 +151,46 @@ class Rider(Entity):
     def select_card(self, card):
         self.clicked_card = card
 
-        self.__player_target = self._path[-1]
+        self.__player_target = self.rect.center
         self.__player_target = (card[0] * DISTANCE + self.__player_target[0], -card[1] * DISTANCE + self.__player_target[1])
+
+    def update_death(self):
+        # TODO: Quando acabar os eventos de clock, apaga a imagem do rider
+        if False:
+            self.__remove_rider()
+
+        # Remove parte da linha
+        self.__remove_line()
+
+        # Se tiver acabado as linhas, apaga o sprite
+        if len(self._path) == 1:
+            self.kill()
+            return True
+        
+        return False
+
+    def __remove_line(self):
+        # Se não tiver uma carta, pega uma contrária à ultima linha
+        if self.clicked_card is None:
+            self.__get_last_vector()
+
+        # E então a linha vai retroceder
+        self.move_rider(self._hand, backward=True)
+
+    def __get_last_vector(self):
+        # Cria uma carta da diferença dos últimos pontos
+        card = (self.rect.center[0] - self._path[-1][0], self.rect.center[1] - self._path[-1][1])
+        card = (- card[0] / DISTANCE, card[1] / DISTANCE)
+
+        print(card)
+        # E a seleciona
+        self.select_card(card)
+
+    def reset_backward(self):
+        # Recomeça o tempo e a carta
+        self.__timer = 0
+        self.clicked_card = None
+
 
 @utilities.Singleton
 class Player():
