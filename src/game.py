@@ -10,6 +10,24 @@ from config import *
 
 class GridGame(Entity):
     def __init__(self, image_path, x_y, scale_size, bot_number):
+        """
+        Initializes the Game object.
+
+        Parameters
+        ----------
+        image_path : str
+            The path to the image file.
+        x_y : tuple
+            The x and y coordinates of the game object.
+        scale_size : float
+            The scale size of the game object.
+        bot_number : int
+            The number of bots in the game.
+
+        Returns
+        -------
+        None
+        """
         super().__init__(image_path, x_y, scale_size)
 
         # Atributos para o estado do jogo
@@ -36,6 +54,18 @@ class GridGame(Entity):
         self._all_riders = pygame.sprite.Group((self._player.sprite()), self._bots.sprites()[::-1])
 
     def update(self):
+        """
+        Update the game state.
+
+        This method handles the main events of the menu, such as quitting the game,
+        pressing the escape key, and clicking the mouse button. If a click occurs,
+        it validates the click and performs the player's movement and collision testing.
+
+        Returns
+        -------
+        bool
+            False.
+        """
         # Eventos principais deste menu
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -59,6 +89,18 @@ class GridGame(Entity):
         return False
 
     def draw(self, screen):
+        """
+        Draw the game elements on the screen.
+
+        Parameters
+        ----------
+        screen : pygame.Surface
+            The surface to draw the game elements on.
+
+        Returns
+        -------
+            None
+        """
         # Desenha o tabuleiro no layer mais baixo
         screen.blit(self.image, self.rect)
 
@@ -75,7 +117,20 @@ class GridGame(Entity):
         self._bots.draw(screen)
         self._player.draw(screen)
 
+
     def choice_preview(self, screen):
+        """
+        Preview the selected card and its path on the screen.
+
+        Parameters
+        ----------
+            screen : pygame.Surface
+            The screen surface to draw on.
+
+        Returns
+        -------
+            None
+        """
         # Verifica se o mouse está em cima da carta
         for card in self._player._hand.sprites():
             if card.update():
@@ -88,6 +143,20 @@ class GridGame(Entity):
 
     @staticmethod
     def __preview_selected_card(card, screen):
+        """
+        Draw the outline of the selected card.
+
+        Parameters
+        ----------
+        card : Card
+            The selected card object.
+        screen : pygame.Surface
+            The screen surface to draw on.
+
+        Returns
+        -------
+        None
+        """
         # Desenha o contorno da carta selecionada
         rect_pos = (card.rect.left - CARD_SELECTED_WIDTH, card.rect.top - CARD_SELECTED_WIDTH)
         rect_size = (card.rect.width + 2 * CARD_SELECTED_WIDTH, card.rect.height + 2 * CARD_SELECTED_WIDTH)
