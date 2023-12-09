@@ -197,7 +197,8 @@ class GridGame(Entity):
             """
             Verifies if the player clicked on a card and prepares the player's movement.
 
-            Returns:
+            Returns
+            -------
                 None
             """
             # Verifica em qual carta clicou
@@ -209,11 +210,18 @@ class GridGame(Entity):
                 self.__next_player_movement(player_card)
 
     def __card_clicked(self):
+        """
+        Verifies if a card has been clicked by the player.
+
+        Returns
+        -------
+            Card or None: The clicked card if found, None otherwise.
+        """
         # Se o jogador clicar na carta, _clicked = True
         for card in self._player._hand.sprites():
             if card.update():
                 return card
-            
+
         return None
             
     def move_player(self, rider):
