@@ -19,7 +19,7 @@ class GridGame(Entity):
         self._clicked = False
 
         # Cria o deck
-        self._deck = Deck(TEXTURE_PATH + "cards/", (CARD_X, CARD_Y))
+        self._deck = Deck(CARDS_PATH, (CARD_X, CARD_Y))
 
         # Cria o jogador
         self._player = Player(1, (GRID_X / 2 - 1, GRID_Y / 2 - 2), (RIDER_X, RIDER_Y), self._deck)
@@ -50,6 +50,10 @@ class GridGame(Entity):
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1 and not self._clicked and self._player:
                     self.__validate_click()
+
+            for rider in self._all_riders:
+                if event.type == rider.clock:
+                    rider.update()
 
         # Se tiver clicado, roda o movimento do jogador ou dos bots e testa colisão
         if self._clicked and self._all_riders:
@@ -85,6 +89,11 @@ class GridGame(Entity):
         # Faz blit no jogador e nos bots
         self._bots.draw(screen)
         self._player.draw(screen)
+
+        # Se alguém estiver na animação de morte, desenha de acordo
+        for rider in self._all_riders.sprites():
+            if not rider.state_alive:
+                screen.blit(rider.last_image, rider.last_rect)
 
     def choice_preview(self, screen):
         # Verifica se o mouse está em cima da carta
@@ -200,29 +209,16 @@ class GridGame(Entity):
     def check_collision(self, rider):
         # Testa colisão com a fronteira
         if utilities.check_border_collision(rider.rect.center):
-            self.__kill_rider(rider)
+            rider.kill_rider()
             return
 
         # Testa colisão com as linhas
         if utilities.check_line_collision(self._all_riders, rider) and self._game_turn:
-            self.__kill_rider(rider)
+            rider.kill_rider()
             return
 
         # Verifica se colidiram entre si
         #utilities.check_riders_collision(self._player, self._bots)
-
-    def __kill_rider(self, rider):
-        rider.reset_backward()
-
-        # Muda o estado do rider
-        rider.state_alive = False
-        rider.clicked_card = None
-
-        # Muda sua imagem para rodar a animação
-        rider.last_image = rider.image
-
-        rider.image = pygame.Surface((100, 100))
-        rider.image.set_colorkey((0, 0, 0))
 
     def __end_death(self):
         # Termina a rodada

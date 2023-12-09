@@ -12,7 +12,7 @@ class Rider(Entity):
         archive = "rider_" + str(number) + ".png"
 
         # Cria o rider e centraliza sua posição
-        super().__init__("assets/textures/" + archive, x_y, scale_size)
+        super().__init__(RIDER_PATH + archive, x_y, scale_size)
         self.rect = self.image.get_rect(center=x_y)
 
         # Atributos adicionais
@@ -44,6 +44,7 @@ class Rider(Entity):
         self.state_alive = True
         self.clicked_card = None
         self._last_card = (0, 0)
+        self.clock = None
 
         # Máscaras para colisões mais precisas
         self.mask = pygame.rect.Rect(x_y, (RIDER_X / 5 - 2, RIDER_Y / 5 - 1))
@@ -52,8 +53,13 @@ class Rider(Entity):
         self._last_line_mask = self.line_mask
 
     def update(self):
-        # Muda a imagem do rider
-        pass
+        # Muda a imagem do rider dependendo do estágio da animação
+        archive = "rider_dead_" + str(self.__death_stage) + ".png"
+
+        self.last_image = pygame.image.load(RIDER_PATH + archive).convert_alpha()
+        self.last_image = pygame.transform.scale(self.last_image, (RIDER_X, RIDER_Y))
+
+        self.__death_stage += 1
 
     def move_rider(self, deck, backward=False):
         self.__set_temp_variables()
@@ -74,7 +80,7 @@ class Rider(Entity):
             if not backward:
                 self.__reset_movement(deck)
             else:
-                self.reset_backward()
+                self.__reset_backward()
                 del self._path[-1]
             
             return False
@@ -162,10 +168,9 @@ class Rider(Entity):
         elif self._last_card == (0, 0) and self.clicked_card[0] < 0:
             self.image = pygame.transform.flip(self.image, True, False)
             
-
     def update_death(self):
         # TODO: Quando acabar os eventos de clock, apaga a imagem do rider
-        if False:
+        if self.__death_stage == 6:
             self.__remove_rider()
 
         # Remove parte da linha
@@ -177,6 +182,13 @@ class Rider(Entity):
             return True
         
         return False
+
+    def __remove_rider(self):
+        # Esconde a imagem da animação
+        self.last_image = pygame.Surface((1, 1))
+        self.last_image.set_colorkey((0, 0, 0))
+
+        self.__death_stage += 1
 
     def __remove_line(self):
         # Se não tiver uma carta, pega uma contrária à ultima linha
@@ -194,10 +206,30 @@ class Rider(Entity):
         # E a seleciona
         self.select_card(card)
 
-    def reset_backward(self):
+    def __reset_backward(self):
         # Recomeça o tempo e a carta
         self.__timer = 0
         self.clicked_card = None
+
+    def kill_rider(self):
+        self.__reset_backward()
+
+        # Muda o estado do rider
+        self.state_alive = False
+        self.clicked_card = None
+        self.__death_stage = 0
+
+        # Muda sua imagem na animação
+        self.update()
+        self.last_rect = self.rect.copy()
+
+        # Esconde sua imagem atual
+        self.image = pygame.Surface((1, 1))
+        self.image.set_colorkey((0, 0, 0))
+
+        # Cria um clock interno
+        self.clock = pygame.USEREVENT + self._number
+        pygame.time.set_timer(self.clock, 100, 5)
 
 
 @utilities.Singleton
