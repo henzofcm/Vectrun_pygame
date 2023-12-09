@@ -174,7 +174,12 @@ class Rider(Entity):
         elif self._last_card == (0, 0) and self.clicked_card[0] < 0:
             self.image = pygame.transform.flip(self.image, True, False)
             self.__flipped = not self.__flipped
-            
+        # Quando a última for do tipo (0, y), também gira se ainda não estiver naquela direção
+        elif self._last_card[0] == 0 and self.clicked_card[0] < 0:
+            if not self.__flipped:
+                self.image = pygame.transform.flip(self.image, True, False)
+                self.__flipped = not self.__flipped
+      
     def update_death(self):
         # TODO: Quando acabar os eventos de clock, apaga a imagem do rider
         if self.__death_stage == 8:
