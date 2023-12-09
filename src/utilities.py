@@ -68,15 +68,20 @@ def check_line_cross(players_group, player, line, card=None):
 
     # Se a linha colidir com o caminho de outro rider retorna True
     for rider in temp_group.sprites():
-        if line.overlap(rider.line_mask, (0, 0)):
-            print("Enemy", end=' ')
-            print(line.overlap_area(rider.line_mask, (0, 0)))
+        temp_line = rider.line_mask
+        
+        # No caso de ser o primeiro movimento do player é necessário esconder
+        # A origem da linha do inimigo para que elas não colidam ali
+        # Pois por ser o primeiro turno, todas sairão dali
+        if not player.line_mask.get_at((GRID_X / 2 - 1, GRID_Y / 2 - 2)):
+            temp_line = __hide_mask_origin(temp_line)
+
+        # Verifica se houve overlap das linhas
+        if line.overlap(temp_line, (0, 0)):
             return True
         
     # Se a linha colidir com alguma das próprias retorna True
     if line.overlap(player._last_line_mask, (0, 0)):
-        print("Self", end=' ')
-        print(line.overlap_area(player.line_mask, (0, 0)))
         return True
     
     # Se não passou card usa a que estiver salva
@@ -88,6 +93,18 @@ def check_line_cross(players_group, player, line, card=None):
         return True
 
     return False
+
+def __hide_mask_origin(line_mask):
+    new_mask = line_mask.copy()
+
+    # Cria uma pequena máscara entorno da origem
+    origin_mask = pygame.mask.Mask((RIDER_X, RIDER_Y), fill=True)
+    size = origin_mask.get_size()
+
+    # Apaga de fato a origem de temp_mask
+    new_mask.erase(origin_mask, (GRID_X / 2 - size[0] / 2, GRID_Y / 2 - size[1] / 2))
+
+    return new_mask
 
 def check_riders_collision(group_1, group_2):
     # Mata ambos sprites se colidirem

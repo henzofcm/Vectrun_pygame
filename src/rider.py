@@ -48,6 +48,7 @@ class Rider(Entity):
         self.mask = pygame.rect.Rect(x_y, (RIDER_X / 5 - 2, RIDER_Y / 5 - 1))
 
         self.line_mask = self._get_line_mask(self._color, (-10, -10), (-10, -10))
+        self._last_line_mask = self.line_mask
 
     def update(self, deck):
         # Roda animação de movimento se estiver vivo
@@ -190,8 +191,6 @@ class Bot(Rider):
             if self.__preview_movement(card, all_riders):
                 choices.append(card)
 
-        print([x.value for x in self._hand.sprites()])
-        print([y.value for y in choices])
         # Se algum for válido, retorna um entre eles
         if choices:
             return random.choice(choices)
