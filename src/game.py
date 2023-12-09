@@ -194,13 +194,19 @@ class GridGame(Entity):
             pygame.draw.line(screen, self._player._color, segment_start, segment_end, width=5)
         
     def __validate_click(self):
-        # Verifica em qual carta clicou
-        player_card = self.__card_clicked()
+            """
+            Verifies if the player clicked on a card and prepares the player's movement.
 
-        # Se tiver clicado, prepara o movimento do player
-        if player_card:
-            self._clicked = True
-            self.__next_player_movement(player_card)
+            Returns:
+                None
+            """
+            # Verifica em qual carta clicou
+            player_card = self.__card_clicked()
+
+            # Se tiver clicado, prepara o movimento do player
+            if player_card:
+                self._clicked = True
+                self.__next_player_movement(player_card)
 
     def __card_clicked(self):
         # Se o jogador clicar na carta, _clicked = True
