@@ -75,8 +75,37 @@ def check_line_collision(players_group, rider, card=None):
 
 
 def __last_vector_collision(card, last_card):
+    """
+    Check if the last vector collision occurred between two vectors.
+
+    Parameters
+    ----------
+    card : tuple
+        The current vector represented as a tuple (x, y).
+    last_card : tuple
+        The previous vector represented as a tuple (x, y).
+
+    Returns
+    -------
+    bool
+        True if the last vector collision occurred, False otherwise.
+
+    Notes
+    -----
+    The function checks if the last vector collision occurred by comparing the x and y components of the current and previous vectors.
+    If any component is zero, it only checks the other component.
+    If both components are non-zero, it checks if the vectors are proportional.
+    If the vectors are proportional and have opposite signs, it considers it as a collision.
+
+    Examples
+    --------
+    >>> __last_vector_collision((1, 2), (-1, -2))
+    True
+    >>> __last_vector_collision((3, 4), (5, 6))
+    False
+    """
     # Se algum valor de (x, y) for 0 verifica apenas o outro valor
-    if not card[0] and not last_card[0]:
+    if not card[0] and not last_card[0]:  
         if card[1] * last_card[1] < 0:
             return True
     elif not card[1] and not last_card[1]:
