@@ -18,7 +18,8 @@ class Rider(Entity):
         # Atributos adicionais
         self._number = number
         self._path = [x_y, x_y]
-        self._velocity = 1 / 2
+        self.__velocity = 1 / 2
+        self.__flipped = False
 
         # Salva a mão de cartas do jogador
         self._hand = pygame.sprite.Group()
@@ -59,6 +60,10 @@ class Rider(Entity):
         self.last_image = pygame.image.load(RIDER_PATH + archive).convert_alpha()
         self.last_image = pygame.transform.scale(self.last_image, (RIDER_X, RIDER_Y))
 
+        # Se estiver virada, atualiza de acordo
+        if self.__flipped:
+            self.last_image = pygame.transform.flip(self.last_image, True, False)
+
         self.__death_stage += 1
 
     def move_rider(self, deck, backward=False):
@@ -98,8 +103,8 @@ class Rider(Entity):
             self.__temp_y = self.rect.centery
 
         # Valores temporários para não perder precisão no movimento
-        self.__temp_x = self.__temp_x + time * delta_x / self._velocity
-        self.__temp_y = self.__temp_y - time * delta_y / self._velocity
+        self.__temp_x = self.__temp_x + time * delta_x / self.__velocity
+        self.__temp_y = self.__temp_y - time * delta_y / self.__velocity
 
         # Atualiza a posição (e converte para inteiro)
         self.rect.centerx = round(self.__temp_x)
@@ -164,13 +169,15 @@ class Rider(Entity):
         # Se a carta for contraria a anterior, gira o rider
         if self.clicked_card[0] * self._last_card[0] < 0:
             self.image = pygame.transform.flip(self.image, True, False)
+            self.__flipped = not self.__flipped
         # No caso de ser o primeiro movimento, age de acordo
         elif self._last_card == (0, 0) and self.clicked_card[0] < 0:
             self.image = pygame.transform.flip(self.image, True, False)
+            self.__flipped = not self.__flipped
             
     def update_death(self):
         # TODO: Quando acabar os eventos de clock, apaga a imagem do rider
-        if self.__death_stage == 6:
+        if self.__death_stage == 8:
             self.__remove_rider()
 
         # Remove parte da linha
@@ -229,7 +236,7 @@ class Rider(Entity):
 
         # Cria um clock interno
         self.clock = pygame.USEREVENT + self._number
-        pygame.time.set_timer(self.clock, 100, 5)
+        pygame.time.set_timer(self.clock, 100, 7)
 
 
 @utilities.Singleton
@@ -295,6 +302,14 @@ class Bot(Rider):
         if utilities.check_line_cross(all_riders, self, line_mask, card):
             return False
         
+        # Se for colidir com alguém também retorna
+        temp_group = all_riders.copy()
+        temp_group.remove(self)
+
+        for enemy in temp_group:
+            if utilities.check_riders_collision(self, enemy) and len(self._path) != 2:
+                return False
+
         # Se não colidir com nada, a carta é válida
         return True
 

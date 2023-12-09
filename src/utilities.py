@@ -112,9 +112,12 @@ def __hide_mask_origin(line_mask):
     return new_mask
 
 
-def check_riders_collision(group_1, group_2):
-    # Mata ambos sprites se colidirem
-    pygame.sprite.groupcollide(group_1, group_2, True, True)
+def check_riders_collision(rider_1, rider_2):
+    # Retorna verdadeiro se colidirem
+    if rider_1.mask.colliderect(rider_2.mask):
+        return True
+    
+    return False
 
 
 class Singleton:

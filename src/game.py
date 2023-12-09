@@ -218,9 +218,21 @@ class GridGame(Entity):
             return
 
         # Verifica se colidiram entre si
-        #utilities.check_riders_collision(self._player, self._bots)
+        temp_group = self._all_riders.copy()
+        temp_group.remove(rider)
+
+        for enemy in temp_group:
+            if utilities.check_riders_collision(rider, enemy) and self._game_turn:
+                rider.kill_rider()
+                enemy.kill_rider()
+                return
 
     def __end_death(self):
-        # Termina a rodada
+        # Termina a rodada se não houver mais nenhuma animação ocorrendo
+        for rider in self._all_riders.sprites():
+            if not rider.state_alive:
+                return
+
+        # Se todos que sobraram estiverem vivos, continua a partida
         self._mov_stage -= 1
         self.__next_player_movement()
