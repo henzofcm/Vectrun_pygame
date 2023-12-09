@@ -25,6 +25,23 @@ def check_border_collision(rider_position: tuple) -> bool:
 
 
 def check_line_collision(players_group, rider, card=None):
+    """
+    Check if there is a collision between the rider's line and the lines of other players.
+
+    Parameters
+    ----------
+    players_group : Group
+        Group containing all the players.
+    rider : Player
+        Current player.
+    card : Card, optional
+        Selected card. Defaults to None.
+
+    Returns
+    -------
+    bool
+        True if there is a collision, False otherwise.
+    """
     # Cria um grupo com todos jogadores menos o rider atual
     temp_group = players_group.copy()
     temp_group.remove(rider)
