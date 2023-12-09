@@ -81,7 +81,7 @@ class GridGame(Entity):
             if card.update():
                 # Desenha o contorno
                 self.__preview_selected_card(card, screen)
-                
+
                 # Se não houver clicado antes, mostra a trajetória da carta
                 if not self._clicked:
                     self.__preview_selected_path(card, screen)
