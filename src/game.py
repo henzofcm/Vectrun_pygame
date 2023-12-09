@@ -98,12 +98,18 @@ class GridGame(Entity):
 
     def __preview_selected_path(self, card, screen):
         # Pega o ponto inicial e final da reta
-        start = self._player._path[-1]
-        end = (start[0] + card.value[0] * DISTANCE, start[1] - card.value[1] * DISTANCE)
+        start = pygame.Vector2(self._player._path[-1])  # Converte para Vector2
+        card_value = pygame.Vector2(card.value[0], -card.value[1])
 
-        # Desenha a linha
-        pygame.draw.line(screen, self._player._color, start, end, width = 4)
+        size_segments = 12  # Defina a distância desejada entre os segmentos da linha tracejada
+        num_segments = int(start.distance_to(start + card_value * DISTANCE) / size_segments)
 
+        # Desenha a linha tracejada
+        for i in range(0, num_segments, 2):
+            segment_start = start + card_value * i * DISTANCE / num_segments
+            segment_end = start + card_value * (i + 1) * DISTANCE / num_segments
+            pygame.draw.line(screen, self._player._color, segment_start, segment_end, width=5)     
+        
     def __validate_click(self):
         # Verifica em qual carta clicou
         player_card = self.__card_clicked()
