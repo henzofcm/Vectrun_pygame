@@ -52,13 +52,13 @@ class Menu(Entity):
         self.state_control.check_events()
         self.choice_preview(self.state_control.screen)
         self.check_input()
-    
+
     def choice_preview(self, screen):
         # Verifica se o mouse está em cima da carta
         for button in self.buttons_group:
             if button.update():
                 # Seleciona a tela equivalente ao botão
-                self.state = button.label
+                self.next_state = button.label
 
                 # Desenha o contorno
                 self.__preview_selected_button(button, screen)
@@ -89,7 +89,7 @@ class Menu(Entity):
 class MainMenu(Menu):
     def __init__(self, game, image_path, x_y, scale_size):
         super().__init__(game, image_path, x_y, scale_size)
-        self.state = "the_grid"
+        self.next_state = "the_grid"
 
         # Posições para os elementos na tela
         self.start_x, self.start_y = (WIDTH/2), (HEIGHT/2)
@@ -100,9 +100,9 @@ class MainMenu(Menu):
         self.btn_the_grid = Button(TEXTURE_PATH + "grid_logo.png", (self.start_x, self.start_y),
                               (BUTTON_X, BUTTON_Y), "the_grid")
         self.btn_options = Button(TEXTURE_PATH + "options_button.png", (self.options_x, self.options_y),
-                                   (BUTTON_X, BUTTON_Y), "options")
+                                   (BUTTON_X, BUTTON_Y), "options_menu")
         self.btn_credits = Button(TEXTURE_PATH + "credits_button.png", (self.credits_x, self.credits_y),
-                                   (BUTTON_X, BUTTON_Y), "credits")
+                                   (BUTTON_X, BUTTON_Y), "credits_menu")
 
         # Adiciona os botões a um grupo
         self.buttons_group = pygame.sprite.Group(self.btn_the_grid, self.btn_options, self.btn_credits)
@@ -128,20 +128,22 @@ class MainMenu(Menu):
         if self.state_control.ESC_KEY:
             self.state_control.running = False
             self.state_control.curr_menu.run_display = False
+
+        # Checa os cliques em botões
         if self.state_control.START_KEY or self.state_control.BUTTON_CLICKED:
-            if self.state == "the_grid":
+            if self.next_state == "the_grid":
                 self.state_control.playing = True
-            elif self.state == "options":
-                self.state_control.curr_menu = self.state_control.options
-            elif self.state == "credits":
-                self.state_control.curr_menu = self.state_control.credits
+            elif self.next_state == "options_menu":
+                self.state_control.curr_menu = self.state_control.options_menu
+            elif self.next_state == "credits_menu":
+                self.state_control.curr_menu = self.state_control.credits_menu
             self.run_display = False
 
 
 class OptionsMenu(Menu):
     def __init__(self, game, image_path, x_y, scale_size):
         super().__init__(game, image_path, x_y, scale_size)
-        self.state = "main_menu"
+        self.next_state = "main_menu"
 
         # Define os botões dessa tela
         self.btn_back = Button(TEXTURE_PATH + "back_button.png", (WIDTH / 2, (HEIGHT - 100)),
@@ -174,7 +176,7 @@ class OptionsMenu(Menu):
             self.state_control.curr_menu = self.state_control.main_menu
             self.run_display = False
         if self.state_control.START_KEY or self.state_control.BUTTON_CLICKED:
-            if self.state == "main_menu":
+            if self.next_state == "main_menu":
                 self.state_control.curr_menu = self.state_control.main_menu
             self.run_display = False
 
@@ -182,7 +184,7 @@ class OptionsMenu(Menu):
 class CreditsMenu(Menu):
     def __init__(self, game, image_path, x_y, scale_size):
         super().__init__(game, image_path, x_y, scale_size)
-        self.state = "main_menu"
+        self.next_state = "main_menu"
 
         # Define variáveis com valores recorrentes no menu
         self.font_size = [25, 30, 40]
@@ -204,7 +206,7 @@ class CreditsMenu(Menu):
         self.run_display = True
         while self.run_display:
             # Exibe o plano de fundo da tela
-            self.state_control.screen.fill(BLACK)
+            self.state_control.screen.blit(self.background_image, (0,0))
 
             #Verifica as entradas e interação com os botões
             self.verify()
@@ -224,6 +226,7 @@ class CreditsMenu(Menu):
             self.draw_text("- Art and Concept granted by:", self.font_size[1], self.txt_x, (self.txt_y + 7*self.space_size[0]))
             self.draw_text("Tulio Koneçny", self.font_size[0], self.txt_x, (self.txt_y + 8*self.space_size[0]))
 
+
             self.update()
 
     def check_input(self):
@@ -234,7 +237,7 @@ class CreditsMenu(Menu):
             self.state_control.curr_menu = self.state_control.main_menu
             self.run_display = False
         if self.state_control.START_KEY or self.state_control.BUTTON_CLICKED:
-            if self.state == "main_menu":
+            if self.next_state == "main_menu":
                 self.state_control.curr_menu = self.state_control.main_menu
             self.run_display = False
 
@@ -242,7 +245,7 @@ class CreditsMenu(Menu):
 class ResultScreen(Menu):
     def __init__(self, game, image_path, x_y, scale_size):
         super().__init__(game, image_path, x_y, scale_size)
-        self.state = "main_menu"
+        self.next_state = "main_menu"
 
     def display_menu(self):
         self.run_display = True
@@ -263,14 +266,22 @@ class ResultScreen(Menu):
             self.update()
 
     def check_input(self):
-        pass
-        # CODE TO FINISH -->
-        # <-- CODE TO FINISH
+        if self.state_control.ESC_KEY:
+            self.state_control.curr_menu = self.state_control.main_menu
+            self.run_display = False
+        if self.state_control.BACK_KEY:
+            self.state_control.curr_menu = self.state_control.main_menu
+            self.run_display = False
+        if self.state_control.START_KEY or self.state_control.BUTTON_CLICKED:
+            if self.next_state == "main_menu":
+                self.state_control.curr_menu = self.state_control.main_menu
+            self.run_display = False
+
 
 class TutorialScreen(Menu):
     def __init__(self, game, image_path, x_y, scale_size):
         super().__init__(game, image_path, x_y, scale_size)
-        self.state = ""
+        self.next_state = ""
 
     def display_menu(self):
         self.run_display = True

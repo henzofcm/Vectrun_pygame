@@ -23,8 +23,11 @@ class StateControl():
 
         # Cria um objeto para cada uma das telas
         self.main_menu = MainMenu(self, (TEXTURE_PATH + "vectrun_logo.png"), (WIDTH/2, HEIGHT/5), (LOGO_X, LOGO_Y))
-        self.options = OptionsMenu(self, (TEXTURE_PATH + "options_button.png"), (WIDTH/2, (HEIGHT/6 - 50)), (2*BUTTON_X, 2*BUTTON_Y))
-        self.credits = CreditsMenu(self, (TEXTURE_PATH + "credits_button.png"), (WIDTH/2, (HEIGHT/6 - 50)), (2*BUTTON_X, 2*BUTTON_Y))
+        self.options_menu = OptionsMenu(self, (TEXTURE_PATH + "options_button.png"), (WIDTH / 2, (HEIGHT / 6 - 50)), (2 * BUTTON_X, 2 * BUTTON_Y))
+        self.credits_menu = CreditsMenu(self, (TEXTURE_PATH + "credits_button.png"), (WIDTH / 2, (HEIGHT / 6 - 50)), (2 * BUTTON_X, 2 * BUTTON_Y))
+
+        # EDIÇão FUtura para considerar ambos casos (derrrota e virtoria)
+        self.result_screen = ResultScreen(self, (TEXTURE_PATH + "you_win.png"), (WIDTH/2, HEIGHT/2), (LOGO_X,LOGO_Y))
 
         # Define a tela inicial
         self.curr_menu = self.main_menu
@@ -35,20 +38,26 @@ class StateControl():
 
     def game_loop(self):
         while self.playing:
+            # Preenche a tela escondendo o Menu
+            self.screen.fill(BLACK)
+
             # Processa as entradas
             self.check_events()
 
             # Reseta as entredas
             self.reset_keys()
 
-            # Preenche a tela escondendo o Menu
-            self.screen.fill(BLACK)
-
             # Exibe o jogo na tela
             self.game_run.update(self.screen)
 
             # Atualiza a tela
             pygame.display.update()
+
+        # INSERIR AQUI
+        # (DETECTAR DERROTA OU VITORIA)
+        if False:
+            self.curr_menu = self.result_screen
+
 
     def check_events(self):
         for event in pygame.event.get():
