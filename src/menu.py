@@ -145,12 +145,31 @@ class OptionsMenu(Menu):
         super().__init__(game, image_path, x_y, scale_size)
         self.next_state = "main_menu"
 
+        # Define variáveis com valores recorrentes no menu
+        self.vol_space = 80
+        self.vol_y = HEIGHT/3 + 30
+        self.vol_x = WIDTH/3 + 5
+        self.vol_position = (
+        (self.vol_x + 2*self.vol_space, self.vol_y), (self.vol_x + 3*self.vol_space, self.vol_y), (self.vol_x + 4*self.vol_space, self.vol_y),
+        (self.vol_x + 5*self.vol_space, self.vol_y), (self.vol_x + 6*self.vol_space, self.vol_y))
+        self.vol_dict = {"vol_1": 0, "vol_2": 0.25, "vol_3": 0.5, "vol_4": 0.75, "vol_5": 1}
+
+        # Carrega as imagens a exibir
+        self.volume_image = Entity(TEXTURE_PATH + "volume_text.png", (self.vol_x - 30, self.vol_y), (BUTTON_X, BUTTON_Y))
+        self.volume_image.rect = self.volume_image.image.get_rect(center=(self.vol_x - 30, self.vol_y))
+
         # Define os botões dessa tela
         self.btn_back = Button(TEXTURE_PATH + "back_button.png", (WIDTH / 2, (HEIGHT - 100)),
                                (BUTTON_X, BUTTON_Y), "main_menu")
+        self.btn_vol_1 = Button(TEXTURE_PATH + "square_full.png", self.vol_position[0], (50,50), "vol_1")
+        self.btn_vol_2 = Button(TEXTURE_PATH + "square_full.png", self.vol_position[1], (50, 50), "vol_2")
+        self.btn_vol_3 = Button(TEXTURE_PATH + "square_full.png", self.vol_position[2], (50, 50), "vol_3")
+        self.btn_vol_4 = Button(TEXTURE_PATH + "square_full.png", self.vol_position[3], (50, 50), "vol_4")
+        self.btn_vol_5 = Button(TEXTURE_PATH + "square_full.png", self.vol_position[4], (50, 50), "vol_5")
 
         # Adiciona os botões a um grupo
         self.buttons_group.add(self.btn_back)
+        self.buttons_group.add(self.btn_vol_1, self.btn_vol_2, self.btn_vol_3, self.btn_vol_4, self.btn_vol_5)
 
     def display_menu(self):
         self.run_display = True
@@ -162,6 +181,8 @@ class OptionsMenu(Menu):
 
             # Exibe a imagem "Options"
             self.state_control.screen.blit(self.image, self.rect)
+            # Exibe a imagem "volume"
+            self.state_control.screen.blit(self.volume_image.image, self.volume_image.rect)
 
             # Insere os botões na tela:
             self.buttons_group.draw(self.state_control.screen)
@@ -176,10 +197,17 @@ class OptionsMenu(Menu):
             self.state_control.curr_menu = self.state_control.main_menu
             self.run_display = False
         if self.state_control.START_KEY or self.state_control.BUTTON_CLICKED:
-            if self.next_state == "main_menu":
+            if self.next_state in ["vol_1", "vol_2", "vol_3", "vol_4", "vol_5"]:
+               self.change_volume()
+            elif self.next_state == "main_menu":
                 self.state_control.curr_menu = self.state_control.main_menu
-            self.run_display = False
+                self.run_display = False
 
+    def change_volume(self):
+        # CODIGO PARA CONTROLAR VOLUME
+        # pygame.mixer.init()
+        # pygame.mixer.set_volume(0.5)
+        pass
 
 class CreditsMenu(Menu):
     def __init__(self, game, image_path, x_y, scale_size):
@@ -226,7 +254,7 @@ class CreditsMenu(Menu):
             self.draw_text("- Art and Concept granted by:", self.font_size[1], self.txt_x, (self.txt_y + 7*self.space_size[0]))
             self.draw_text("Tulio Koneçny", self.font_size[0], self.txt_x, (self.txt_y + 8*self.space_size[0]))
 
-
+            # Atualiza a tela
             self.update()
 
     def check_input(self):
@@ -238,6 +266,8 @@ class CreditsMenu(Menu):
             self.run_display = False
         if self.state_control.START_KEY or self.state_control.BUTTON_CLICKED:
             if self.next_state == "main_menu":
+                self.state_control.curr_menu = self.state_control.main_menu
+            else:
                 self.state_control.curr_menu = self.state_control.main_menu
             self.run_display = False
 
