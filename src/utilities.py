@@ -172,6 +172,19 @@ def check_line_cross(players_group, player, line, card=None):
     return False
 
 def __hide_mask_origin(line_mask):
+    """
+    Hide the origin of the line mask.
+
+    Parameters
+    ----------
+    line_mask : pygame.mask.Mask
+        The original line mask.
+
+    Returns
+    -------
+    pygame.mask.Mask
+        The new line mask with the origin hidden.
+    """
     new_mask = line_mask.copy()
 
     # Cria uma pequena máscara entorno da origem
