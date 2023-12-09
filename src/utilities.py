@@ -120,6 +120,25 @@ def __last_vector_collision(card, last_card):
         return False
 
 def check_line_cross(players_group, player, line, card=None):
+    """
+    Check if a line crosses with other players' lines or with its own line.
+
+    Parameters
+    ----------
+    players_group : pygame.sprite.Group
+        A group containing all players except the current player.
+    player : Player
+        The current player.
+    line : pygame.Surface
+        The line to check for collisions.
+    card : Card, optional
+        The card used to draw the line. Defaults to None.
+
+    Returns
+    -------
+    bool
+        True if the line crosses with other players' lines or with its own line, False otherwise.
+    """
     # Cria um grupo com todos jogadores menos o rider atual
     temp_group = players_group.copy()
     temp_group.remove(player)
