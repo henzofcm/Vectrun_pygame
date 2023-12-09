@@ -141,19 +141,28 @@ class MainMenu(Menu):
 class OptionsMenu(Menu):
     def __init__(self, game, image_path, x_y, scale_size):
         super().__init__(game, image_path, x_y, scale_size)
-        self.state = "back"
+        self.state = "main_menu"
+
+        # Define os botões dessa tela
+        self.btn_back = Button(TEXTURE_PATH + "back_button.png", (WIDTH / 2, (HEIGHT - 100)),
+                               (BUTTON_X, BUTTON_Y), "main_menu")
+
+        # Adiciona os botões a um grupo
+        self.buttons_group.add(self.btn_back)
 
     def display_menu(self):
         self.run_display = True
         while self.run_display:
+            self.state_control.screen.fill(BLACK)
+            
+            # Verifica as entradas e interação com os botões
             self.verify()
 
-            self.state_control.screen.fill(BLACK)
+            # Exibe a imagem "Options"
+            self.state_control.screen.blit(self.image, self.rect)
 
-            # Falta criar um menu de opções funcional (quando a música estiver implementada)
-
-            # Excluir essa linha
-            self.draw_text("Options", 20, WIDTH / 2, HEIGHT / 2 - 30)
+            # Insere os botões na tela:
+            self.buttons_group.draw(self.state_control.screen)
 
             self.update()
 
@@ -165,7 +174,7 @@ class OptionsMenu(Menu):
             self.state_control.curr_menu = self.state_control.main_menu
             self.run_display = False
         if self.state_control.START_KEY or self.state_control.BUTTON_CLICKED:
-            if self.state == "back":
+            if self.state == "main_menu":
                 self.state_control.curr_menu = self.state_control.main_menu
             self.run_display = False
 
@@ -173,14 +182,20 @@ class OptionsMenu(Menu):
 class CreditsMenu(Menu):
     def __init__(self, game, image_path, x_y, scale_size):
         super().__init__(game, image_path, x_y, scale_size)
-        self.state = "back"
+        self.state = "main_menu"
+
+        # Define variáveis com valores recorrentes no menu
+        self.font_size = [25, 30, 40]
+        self.space_size = [40, 27]
+        self.txt_x = WIDTH / 2
+        self.txt_y = HEIGHT / 4 + self.space_size[1]
 
         # Carrega a imagem da tela de fundo
         self.background_image = pygame.image.load(TEXTURE_PATH + "background_credits.png").convert()
 
         # Define os botões dessa tela
         self.btn_back = Button(TEXTURE_PATH + "back_button.png", (WIDTH/2, (HEIGHT - 100)),
-                                   (BUTTON_X, BUTTON_Y), "back")
+                                   (BUTTON_X, BUTTON_Y), "main_menu")
 
         # Adiciona os botões a um grupo
         self.buttons_group.add(self.btn_back)
@@ -189,34 +204,25 @@ class CreditsMenu(Menu):
         self.run_display = True
         while self.run_display:
             # Exibe o plano de fundo da tela
-            self.state_control.screen.blit(self.background_image, (0, 0))
+            self.state_control.screen.fill(BLACK)
 
             #Verifica as entradas e interação com os botões
             self.verify()
 
-            # Exibe a imagem credits
+            # Exibe a imagem "credits"
             self.state_control.screen.blit(self.image, self.rect)
 
             # Insere os botões na tela:
             self.buttons_group.draw(self.state_control.screen)
 
-            # Lista com o tamanhos das fontes
-            font_size = [25, 30, 40]
-            # Lista com tamanho de espaçamentos
-            space_size = [40, 27]
-
-            # Posição inicial
-            txt_x = WIDTH/2
-            txt_y = HEIGHT/4 + space_size[1]
-
             # Desenha os textos na tela
-            self.draw_text("A2 - LP - 2023", font_size[2], txt_x, txt_y)
-            self.draw_text("- Code by:", font_size[1], txt_x, (txt_y + 2*space_size[0]))
-            self.draw_text("Beatriz Miranda Bezerra", font_size[0], txt_x, (txt_y + 3*space_size[0]))
-            self.draw_text("Gustavo Murilo Cavalcante Carvalho", font_size[0], txt_x, (txt_y + 4*space_size[0]))
-            self.draw_text("Henzo Felipe Carvalho de Mattos", font_size[0], txt_x, (txt_y + 5*space_size[0]))
-            self.draw_text("- Art and Concept granted by:", font_size[1], txt_x, (txt_y + 7*space_size[0]))
-            self.draw_text("Tulio Koneçny", font_size[0], txt_x, (txt_y + 8*space_size[0]))
+            self.draw_text("A2 - LP - 2023", self.font_size[2], self.txt_x, self.txt_y)
+            self.draw_text("- Code by:", self.font_size[1], self.txt_x, (self.txt_y + 2*self.space_size[0]))
+            self.draw_text("Beatriz Miranda Bezerra", self.font_size[0], self.txt_x, (self.txt_y + 3*self.space_size[0]))
+            self.draw_text("Gustavo Murilo Cavalcante Carvalho", self.font_size[0], self.txt_x, (self.txt_y + 4*self.space_size[0]))
+            self.draw_text("Henzo Felipe Carvalho de Mattos", self.font_size[0], self.txt_x, (self.txt_y + 5*self.space_size[0]))
+            self.draw_text("- Art and Concept granted by:", self.font_size[1], self.txt_x, (self.txt_y + 7*self.space_size[0]))
+            self.draw_text("Tulio Koneçny", self.font_size[0], self.txt_x, (self.txt_y + 8*self.space_size[0]))
 
             self.update()
 
@@ -228,12 +234,40 @@ class CreditsMenu(Menu):
             self.state_control.curr_menu = self.state_control.main_menu
             self.run_display = False
         if self.state_control.START_KEY or self.state_control.BUTTON_CLICKED:
-            if self.state == "back":
+            if self.state == "main_menu":
                 self.state_control.curr_menu = self.state_control.main_menu
             self.run_display = False
 
 
-class DeathScreen(Menu):
+class ResultScreen(Menu):
+    def __init__(self, game, image_path, x_y, scale_size):
+        super().__init__(game, image_path, x_y, scale_size)
+        self.state = "main_menu"
+
+    def display_menu(self):
+        self.run_display = True
+        while self.run_display:
+            self.state_control.screen.fill(BLACK)
+
+            # Verifica as entradas e interação com os botões
+            self.verify()
+
+            # CODE TO FINISH -->
+            # Exibe a imagem "You Died" ou "You Win"
+            self.state_control.screen.blit(self.image, self.rect)
+            # <-- CODE TO FINISH
+
+            # Insere os botões na tela:
+            self.buttons_group.draw(self.state_control.screen)
+
+            self.update()
+
+    def check_input(self):
+        pass
+        # CODE TO FINISH -->
+        # <-- CODE TO FINISH
+
+class TutorialScreen(Menu):
     def __init__(self, game, image_path, x_y, scale_size):
         super().__init__(game, image_path, x_y, scale_size)
         self.state = ""
@@ -241,35 +275,17 @@ class DeathScreen(Menu):
     def display_menu(self):
         self.run_display = True
         while self.run_display:
-            self.verify()
-
             self.state_control.screen.fill(BLACK)
 
-            # CODE --- CODE
+            # Verifica as entradas e interação com os botões
+            self.verify()
+            
+            # CODE TO FINISH -->
+            # <-- CODE TO FINISH
 
             self.update()
 
     def check_input(self):
         pass
-        # CODE --- CODE
-
-
-class Tutorial(Menu):
-    def __init__(self, game, image_path, x_y, scale_size):
-        super().__init__(game, image_path, x_y, scale_size)
-        self.state = ""
-
-    def display_menu(self):
-        self.run_display = True
-        while self.run_display:
-            self.verify()
-
-            self.state_control.screen.fill(BLACK)
-
-            # CODE --- CODE
-
-            self.update()
-
-    def check_input(self):
-        pass
-        # CODE --- CODE
+        # CODE TO FINISH -->
+        # <-- CODE TO FINISH
