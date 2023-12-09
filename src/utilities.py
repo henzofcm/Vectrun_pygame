@@ -216,12 +216,50 @@ def check_riders_collision(group_1, group_2):
     pygame.sprite.groupcollide(group_1, group_2, True, True)
         
 class Singleton():
+    """
+    A decorator class that implements the Singleton design pattern.
+
+    The Singleton decorator ensures that only one instance of a class is created and used throughout the program.
+
+    Args:
+        cls: The class to be decorated.
+
+    Returns:
+        The decorated class.
+    """
     def __init__(self, cls):
+        """
+        Initialize the Utilities class.
+
+        Parameters
+        ----------
+        cls : object
+            The object to be initialized.
+
+        Returns
+        -------
+        None
+        """
         # Salva a classe original
         self.aClass = cls
         self.instance = None
 
     def __call__(self, *args, **kwargs):
+        """
+        Execute the object call as a function.
+
+        Parameters
+        ----------
+        *args : positional arguments
+            Positional arguments passed to the function.
+        **kwargs : keyword arguments
+            Keyword arguments passed to the function.
+
+        Returns
+        -------
+        object
+            The result of the function call.
+        """
         # Usa o mesmo objeto em todas chamadas
         if self.instance is None:
             self.instance = self.aClass(*args, **kwargs)
