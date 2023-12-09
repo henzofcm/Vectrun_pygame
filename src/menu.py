@@ -286,7 +286,7 @@ class ResultScreen(Menu):
             self.verify()
 
             # CODE TO FINISH -->
-            # Exibe a imagem "You Died" ou "You Win"
+            # Exibe a imagem "You Lose" ou "You Win"
             self.state_control.screen.blit(self.image, self.rect)
             # <-- CODE TO FINISH
 
