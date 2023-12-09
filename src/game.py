@@ -194,20 +194,20 @@ class GridGame(Entity):
             pygame.draw.line(screen, self._player._color, segment_start, segment_end, width=5)
         
     def __validate_click(self):
-            """
-            Verifies if the player clicked on a card and prepares the player's movement.
+        """
+        Verifies if the player clicked on a card and prepares the player's movement.
 
-            Returns
-            -------
-                None
-            """
-            # Verifica em qual carta clicou
-            player_card = self.__card_clicked()
+        Returns
+        -------
+            None
+        """
+        # Verifica em qual carta clicou
+        player_card = self.__card_clicked()
 
-            # Se tiver clicado, prepara o movimento do player
-            if player_card:
-                self._clicked = True
-                self.__next_player_movement(player_card)
+        # Se tiver clicado, prepara o movimento do player
+        if player_card:
+            self._clicked = True
+            self.__next_player_movement(player_card)
 
     def __card_clicked(self):
         """
@@ -235,8 +235,7 @@ class GridGame(Entity):
 
         Returns
         -------
-        None
-            This method does not return anything.
+            None
 
         Notes
         -----
@@ -251,24 +250,44 @@ class GridGame(Entity):
             self.__next_player_movement()
 
     def __end_turn(self):
-            """
-            Reverses the game state and advances the turn.
+        """
+        Reverses the game state and advances the turn.
 
-            Returns
-            -------
-                None
-            """
-            # Só reverte o estado do jogo e adiciona um turno
-            self._game_turn += 1
-            self._clicked = False
-            self._mov_stage = -1
+        Returns
+        -------
+            None
+        """
+        # Só reverte o estado do jogo e adiciona um turno
+        self._game_turn += 1
+        self._clicked = False
+        self._mov_stage = -1
 
-            # Quando o jogador estiver morto pula sua vez
-            if not self._player:
-                self._mov_stage += 1
-                self._clicked = True
+        # Quando o jogador estiver morto pula sua vez
+        if not self._player:
+            self._mov_stage += 1
+            self._clicked = True
 
     def __next_player_movement(self, card=None):
+        """
+        Perform the movement of the next player in the game.
+
+        Parameters
+        ----------
+        card : Card, optional
+            The card chosen by the player. Defaults to None.
+
+        Returns
+        -------
+            None
+
+        Notes
+        -----
+        This method is responsible for advancing the game to the next player's movement.
+        If all players have completed their movements, the turn ends.
+        In the rare case of a collision on the first turn, a special action is triggered.
+        If the player is not alive, the bots will play among themselves.
+        If all players are dead, the method returns without further actions.
+        """
         self._mov_stage += 1
 
         # Se todos jogadores tiverem se movimentado, acaba o turno
@@ -286,9 +305,9 @@ class GridGame(Entity):
             # Se todos morrerem também retorna
             if not self._all_riders:
                 return
-        
-        # Caso contrário, prepara o jogo para rodar mais uma animação
-        next_player = self._all_riders.sprites()[self._mov_stage]
+            
+            # Caso contrário, prepara o jogo para rodar mais uma animação
+            next_player = self._all_riders.sprites()[self._mov_stage]
 
         # Se não tiver passado uma carta, faz o rider escolher (em geral um bot)
         if not card:
