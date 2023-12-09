@@ -8,7 +8,7 @@ import utilities
 from config import *
 
 
-class Grid_Game(Entity):
+class GridGame(Entity):
     def __init__(self, image_path, x_y, scale_size, bot_number):
         super().__init__(image_path, x_y, scale_size)
 

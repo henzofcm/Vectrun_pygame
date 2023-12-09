@@ -20,8 +20,8 @@ pygame.display.set_icon(pygame.image.load(TEXTURE_PATH + "icon.png"))
 # Cria o relógio interno do FPS
 fps_clock = pygame.time.Clock()
 
-# Grid_Game já cria todos objetos internamente (jogador, bots, cartas)
-current_menu = game.Grid_Game(TEXTURE_PATH + "grid.png", (0, 0), (GRID_X, GRID_Y), 3)
+# GridGame já cria todos objetos internamente (jogador, bots, cartas)
+current_menu = game.GridGame(TEXTURE_PATH + "grid.png", (0, 0), (GRID_X, GRID_Y), 3)
 
 # Loop do jogo
 while True:
@@ -37,7 +37,7 @@ while True:
                 current_menu = current_menu.last_menu
                 continue
 
-            current_menu = game.Grid_Game(menu)
+            current_menu = game.GridGame(menu)
 
     # Desenha tudo do menu
     current_menu.draw(screen)
