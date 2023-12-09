@@ -24,13 +24,17 @@ class Button(Entity):
 class Menu(Entity):
     def __init__(self, game, image_path, x_y, scale_size):
         super().__init__(image_path, x_y, scale_size)
-        self.rect = self.image.get_rect(center=x_y)
-        self.button_clicked = False
+
         self.state_control = game
+        self.rect = self.image.get_rect(center=x_y)
+
+        # Define variáveis de controle
         self.run_display = True
-        self.cursor_rect = pygame.Rect(0, 0, 20, 20)
-        self.adjustment_x, self.adjustment_y = -150, 15
+        self.button_clicked = False
         self.selected_button = None
+
+        # Cria um grupo para os sprites
+        self.buttons_group = pygame.sprite.Group()
 
     def draw_text(self, text, size, x, y ):
         self.font_name = pygame.font.get_default_font()
@@ -40,10 +44,46 @@ class Menu(Entity):
         text_rect.center = (x,y)
         self.state_control.screen.blit(text_surface, text_rect)
 
-    def blit_screen(self):
-        self.state_control.screen.blit(self.state_control.screen, (0, 0))
+    def update(self):
         pygame.display.update()
         self.state_control.reset_keys()
+    
+    def verify(self):
+        self.state_control.check_events()
+        self.choice_preview(self.state_control.screen)
+        self.check_input()
+    
+    def choice_preview(self, screen):
+        # Verifica se o mouse está em cima da carta
+        for button in self.buttons_group:
+            if button.update():
+                # Seleciona a tela equivalente ao botão
+                self.state = button.label
+
+                # Desenha o contorno
+                self.__preview_selected_button(button, screen)
+
+                # Verifica se o botão esquerdo do mouse é pressionado
+                mouse_clicked = pygame.mouse.get_pressed()[0]
+
+                if mouse_clicked or self.state_control.START_KEY:
+                    self.state_control.BUTTON_CLICKED = True
+                    # Delay para evitar cliques indesejados
+                    pygame.time.delay(170)
+                    return None
+
+    @staticmethod
+    def __preview_selected_button(button, screen):
+        # Desenha o contorno do botão selecionado
+        rect_pos = (button.rect.left - BUTTON_SELECTED_WIDTH, button.rect.top - BUTTON_SELECTED_WIDTH)
+        rect_size = (button.rect.width + 2 * BUTTON_SELECTED_WIDTH, button.rect.height + 2 * BUTTON_SELECTED_WIDTH)
+
+        rectangle = pygame.Rect(rect_pos, rect_size)
+
+        pygame.draw.rect(screen, RED, rectangle, width=2 * BUTTON_SELECTED_WIDTH)
+
+    def check_input(self):
+        pass
 
 
 class MainMenu(Menu):
@@ -55,7 +95,6 @@ class MainMenu(Menu):
         self.start_x, self.start_y = (WIDTH/2), (HEIGHT/2)
         self.options_x, self.options_y = (WIDTH/2), (HEIGHT/2 + 100)
         self.credits_x, self.credits_y = (WIDTH/2), (HEIGHT/2 + 200)
-        self.cursor_rect.midtop = (self.start_x + self.adjustment_x, self.start_y + self.adjustment_y)
 
         # Define os botões dessa tela
         self.btn_the_grid = Button(TEXTURE_PATH + "grid_logo.png", (self.start_x, self.start_y),
@@ -75,9 +114,7 @@ class MainMenu(Menu):
             self.state_control.screen.fill(BLACK)
 
             #Verifica as entradas e interação com os botões
-            self.state_control.check_events()
-            self.choice_preview(self.state_control.screen)
-            self.check_input()
+            self.verify()
 
             # Exibie o logo do jogo
             self.state_control.screen.blit(self.image, self.rect)
@@ -85,60 +122,31 @@ class MainMenu(Menu):
             # Insere os botões na tela:
             self.buttons_group.draw(self.state_control.screen)
 
-            self.blit_screen()
-
-    def choice_preview(self, screen):
-        # Verifica se o mouse está em cima da carta
-        for button in self.buttons_group:
-            if button.update():
-                # Seleciona a tela equivalente ao botão
-                self.state = button.label
-
-                # Desenha o contorno
-                self.__preview_selected_button(button, screen)
-
-                # Verifica se o botão esquerdo do mouse é pressionado
-                mouse_clicked = pygame.mouse.get_pressed()[0]
-
-                if mouse_clicked or self.state_control.START_KEY:
-                    self.button_clicked = True
-                else:
-                    self.button_clicked = False
-
-    @staticmethod
-    def __preview_selected_button(button, screen):
-        # Desenha o contorno do botão selecionado
-        rect_pos = (button.rect.left - BUTTON_SELECTED_WIDTH, button.rect.top - BUTTON_SELECTED_WIDTH)
-        rect_size = (button.rect.width + 2 * BUTTON_SELECTED_WIDTH, button.rect.height + 2 * BUTTON_SELECTED_WIDTH)
-
-        rectangle = pygame.Rect(rect_pos, rect_size)
-
-        pygame.draw.rect(screen, RED, rectangle, width=2 * BUTTON_SELECTED_WIDTH)
+            self.update()
 
     def check_input(self):
         if self.state_control.ESC_KEY:
             self.state_control.running = False
             self.state_control.curr_menu.run_display = False
-        if self.state_control.START_KEY or self.button_clicked:
+        if self.state_control.START_KEY or self.state_control.BUTTON_CLICKED:
             if self.state == "the_grid":
                 self.state_control.playing = True
             elif self.state == "options":
                 self.state_control.curr_menu = self.state_control.options
             elif self.state == "credits":
                 self.state_control.curr_menu = self.state_control.credits
-
             self.run_display = False
 
 
 class OptionsMenu(Menu):
     def __init__(self, game, image_path, x_y, scale_size):
         super().__init__(game, image_path, x_y, scale_size)
+        self.state = "back"
 
     def display_menu(self):
         self.run_display = True
         while self.run_display:
-            self.state_control.check_events()
-            self.check_input()
+            self.verify()
 
             self.state_control.screen.fill(BLACK)
 
@@ -147,7 +155,7 @@ class OptionsMenu(Menu):
             # Excluir essa linha
             self.draw_text("Options", 20, WIDTH / 2, HEIGHT / 2 - 30)
 
-            self.blit_screen()
+            self.update()
 
     def check_input(self):
         if self.state_control.ESC_KEY:
@@ -155,55 +163,62 @@ class OptionsMenu(Menu):
             self.run_display = False
         if self.state_control.BACK_KEY:
             self.state_control.curr_menu = self.state_control.main_menu
+            self.run_display = False
+        if self.state_control.START_KEY or self.state_control.BUTTON_CLICKED:
+            if self.state == "back":
+                self.state_control.curr_menu = self.state_control.main_menu
             self.run_display = False
 
 
 class CreditsMenu(Menu):
     def __init__(self, game, image_path, x_y, scale_size):
         super().__init__(game, image_path, x_y, scale_size)
+        self.state = "back"
+
         # Carrega a imagem da tela de fundo
         self.background_image = pygame.image.load(TEXTURE_PATH + "background_credits.png").convert()
+
+        # Define os botões dessa tela
+        self.btn_back = Button(TEXTURE_PATH + "back_button.png", (WIDTH/2, (HEIGHT - 100)),
+                                   (BUTTON_X, BUTTON_Y), "back")
+
+        # Adiciona os botões a um grupo
+        self.buttons_group.add(self.btn_back)
 
     def display_menu(self):
         self.run_display = True
         while self.run_display:
-            self.state_control.check_events()
-            self.check_input()
-
-            # Define a cor de fundo da tela
-            self.state_control.screen.fill(BLACK)
-
             # Exibe o plano de fundo da tela
-            self.state_control.screen.blit(self.background_image, (0,0))
+            self.state_control.screen.blit(self.background_image, (0, 0))
+
+            #Verifica as entradas e interação com os botões
+            self.verify()
 
             # Exibe a imagem credits
             self.state_control.screen.blit(self.image, self.rect)
 
+            # Insere os botões na tela:
+            self.buttons_group.draw(self.state_control.screen)
+
             # Lista com o tamanhos das fontes
             font_size = [25, 30, 40]
             # Lista com tamanho de espaçamentos
-            space_size = [40]
+            space_size = [40, 27]
 
             # Posição inicial
             txt_x = WIDTH/2
-            txt_y = HEIGHT/4 + space_size[0]
+            txt_y = HEIGHT/4 + space_size[1]
 
             # Desenha os textos na tela
-            self.draw_text("A2 - LP - 2023",   font_size[2], txt_x, txt_y)
+            self.draw_text("A2 - LP - 2023", font_size[2], txt_x, txt_y)
+            self.draw_text("- Code by:", font_size[1], txt_x, (txt_y + 2*space_size[0]))
+            self.draw_text("Beatriz Miranda Bezerra", font_size[0], txt_x, (txt_y + 3*space_size[0]))
+            self.draw_text("Gustavo Murilo Cavalcante Carvalho", font_size[0], txt_x, (txt_y + 4*space_size[0]))
+            self.draw_text("Henzo Felipe Carvalho de Mattos", font_size[0], txt_x, (txt_y + 5*space_size[0]))
+            self.draw_text("- Art and Concept granted by:", font_size[1], txt_x, (txt_y + 7*space_size[0]))
+            self.draw_text("Tulio Koneçny", font_size[0], txt_x, (txt_y + 8*space_size[0]))
 
-            self.draw_text("- Code by:",         font_size[1], txt_x, (txt_y + 2*space_size[0]))
-            self.draw_text("Beatriz Miranda Bezerra",
-                                                    font_size[0], txt_x, (txt_y + 3*space_size[0]))
-            self.draw_text("Gustavo Murilo Cavalcante Carvalho",
-                                                    font_size[0], txt_x, (txt_y + 4*space_size[0]))
-            self.draw_text("Henzo Felipe Carvalho de Mattos",
-                                                    font_size[0], txt_x, (txt_y + 5*space_size[0]))
-
-            self.draw_text("- Art and Concept granted by:",
-                                                    font_size[1], txt_x, (txt_y + 7*space_size[0]))
-            self.draw_text("Tulio Koneçny",    font_size[0], txt_x, (txt_y + 8*space_size[0]))
-
-            self.blit_screen()
+            self.update()
 
     def check_input(self):
         if self.state_control.ESC_KEY:
@@ -212,3 +227,49 @@ class CreditsMenu(Menu):
         if self.state_control.BACK_KEY:
             self.state_control.curr_menu = self.state_control.main_menu
             self.run_display = False
+        if self.state_control.START_KEY or self.state_control.BUTTON_CLICKED:
+            if self.state == "back":
+                self.state_control.curr_menu = self.state_control.main_menu
+            self.run_display = False
+
+
+class DeathScreen(Menu):
+    def __init__(self, game, image_path, x_y, scale_size):
+        super().__init__(game, image_path, x_y, scale_size)
+        self.state = ""
+
+    def display_menu(self):
+        self.run_display = True
+        while self.run_display:
+            self.verify()
+
+            self.state_control.screen.fill(BLACK)
+
+            # CODE --- CODE
+
+            self.update()
+
+    def check_input(self):
+        pass
+        # CODE --- CODE
+
+
+class Tutorial(Menu):
+    def __init__(self, game, image_path, x_y, scale_size):
+        super().__init__(game, image_path, x_y, scale_size)
+        self.state = ""
+
+    def display_menu(self):
+        self.run_display = True
+        while self.run_display:
+            self.verify()
+
+            self.state_control.screen.fill(BLACK)
+
+            # CODE --- CODE
+
+            self.update()
+
+    def check_input(self):
+        pass
+        # CODE --- CODE

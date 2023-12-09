@@ -16,14 +16,15 @@ class StateControl():
         # Iniciação das variáveis de controle
         self.running, self.playing = True, False
         self.UP_KEY, self.DOWN_KEY, self.START_KEY, self.BACK_KEY, self.ESC_KEY = False, False, False, False, False
+        self.BUTTON_CLICKED = False
 
         # Define a tela do jogo (pygame.display)
         self.screen = screen
 
         # Cria um objeto para cada uma das telas
         self.main_menu = MainMenu(self, (TEXTURE_PATH + "vectrun_logo.png"), (WIDTH/2, HEIGHT/5), (LOGO_X, LOGO_Y))
-        self.options = OptionsMenu(self, (TEXTURE_PATH + "options_button.png"), (WIDTH/2, HEIGHT/6), (BUTTON_X, BUTTON_Y))
-        self.credits = CreditsMenu(self, (TEXTURE_PATH + "credits_button.png"), (WIDTH/2, HEIGHT/6), (BUTTON_X, BUTTON_Y))
+        self.options = OptionsMenu(self, (TEXTURE_PATH + "options_button.png"), (WIDTH/2, (HEIGHT/6 - 50)), (2*BUTTON_X, 2*BUTTON_Y))
+        self.credits = CreditsMenu(self, (TEXTURE_PATH + "credits_button.png"), (WIDTH/2, (HEIGHT/6 - 50)), (2*BUTTON_X, 2*BUTTON_Y))
 
         # Define a tela inicial
         self.curr_menu = self.main_menu
@@ -69,3 +70,4 @@ class StateControl():
 
     def reset_keys(self):
         self.UP_KEY, self.DOWN_KEY, self.START_KEY, self.BACK_KEY, self.ESC_KEY = False, False, False, False, False
+        self.BUTTON_CLICKED = False
