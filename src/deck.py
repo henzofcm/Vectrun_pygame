@@ -10,6 +10,9 @@ class Card(Entity):
         # Direção do vetor
         self.value = value
 
+    def __getitem__(self, key):
+        return self.value[key]
+
     def update(self):
         # Testa se houve colisão com o mouse
         mouse_pos = pygame.mouse.get_pos()

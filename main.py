@@ -5,7 +5,8 @@ import sys
 sys.path.append("src/")
 
 # Importa todo o pacote de src/
-from src import *
+from src import game
+from src import menu
 from config import *
 
 # Inicializa
@@ -19,13 +20,13 @@ pygame.display.set_icon(pygame.image.load(TEXTURE_PATH + "icon.png"))
 # Cria o relógio interno do FPS
 fps_clock = pygame.time.Clock()
 
-# Grid_Game já cria todos objetos internamente (jogador, bots, cartas)
-current_menu = game.Grid_Game(TEXTURE_PATH + "grid.png", (0, 0), (GRID_X, GRID_Y), 0)
+# GridGame já cria todos objetos internamente (jogador, bots, cartas)
+current_menu = game.GridGame(TEXTURE_PATH + "grid.png", (0, 0), (GRID_X, GRID_Y), 3)
 
 # Loop do jogo
 while True:
     # Se o jogador trocar de menu, current_menu muda de acordo
-    if current_menu.update(screen):
+    if current_menu.update():
         if current_menu.next_menu == "start":
             current_menu = menu.Start_Menu()
         elif current_menu.next_menu == "config":
@@ -36,7 +37,7 @@ while True:
                 current_menu = current_menu.last_menu
                 continue
 
-            current_menu = game.Grid_Game(menu)
+            current_menu = game.GridGame(menu)
 
     # Desenha tudo do menu
     current_menu.draw(screen)
