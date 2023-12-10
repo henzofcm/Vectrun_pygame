@@ -27,7 +27,7 @@ class StateControl():
         self.credits_menu = CreditsMenu(self, (TEXTURE_MENU_PATH + "credits_button.png"), (WIDTH / 2, (HEIGHT / 6 - 50)), (2 * BUTTON_X, 2 * BUTTON_Y))
 
         # EDIÇão FUtura para considerar ambos casos (derrrota e virtoria)
-        self.result_screen = ResultScreen(self, (TEXTURE_MENU_PATH + "you_win.png"), (WIDTH/2, HEIGHT/2), (LOGO_X,LOGO_Y))
+        self.result_screen = ResultScreen(self, (TEXTURE_MENU_PATH + "you_win.png"), (WIDTH/2, HEIGHT/5), (LOGO_X,LOGO_Y))
 
         # Define a tela inicial
         self.curr_menu = self.main_menu
