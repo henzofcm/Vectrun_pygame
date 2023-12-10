@@ -7,6 +7,45 @@ from config import *
 
 
 class StateControl():
+    """
+    Class that controls the state of the game and manages the game loop.
+
+    Attributes
+    ----------
+    running : bool
+        Flag indicating if the game is running.
+    playing : bool
+        Flag indicating if the game is currently being played.
+    UP_KEY : bool
+        Flag indicating if the up key is pressed.
+    DOWN_KEY : bool
+        Flag indicating if the down key is pressed.
+    START_KEY : bool
+        Flag indicating if the start key is pressed.
+    BACK_KEY : bool
+        Flag indicating if the back key is pressed.
+    ESC_KEY : bool
+        Flag indicating if the escape key is pressed.
+    BUTTON_CLICKED : bool
+        Flag indicating if a button is clicked.
+    screen : pygame.Surface
+        The game screen.
+    fps_clock : pygame.time.Clock
+        The clock used to control the game's frame rate.
+    main_menu : MainMenu
+        The main menu of the game.
+    options_menu : OptionsMenu
+        The options menu of the game.
+    credits_menu : CreditsMenu
+        The credits menu of the game.
+    result_screen : ResultScreen
+        The result screen of the game.
+    curr_menu : Menu
+        The current menu being displayed.
+    game_run : GridGame
+        The game instance.
+    """
+
     def __init__(self):
         # Iniciação das variáveis de controle
         self.running, self.playing = True, False
@@ -37,6 +76,17 @@ class StateControl():
         # Posteriormente, criar um a cada vez que o jogo for iniciado
 
     def game_loop(self):
+        """
+        Main game loop that updates and renders the game until the game is no longer being played.
+        
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+        """
         while self.playing:
             # Preenche a tela
             self.screen.fill(BLACK)
@@ -56,6 +106,17 @@ class StateControl():
 
 
     def check_events(self):
+        """
+        Check for user events such as key presses or window close events.
+        
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+        """
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running, self.playing = False, False
@@ -74,15 +135,36 @@ class StateControl():
                     self.UP_KEY = True
 
     def reset_keys(self):
+        """
+        Reset the key flags to their initial state.
+        
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+        """
         self.UP_KEY, self.DOWN_KEY, self.START_KEY, self.BACK_KEY, self.ESC_KEY = False, False, False, False, False
         self.BUTTON_CLICKED = False
 
     def start(self):
+        """
+        Start the game by displaying the main menu and entering the game loop.
+        
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+        """
         while not self.playing:
             self.curr_menu.display_menu()
 
             if not self.running:
                 return
-
 
         self.game_loop()
