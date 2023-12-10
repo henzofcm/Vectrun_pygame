@@ -4,13 +4,79 @@ import random
 
 
 class Card(Entity):
+    """
+    Represents a card object.
+
+    Attributes
+    ----------
+    image_path : str
+        The path to the image file for the card.
+    x_y : tuple
+        The x and y coordinates of the card's position.
+    scale_size : float
+        The scale size of the card.
+    value : int
+        The value of the card.
+
+    Methods
+    -------
+    __init__(self, image_path, x_y, scale_size, value)
+        Initialize a Card object.
+    __getitem__(self, key)
+        Get the value of the card at the specified index.
+    update(self)
+        Update the card's state.
+    """
+
     def __init__(self, image_path, x_y, scale_size, value):
+        """
+        Initialize a Card object.
+
+        Parameters
+        ----------
+        image_path : str
+            The path to the image file for the card.
+        x_y : tuple
+            The x and y coordinates of the card's position.
+        scale_size : float
+            The scale size of the card.
+        value : int
+            The value of the card.
+
+        Returns
+        -------
+        None
+        """
         super().__init__(image_path, x_y, scale_size)
 
         # Direção do vetor
         self.value = value
 
+    def __getitem__(self, key):
+        """
+        Get the value of the card at the specified index.
+
+        Parameters
+        ----------
+        key : int
+            The index of the value to retrieve.
+
+        Returns
+        -------
+        int
+            The value of the card at the specified index.
+        """
+        return self.value[key]
+
     def update(self):
+        """
+        Update the card's state.
+
+        Returns
+        -------
+        bool
+            True if the card collides with the mouse position, False otherwise.
+        """
         # Testa se houve colisão com o mouse
         mouse_pos = pygame.mouse.get_pos()
 
@@ -22,7 +88,41 @@ class Card(Entity):
 
 
 class Deck(Entity):
+    """
+    Represents a deck of cards.
+
+    Attributes
+    ----------
+    cards : list
+        A list of Card objects representing the cards in the deck.
+    drawn_cards : list
+        A list of Card objects representing the cards that have been drawn from the deck and are in play.
+
+    Methods
+    -------
+    __init__(self, card_path, scale_size)
+        Initializes a Deck object.
+    shuffle_deck(self)
+        Shuffles the deck of cards.
+    draw_card(self)
+        Draws a card from the deck.
+    """
+
     def __init__(self, card_path, scale_size):
+        """
+        Initializes a Deck object.
+
+        Parameters
+        ----------
+        card_path : str
+            The path to the directory containing the card images.
+        scale_size : tuple
+            A tuple representing the scale size of the cards.
+
+        Returns
+        -------
+        None
+        """
         super().__init__(card_path + "card_back.png", (0, 0), (0, 0))
 
         self.cards = []
@@ -49,25 +149,36 @@ class Deck(Entity):
         self.shuffle_deck()
 
     def shuffle_deck(self):
-        # Se o deck estiver vazio, randomiza drawn_cards
+        """
+        Shuffles the deck of cards.
+
+        If the deck is empty, the drawn cards are shuffled and added back to the deck.
+        Otherwise, the deck itself is shuffled.
+
+        Returns
+        -------
+        None
+        """
         if not self.cards:
             random.shuffle(self.drawn_cards)
             self.cards = self.drawn_cards.copy()
-
-            # Limpa as cartas tiradas
             self.drawn_cards.clear()
-
-        # Caso contrário, randomiza o próprio deck
         else:
             random.shuffle(self.cards)
 
-
     def draw_card(self):
-        if not self.cards:  # Se o deck estiver vazio, embaralhe-o novamente
+        """
+        Draws a card from the deck.
+
+        If the deck is empty, it is shuffled again before drawing a card.
+
+        Returns:
+            Card: The card that was drawn from the deck.
+        """
+        if not self.cards:
             self.shuffle_deck()
 
-        card = self.cards.pop(0)  # Remove a primeira carta do deck
-        self.drawn_cards.append(card)  # Adiciona a carta às cartas tiradas
+        card = self.cards.pop(0)
+        self.drawn_cards.append(card)
 
         return card
-
