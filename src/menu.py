@@ -241,7 +241,7 @@ class CreditsMenu(Menu):
         self.run_display = True
         while self.run_display:
             # Exibe o plano de fundo da tela
-            self.state_control.screen.blit(self.background_image, self.background_image.rect)
+            self.state_control.screen.blit(self.background_image.image, self.background_image.rect)
 
             #Verifica as entradas e interação com os botões
             self.verify()
@@ -342,18 +342,22 @@ class TutorialScreen(Menu):
         self.num_of_pages = 3
         self.tutorial_read = False
 
+        # Definição de variáveis
         self.font_size = 25
+        self.img_x = 150
+        self.img_y = 360
+        self.space_img = 100
 
         # Define a fonte a ser usada
-        self.font_name = FONTS_PATH + "terminator.otf"
+        self.font_name = FONTS_PATH + "tron.ttf"
 
         # Carrega as imagens que serão usadas
         self.img_wall = Entity(IMG_MANUAL_PATH + "collision_with_side_walls.png",
-                               (150, HEIGHT/4), (200, 200))
+                               (self.img_x, self.img_y), (200, 200))
         self.img_moto = Entity(IMG_MANUAL_PATH + "intersection_with_motorcycle.png",
-                               (400, HEIGHT/4), (200, 200))
+                               (2*self.img_x + self.space_img, self.img_y), (200, 200))
         self.img_line = Entity(IMG_MANUAL_PATH + "intersection_with_the_line.png",
-                               (650, HEIGHT/4), (200, 200))
+                               (3*self.img_x + 2*self.space_img, self.img_y), (200, 200))
 
         # Define os botões dessa tela
         self.btn_play = Button(TEXTURE_MENU_PATH + "play_button.png", (WIDTH/2, HEIGHT-80),
@@ -382,13 +386,16 @@ class TutorialScreen(Menu):
 
             # Telas de tutorial
             if self.page == 1:
-                self.draw_large_text(txt_regra_1, self.font_size, WIDTH/2, 180, 54)
-                self.draw_large_text(txt_regra_2, self.font_size, WIDTH/2, 380, 54)
-                self.draw_large_text(txt_regra_3, self.font_size, WIDTH/2, 480, 54)
+                self.draw_large_text(txt_regra_1, self.font_size, WIDTH/2, 210, 55)
+                self.draw_large_text(txt_regra_2, self.font_size, WIDTH/2, 410, 55)
             elif self.page == 2:
-                self.draw_large_text(txt_regra_4, self.font_size, WIDTH/2, 180, 54)
-                self.draw_large_text(txt_regra_5, self.font_size, WIDTH/2, 340, 54)
+                self.draw_large_text(txt_regra_3, self.font_size, WIDTH/2, 210, 55)
+                self.draw_large_text(txt_regra_4, self.font_size, WIDTH/2, 370, 55)
             else:
+                self.draw_large_text(txt_regra_5, self.font_size, WIDTH/2, 210, 55)
+                self.draw_large_text("Colisões com paredes",    self.font_size, 250, 300, 15)
+                self.draw_large_text("Colisões diretas",        self.font_size, 500, 300, 15)
+                self.draw_large_text("Colisões com as linhas",  self.font_size, 750, 300, 15)
                 self.state_control.screen.blit(self.img_wall.image, self.img_wall.rect)
                 self.state_control.screen.blit(self.img_moto.image, self.img_moto.rect)
                 self.state_control.screen.blit(self.img_line.image, self.img_line.rect)

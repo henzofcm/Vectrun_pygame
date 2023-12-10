@@ -13,5 +13,4 @@ txt_regra_4 = ("4. Após a realização do movimento, o jogo marca o deslocament
                "A carta utilizada é automaticamente descartada, e uma nova carta é retirada da pilha de "
                "Cartas de Vetores.")
 
-txt_regra_5 = ("5. O jogo continua com cada jogador realizando seus movimentos. Em algum momento no jogo "
-               "uma das seguintes Ações Críticas poderá ocorrer:")
+txt_regra_5 = ("5. Os jogadores são eliminados nas seguintes situações:")

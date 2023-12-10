@@ -29,6 +29,8 @@ class StateControl():
         # EDIÇão FUtura para considerar ambos casos (derrrota e virtoria)
         self.result_screen = ResultScreen(self, (TEXTURE_MENU_PATH + "you_win.png"), (WIDTH/2, HEIGHT/5), (LOGO_X,LOGO_Y))
 
+        self.tutorial_screen = TutorialScreen(self, (TEXTURE_MENU_PATH + "tutorial_text.png"), (WIDTH / 2, HEIGHT / 6 - 50), (2 * BUTTON_X, 2 * BUTTON_Y))
+
         # Define a tela inicial
         self.curr_menu = self.main_menu
 
