@@ -217,15 +217,21 @@ def check_riders_collision(group_1, group_2):
         
 class Singleton():
     """
-    A decorator class that implements the Singleton design pattern.
-
-    The Singleton decorator ensures that only one instance of a class is created and used throughout the program.
-
-    Args:
-        cls: The class to be decorated.
-
-    Returns:
-        The decorated class.
+    This class is used to create a singleton object.
+    
+    Attributes
+    ----------
+    aClass : object
+        The object to be initialized.
+    instance : object
+        The instance of the object.
+        
+    Methods
+    -------
+    __init__(self, cls)
+        Initialize the Utilities class.
+    __call__(self, *args, **kwargs)
+        Execute the object call as a function.
     """
     def __init__(self, cls):
         """
