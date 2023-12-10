@@ -97,6 +97,15 @@ class Deck(Entity):
         A list of Card objects representing the cards in the deck.
     drawn_cards : list
         A list of Card objects representing the cards that have been drawn from the deck and are in play.
+        
+    Methods
+    -------
+    __init__(self, card_path, scale_size)
+        Initializes a Deck object.
+    shuffle_deck(self)
+        Shuffles the deck of cards.
+    draw_card(self)
+        Draws a card from the deck.
     """
 
     def __init__(self, card_path, scale_size):
@@ -109,6 +118,10 @@ class Deck(Entity):
             The path to the directory containing the card images.
         scale_size : tuple
             A tuple representing the scale size of the cards.
+            
+        Returns
+        -------
+        None
         """
         super().__init__(card_path + "card_back.png", (0, 0), (0, 0))
 
@@ -141,6 +154,10 @@ class Deck(Entity):
 
         If the deck is empty, the drawn cards are shuffled and added back to the deck.
         Otherwise, the deck itself is shuffled.
+        
+        Returns
+        -------
+        None
         """
         if not self.cards:
             random.shuffle(self.drawn_cards)
