@@ -1,7 +1,7 @@
 txt_regra_1 = ("1. As Cartas de Vetores são embaralhadas automaticamente. "
                "Cada jogador recebe 3 cartas de vetores, e elas são exibidas apenas "
                "para o próprio jogador, mantendo-se ocultas dos outros participantes. "
-               "As cartas restantes são armazenadas em uma pilha.)")
+               "As cartas restantes são armazenadas em uma pilha.")
 
 txt_regra_2 = "2. As motos dos jogadores começam na origem do plano cartesiano, no ponto (0, 0)"
 
