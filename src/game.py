@@ -337,6 +337,17 @@ class GridGame(Entity):
                 continue
 
     def check_collision(self, rider):
+        """
+        Check for collisions between the rider and the game elements.
+
+        Parameters
+        ----------
+            rider (Rider): The rider object to check for collisions.
+
+        Returns
+        -------
+            None
+        """
         # Testa colisão com a fronteira
         if utilities.check_border_collision(rider.rect.center):
             self.__kill_rider(rider)
