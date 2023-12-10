@@ -28,6 +28,9 @@ class Menu(Entity):
         self.state_control = game
         self.rect = self.image.get_rect(center=x_y)
 
+        # Define a fonte a ser usada
+        self.font_name = pygame.font.get_default_font()
+
         # Define variáveis de controle
         self.run_display = True
         self.button_clicked = False
@@ -37,8 +40,7 @@ class Menu(Entity):
         self.buttons_group = pygame.sprite.Group()
 
     def draw_text(self, text, size, x, y ):
-        self.font_name = pygame.font.get_default_font()
-        font = pygame.font.Font(self.font_name,size)
+        font = pygame.font.Font(self.font_name, size)
         text_surface = font.render(text, True, WHITE)
         text_rect = text_surface.get_rect()
         text_rect.center = (x,y)
@@ -214,11 +216,14 @@ class CreditsMenu(Menu):
         super().__init__(game, image_path, x_y, scale_size)
         self.next_state = "main_menu"
 
+        # Define a fonte a ser usada
+        self.font_name = FONTS_PATH + "tron.ttf"
+
         # Define variáveis com valores recorrentes no menu
-        self.font_size = [25, 30, 40]
-        self.space_size = [40, 27]
+        self.font_size = [17, 20, 25]
+        self.space_size = [38, 30]
         self.txt_x = WIDTH / 2
-        self.txt_y = HEIGHT / 4 + self.space_size[1]
+        self.txt_y = HEIGHT / 4 + 20
 
         # Carrega a imagem da tela de fundo
         self.background_image = pygame.image.load(TEXTURE_MENU_PATH + "background_credits.png").convert()
@@ -252,7 +257,7 @@ class CreditsMenu(Menu):
             self.draw_text("Gustavo Murilo Cavalcante Carvalho", self.font_size[0], self.txt_x, (self.txt_y + 4*self.space_size[0]))
             self.draw_text("Henzo Felipe Carvalho de Mattos", self.font_size[0], self.txt_x, (self.txt_y + 5*self.space_size[0]))
             self.draw_text("- Art and Concept granted by:", self.font_size[1], self.txt_x, (self.txt_y + 7*self.space_size[0]))
-            self.draw_text("Tulio Koneçny", self.font_size[0], self.txt_x, (self.txt_y + 8*self.space_size[0]))
+            self.draw_text("Tulio Konecny", self.font_size[0], self.txt_x, (self.txt_y + 8*self.space_size[0]))
 
             # Atualiza a tela
             self.update()
@@ -267,6 +272,10 @@ class CreditsMenu(Menu):
         if self.state_control.START_KEY or self.state_control.BUTTON_CLICKED:
             if self.next_state == "main_menu":
                 self.state_control.curr_menu = self.state_control.main_menu
+            elif self.next_state == "scree_1":
+                pass
+            elif self.next_state == "screen_2":
+                pass
             else:
                 self.state_control.curr_menu = self.state_control.main_menu
             self.run_display = False
@@ -277,6 +286,20 @@ class ResultScreen(Menu):
         super().__init__(game, image_path, x_y, scale_size)
         self.next_state = "main_menu"
 
+        # Define a fonte a ser usada
+        self.font_name = FONTS_PATH + "tron.ttf"
+
+        # Define variáveis com valores recorrentes no menu
+
+        # Define os botões dessa tela
+        self.btn_menu = Button(TEXTURE_MENU_PATH + "to_menu_button.png", (WIDTH/2, HEIGHT-200),
+                               (BUTTON_X, BUTTON_Y), "main_menu")
+        self.btn_exit = Button(TEXTURE_MENU_PATH + "exit_button.png", (WIDTH/2, HEIGHT-100),
+                               (BUTTON_X, BUTTON_Y), "exit")
+
+        # Adiciona os botões a um grupo
+        self.buttons_group.add(self.btn_menu, self.btn_exit)
+
     def display_menu(self):
         self.run_display = True
         while self.run_display:
@@ -285,10 +308,10 @@ class ResultScreen(Menu):
             # Verifica as entradas e interação com os botões
             self.verify()
 
-            # CODE TO FINISH -->
-            # Exibe a imagem "You Lose" ou "You Win"
             self.state_control.screen.blit(self.image, self.rect)
-            # <-- CODE TO FINISH
+
+            self.draw_text("Seleect your", 40, WIDTH/2, HEIGHT/2 - 40)
+            self.draw_text("next action :", 40, WIDTH/2, HEIGHT/2 + 40)
 
             # Insere os botões na tela:
             self.buttons_group.draw(self.state_control.screen)
@@ -305,6 +328,9 @@ class ResultScreen(Menu):
         if self.state_control.START_KEY or self.state_control.BUTTON_CLICKED:
             if self.next_state == "main_menu":
                 self.state_control.curr_menu = self.state_control.main_menu
+            if self.next_state == "exit":
+                self.state_control.running = False
+                self.state_control.curr_menu.run_display = False
             self.run_display = False
 
 
