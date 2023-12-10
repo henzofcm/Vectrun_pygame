@@ -6,7 +6,28 @@ import utilities
 from config import *
 
 class Rider(Entity):
+    """
+    Represents a rider object.
+    """
     def __init__(self, number, x_y, scale_size, deck):
+        """
+        Initialize a Rider object.
+
+        Parameters
+        ----------
+        number : int
+            The number of the player.
+        x_y : tuple
+            The initial position of the rider.
+        scale_size : float
+            The scale size of the rider.
+        deck : Deck
+            The deck object that represents the game deck.
+
+        Returns
+        -------
+        None
+        """
         # Carrega texturas diferentes dependendo do nº do jogador
         archive = "rider_" + str(number) + ".png"
 
@@ -51,6 +72,18 @@ class Rider(Entity):
         self._last_line_mask = self.line_mask
 
     def update(self, deck):
+        """
+        Update the rider's state based on the given deck.
+
+        Parameters
+        ----------
+        deck : Deck
+            The deck object that represents the game deck.
+
+        Returns
+        -------
+        None
+        """
         # Roda animação de movimento se estiver vivo
         if self.state_alive:
             return self.move_rider(deck)
@@ -59,6 +92,19 @@ class Rider(Entity):
             pass
 
     def move_rider(self, deck):
+        """
+        Move the rider according to the card it clicked.
+
+        Parameters
+        ----------
+        deck : Deck
+            The deck object.
+
+        Returns
+        -------
+        bool
+            True if the rider is moved, False otherwise.
+        """
         self.__set_temp_variables()
 
         # Move o jogador de acordo com essa desigualdade (quase sempre satisfeita)
@@ -79,6 +125,23 @@ class Rider(Entity):
         return True
 
     def __change_move(self, card, time):
+        """
+        Move the rider's position based on the given card and time.
+
+        Parameters
+        ----------
+        card : tuple
+            The difference that the rider should move in the x and y directions.
+        time : int
+            The time duration of the movement.
+
+        Notes
+        -----
+        This method updates the rider's position by calculating the temporary positions
+        based on the card and time values. The rider's position is then rounded to the
+        nearest integer and updated accordingly.
+
+        """
         # Diferença que a moto deverá andar
         delta_x = card[0]
         delta_y = card[1]
@@ -98,6 +161,18 @@ class Rider(Entity):
         self.mask.center = self.rect.center
 
     def __set_temp_variables(self):
+        """
+        Set temporary variables that save code in movement.
+
+        Parameters
+        ----------
+        self : Rider
+            The Rider object.
+
+        Returns
+        -------
+        None
+        """
         # Variáveis temporárias que poupam código no movimento
         self.__temp_player_center = self.rect.center
         self.__temp_player_target = self.__player_target
@@ -112,6 +187,18 @@ class Rider(Entity):
             self.__temp_player_target = (self.__temp_player_target[0], -self.__temp_player_target[1])
 
     def __reset_movement(self, deck):
+        """
+        Resets the movement of the rider.
+
+        Parameters
+        ----------
+        deck : Deck
+            The deck of cards.
+
+        Returns
+        -------
+        None
+        """
         # Retorna _timer para 0
         self.__timer = 0
 
@@ -137,6 +224,24 @@ class Rider(Entity):
 
     @staticmethod
     def _get_line_mask(color,start, end):
+        """
+        Create a line mask based on the given color, start, and end points.
+
+        Parameters
+        ----------
+        color : str
+            The color of the line.
+        start : tuple
+            The starting point of the line.
+        end : tuple
+            The ending point of the line.
+
+        Returns
+        -------
+        pygame.mask.Mask
+            The line mask.
+
+        """
         # Cria uma superfície em preto
         temp_surf = pygame.Surface((GRID_X, GRID_Y))
         temp_surf.set_colorkey((0, 0, 0))
@@ -146,6 +251,18 @@ class Rider(Entity):
         return pygame.mask.from_surface(temp_surf)
 
     def select_card(self, card):
+        """
+        Select a card for the rider.
+
+        Parameters
+        ----------
+        card : tuple
+            The card that the rider clicked.
+
+        Returns
+        -------
+        None
+        """
         self.clicked_card = card
 
         self.__player_target = self._path[-1]
