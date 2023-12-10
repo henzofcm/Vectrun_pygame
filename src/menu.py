@@ -370,7 +370,46 @@ class MainMenu(Menu):
 
 
 class OptionsMenu(Menu):
+    """
+    Represents the options menu.
+    
+    Attributes
+    ----------
+    next_state : str
+        The next state to transition to.
+    btn_back : Button
+        The button to transition to the main menu.
+    buttons_group : Group
+        The group of buttons for the menu.
+        
+    Methods
+    -------
+    __init__(self, game, image_path, x_y, scale_size)
+        Initializes a OptionsMenu object.
+    display_menu(self)
+        Display the options menu.
+    check_input(self)
+        Check the input for the menu.        
+    """
     def __init__(self, game, image_path, x_y, scale_size):
+        """
+        Initializes a OptionsMenu object.
+        
+        Parameters
+        ----------
+        game : Game
+            The game object that controls the menu.
+        image_path : str    
+            The path to the image file for the menu.
+        x_y : tuple
+            The x and y coordinates of the menu.
+        scale_size : float
+            The scale size of the menu.
+            
+        Returns
+        -------
+        None
+        """
         super().__init__(game, image_path, x_y, scale_size)
         self.next_state = "main_menu"
 
@@ -382,6 +421,13 @@ class OptionsMenu(Menu):
         self.buttons_group.add(self.btn_back)
 
     def display_menu(self):
+        """
+        Display the options menu.
+        
+        Returns
+        -------
+        None
+        """
         self.run_display = True
         while self.run_display:
             self.state_control.screen.fill(BLACK)
@@ -398,6 +444,13 @@ class OptionsMenu(Menu):
             self.update()
 
     def check_input(self):
+        """
+        Check the input for the menu.
+        
+        Returns
+        -------
+        None
+        """
         if self.state_control.ESC_KEY:
             self.state_control.curr_menu = self.state_control.main_menu
             self.run_display = False
