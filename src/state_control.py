@@ -32,11 +32,18 @@ class StateControl():
         # Define a tela inicial
         self.curr_menu = self.main_menu
 
+        # Carrega a música pra memória
+        self.volume = 0.4
+        self.__change_music("title.ogg", self.volume)
+
         # Cria um objeto para o jogo
-        self.game_run = GridGame(TEXTURE_PATH + "grid.png", (0, 0), (GRID_X, GRID_Y), 3)
+        self.game_run = GridGame(TEXTURE_PATH + "grid.png", (0, 0), (GRID_X, GRID_Y), 3, self.volume)
         # Posteriormente, criar um a cada vez que o jogo for iniciado
 
     def game_loop(self):
+        self.__change_music("grid_1.ogg", self.volume)
+        pygame.mixer.music.play(-1, 0, 2)
+
         while self.playing:
             # Preenche a tela
             self.screen.fill(BLACK)
@@ -53,7 +60,6 @@ class StateControl():
         # (DETECTAR DERROTA OU VITORIA)
         if False:
             self.curr_menu = self.result_screen
-
 
     def check_events(self):
         for event in pygame.event.get():
@@ -78,11 +84,17 @@ class StateControl():
         self.BUTTON_CLICKED = False
 
     def start(self):
+        pygame.mixer.music.play(-1, 0, 2)
+        # Altera entre as telas do menu e o jogo principal
         while not self.playing:
             self.curr_menu.display_menu()
 
             if not self.running:
                 return
 
-
         self.game_loop()
+
+    @staticmethod
+    def __change_music(title, volume):
+        pygame.mixer.music.load(MUSIC_PATH + title)
+        pygame.mixer.music.set_volume(volume)
