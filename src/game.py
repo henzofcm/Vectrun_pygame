@@ -9,7 +9,91 @@ from config import *
 
 
 class GridGame(Entity):
+    """
+    Represents the grid game.
+    
+    This class inherits from Entity and represents the grid game.
+    It is responsible for handling the game's main events, such as quitting the game,
+    pressing the escape key, and clicking the mouse button. If a click occurs,
+    it validates the click and performs the player's movement and collision testing.
+    
+    Attributes
+    ----------
+    image_path : str
+        The path to the image file.
+    x_y : tuple
+        The x and y coordinates of the game object.
+    scale_size : float
+        The scale size of the game object.
+    bot_number : int
+        The number of bots in the game.
+    next_menu : str
+        The next menu to be displayed.
+    _game_turn : int
+        The current turn of the game.
+    _mov_stage : int
+        The current stage of the player's movement.
+    _clicked : bool
+        True if the player has clicked, False otherwise.
+    _deck : Deck
+        The deck of cards.
+    _player : Player
+        The player object.
+    _bots : Group
+        The group of bots.
+    _all_riders : Group
+        The group of all riders.
+        
+    Methods
+    -------
+    __init__(self, image_path, x_y, scale_size, bot_number)
+        Initializes the Game object.
+    update(self)
+        Update the game state.
+    draw(self, screen)
+        Draw the game elements on the screen.
+    choice_preview(self, screen)
+        Preview the selected card and its path on the screen.
+    __preview_selected_card(card, screen)
+        Draw the outline of the selected card.
+    __preview_selected_path(card, screen)
+        Preview the selected path on the screen.
+    __validate_click(self)
+        Verifies if the player clicked on a card and prepares the player's movement.
+    __card_clicked(self)
+        Verifies if a card has been clicked by the player.
+    move_player(self, rider)
+        Move the player's rider.
+    __end_turn(self)
+        Reverses the game state and advances the turn.
+    __next_player_movement(self, card=None)
+        Perform the movement of the next player in the game.
+    __first_turn_collision(self)
+        Verifies if any rider has collided during the first turn.
+    check_collision(self, rider)
+        Check for collisions between the rider and the game elements.
+    __kill_rider(self, rider)
+        Kills the specified rider and advances the turn.
+    """
     def __init__(self, image_path, x_y, scale_size, bot_number, volume, state_control):
+        """
+        Initializes the Game object.
+
+        Parameters
+        ----------
+        image_path : str
+            The path to the image file.
+        x_y : tuple
+            The x and y coordinates of the game object.
+        scale_size : float
+            The scale size of the game object.
+        bot_number : int
+            The number of bots in the game.
+
+        Returns
+        -------
+        None
+        """
         super().__init__(image_path, x_y, scale_size)
         self.state_control = state_control
 
@@ -51,6 +135,18 @@ class GridGame(Entity):
         self.channel.set_volume(self.volume)
 
     def update(self):
+        """
+        Update the game state.
+
+        This method handles the main events of the menu, such as quitting the game,
+        pressing the escape key, and clicking the mouse button. If a click occurs,
+        it validates the click and performs the player's movement and collision testing.
+
+        Returns
+        -------
+        bool
+            False.
+        """
         # Eventos principais deste menu
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -98,6 +194,18 @@ class GridGame(Entity):
         return False
 
     def draw(self, screen):
+        """
+        Draw the game elements on the screen.
+
+        Parameters
+        ----------
+        screen : pygame.Surface
+            The surface to draw the game elements on.
+
+        Returns
+        -------
+            None
+        """
         # Desenha o tabuleiro no layer mais baixo
         screen.blit(self.image, self.rect)
 
@@ -120,6 +228,18 @@ class GridGame(Entity):
                 screen.blit(rider.last_image, rider.last_rect)
 
     def choice_preview(self, screen):
+        """
+        Preview the selected card and its path on the screen.
+
+        Parameters
+        ----------
+            screen : pygame.Surface
+            The screen surface to draw on.
+
+        Returns
+        -------
+            None
+        """
         # Verifica se o mouse está em cima da carta
         for card in self._player._hand.sprites():
             if card.update():
@@ -132,6 +252,20 @@ class GridGame(Entity):
 
     @staticmethod
     def __preview_selected_card(card, screen):
+        """
+        Draw the outline of the selected card.
+
+        Parameters
+        ----------
+        card : Card
+            The selected card object.
+        screen : pygame.Surface
+            The screen surface to draw on.
+
+        Returns
+        -------
+        None
+        """
         # Desenha o contorno da carta selecionada
         rect_pos = (card.rect.left - CARD_SELECTED_WIDTH, card.rect.top - CARD_SELECTED_WIDTH)
         rect_size = (card.rect.width + 2 * CARD_SELECTED_WIDTH, card.rect.height + 2 * CARD_SELECTED_WIDTH)
@@ -141,6 +275,20 @@ class GridGame(Entity):
         pygame.draw.rect(screen, "#258dc2", rectangle, width=2 * CARD_SELECTED_WIDTH)
 
     def __preview_selected_path(self, card, screen):
+        """
+        Preview the selected path on the screen.
+
+        Parameters
+        ----------
+        card : Card
+            The selected card.
+        screen : pygame.Surface
+            The screen surface to draw on.
+
+        Returns
+        -------
+        None
+        """
         # Pega o ponto inicial e final da reta
         start = pygame.Vector2(self._player._path[-1])  # Converte para Vector2
         card_value = pygame.Vector2(card.value[0], -card.value[1])
@@ -152,9 +300,16 @@ class GridGame(Entity):
         for i in range(0, num_segments, 2):
             segment_start = start + card_value * i * DISTANCE / num_segments
             segment_end = start + card_value * (i + 1) * DISTANCE / num_segments
-            pygame.draw.line(screen, self._player._color, segment_start, segment_end, width=5)     
+            pygame.draw.line(screen, self._player._color, segment_start, segment_end, width=5)
         
     def __validate_click(self):
+        """
+        Verifies if the player clicked on a card and prepares the player's movement.
+
+        Returns
+        -------
+            None
+        """
         # Verifica em qual carta clicou
         player_card = self.__card_clicked()
 
@@ -164,14 +319,38 @@ class GridGame(Entity):
             self.__next_player_movement(player_card)
 
     def __card_clicked(self):
+        """
+        Verifies if a card has been clicked by the player.
+
+        Returns
+        -------
+            Card or None: The clicked card if found, None otherwise.
+        """
         # Se o jogador clicar na carta, _clicked = True
         for card in self._player._hand.sprites():
             if card.update():
                 return card
-            
+
         return None
             
     def move_player(self, rider):
+        """
+        Move the player's rider.
+
+        Parameters
+        ----------
+        rider : Rider
+            The rider object to be moved.
+
+        Returns
+        -------
+            None
+
+        Notes
+        -----
+        If the rider is able to update its position on the deck, nothing happens.
+        If the rider is unable to update its position, the next player movement is reset.
+        """
         # Move o rider
         if rider.move_rider(self._deck):
             return
@@ -180,6 +359,13 @@ class GridGame(Entity):
             self.__next_player_movement()
 
     def __end_turn(self):
+        """
+        Reverses the game state and advances the turn.
+
+        Returns
+        -------
+            None
+        """
         # Só reverte o estado do jogo e adiciona um turno
         self._game_turn += 1
         self._clicked = False
@@ -194,6 +380,26 @@ class GridGame(Entity):
         self.channel.stop()
 
     def __next_player_movement(self, card=None):
+        """
+        Perform the movement of the next player in the game.
+
+        Parameters
+        ----------
+        card : Card, optional
+            The card chosen by the player. Defaults to None.
+
+        Returns
+        -------
+            None
+
+        Notes
+        -----
+        This method is responsible for advancing the game to the next player's movement.
+        If all players have completed their movements, the turn ends.
+        In the rare case of a collision on the first turn, a special action is triggered.
+        If the player is not alive, the bots will play among themselves.
+        If all players are dead, the method returns without further actions.
+        """
         self._mov_stage += 1
 
         # Se todos jogadores tiverem se movimentado, acaba o turno
@@ -211,7 +417,7 @@ class GridGame(Entity):
             # Se todos morrerem também retorna
             if not self._all_riders:
                 return
-        
+            
         # Caso contrário, prepara o jogo para rodar mais uma animação
         next_player = self._all_riders.sprites()[self._mov_stage]
 
@@ -226,6 +432,16 @@ class GridGame(Entity):
         self.channel.play(self.sound[1], -1)
 
     def __first_turn_collision(self):
+        """
+        Verifies if any rider has collided during the first turn.
+
+        This method checks if any rider has collided with the border or with other riders during the first turn of the game.
+        If a collision is detected, the corresponding rider is removed from the game.
+
+        Returns
+        -------
+            None
+        """
         # Verifica se alguém colidiu no primeiro turno
         for rider in self._all_riders.sprites()[::-1]:
             # Testa apenas colisão com as linhas pois é impossivel colidir com fronteira
@@ -235,6 +451,17 @@ class GridGame(Entity):
                 continue
 
     def check_collision(self, rider):
+        """
+        Check for collisions between the rider and the game elements.
+
+        Parameters
+        ----------
+            rider (Rider): The rider object to check for collisions.
+
+        Returns
+        -------
+            None
+        """
         # Testa colisão com a fronteira
         if utilities.check_border_collision(rider.rect.center):
             rider.kill_rider()

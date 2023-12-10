@@ -1,13 +1,23 @@
 import pygame
 from config import *
 
+def check_border_collision(rider_position: tuple) -> bool:
+    """
+    Checks if the rider's position collides with the grid borders.
 
-def check_border_collision(rider_position):
-    # Morre se colidir com as barras verticais
+    Parameters
+    ----------
+    rider_position : tuple
+        The current position of the rider (x, y).
+
+    Returns
+    -------
+    bool
+        True if there is a collision with the borders, False otherwise.
+    """
     if rider_position[0] > GRID_X - BORDER or rider_position[0] < BORDER:
         return True
 
-    # E também se colidir com as horizontais
     if rider_position[1] > GRID_Y - BORDER or rider_position[1] < BORDER:
         return True
 
@@ -15,6 +25,23 @@ def check_border_collision(rider_position):
 
 
 def check_line_collision(players_group, rider, card=None):
+    """
+    Check if there is a collision between the rider's line and the lines of other players.
+
+    Parameters
+    ----------
+    players_group : Group
+        Group containing all the players.
+    rider : Player
+        Current player.
+    card : Card, optional
+        Selected card. Defaults to None.
+
+    Returns
+    -------
+    bool
+        True if there is a collision, False otherwise.
+    """
     # Cria um grupo com todos jogadores menos o rider atual
     temp_group = players_group.copy()
     temp_group.remove(rider)
@@ -40,8 +67,7 @@ def check_line_collision(players_group, rider, card=None):
     if not card:
         card = rider.clicked_card
 
-    # E então compara com o último vetor usado: se for múltiplo e contrário
-    # Ao anterior deve haver colisão
+    # E então compara com o último vetor usado: se for múltiplo e contrário ao anterior deve haver colisão
     if __last_vector_collision(card, rider._last_card):
         return True
 
@@ -49,8 +75,37 @@ def check_line_collision(players_group, rider, card=None):
 
 
 def __last_vector_collision(card, last_card):
+    """
+    Check if the last vector collision occurred between two vectors.
+
+    Parameters
+    ----------
+    card : tuple
+        The current vector represented as a tuple (x, y).
+    last_card : tuple
+        The previous vector represented as a tuple (x, y).
+
+    Returns
+    -------
+    bool
+        True if the last vector collision occurred, False otherwise.
+
+    Notes
+    -----
+    The function checks if the last vector collision occurred by comparing the x and y components of the current and previous vectors.
+    If any component is zero, it only checks the other component.
+    If both components are non-zero, it checks if the vectors are proportional.
+    If the vectors are proportional and have opposite signs, it considers it as a collision.
+
+    Examples
+    --------
+    >>> __last_vector_collision((1, 2), (-1, -2))
+    True
+    >>> __last_vector_collision((3, 4), (5, 6))
+    False
+    """
     # Se algum valor de (x, y) for 0 verifica apenas o outro valor
-    if not card[0] and not last_card[0]:
+    if not card[0] and not last_card[0]:  
         if card[1] * last_card[1] < 0:
             return True
     elif not card[1] and not last_card[1]:
@@ -66,6 +121,25 @@ def __last_vector_collision(card, last_card):
 
 
 def check_line_cross(players_group, player, line, card=None):
+    """
+    Check if a line crosses with other players' lines or with its own line.
+
+    Parameters
+    ----------
+    players_group : pygame.sprite.Group
+        A group containing all players except the current player.
+    player : Player
+        The current player.
+    line : pygame.Surface
+        The line to check for collisions.
+    card : Card, optional
+        The card used to draw the line. Defaults to None.
+
+    Returns
+    -------
+    bool
+        True if the line crosses with other players' lines or with its own line, False otherwise.
+    """
     # Cria um grupo com todos jogadores menos o rider atual
     temp_group = players_group.copy()
     temp_group.remove(player)
@@ -100,6 +174,19 @@ def check_line_cross(players_group, player, line, card=None):
 
 
 def __hide_mask_origin(line_mask):
+    """
+    Hide the origin of the line mask.
+
+    Parameters
+    ----------
+    line_mask : pygame.mask.Mask
+        The original line mask.
+
+    Returns
+    -------
+    pygame.mask.Mask
+        The new line mask with the origin hidden.
+    """
     new_mask = line_mask.copy()
 
     # Cria uma pequena máscara entorno da origem
@@ -111,22 +198,80 @@ def __hide_mask_origin(line_mask):
 
     return new_mask
 
-
 def check_riders_collision(rider_1, rider_2):
+    """
+    Check collision between two sprite groups and remove collided sprites.
+
+    Parameters
+    ----------
+    group_1 : pygame.sprite.Group
+        The first sprite group to check collision with.
+    group_2 : pygame.sprite.Group
+        The second sprite group to check collision with.
+
+    Returns
+    -------
+    None
+        This function does not return any value. It modifies the sprite groups in-place.
+
+    """
     # Retorna verdadeiro se colidirem
     if rider_1.mask.colliderect(rider_2.mask):
         return True
     
     return False
-
-
-class Singleton:
+        
+class Singleton():
+    """
+    This class is used to create a singleton object.
+    
+    Attributes
+    ----------
+    aClass : object
+        The object to be initialized.
+    instance : object
+        The instance of the object.
+        
+    Methods
+    -------
+    __init__(self, cls)
+        Initialize the Utilities class.
+    __call__(self, *args, **kwargs)
+        Execute the object call as a function.
+    """
     def __init__(self, cls):
+        """
+        Initialize the Utilities class.
+
+        Parameters
+        ----------
+        cls : object
+            The object to be initialized.
+
+        Returns
+        -------
+        None
+        """
         # Salva a classe original
         self.aClass = cls
         self.instance = None
 
     def __call__(self, *args, **kwargs):
+        """
+        Execute the object call as a function.
+
+        Parameters
+        ----------
+        *args : positional arguments
+            Positional arguments passed to the function.
+        **kwargs : keyword arguments
+            Keyword arguments passed to the function.
+
+        Returns
+        -------
+        object
+            The result of the function call.
+        """
         # Usa o mesmo objeto em todas chamadas
         if self.instance is None:
             self.instance = self.aClass(*args, **kwargs)

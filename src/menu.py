@@ -4,16 +4,62 @@ from entity import *
 from texts import *
 import textwrap
 
-
 class Button(Entity):
+    """
+    Represents a menu button.
+    
+    Attributes
+    ----------
+    label : str
+        The label for the menu.
+    rect : Rect
+        The rectangle that represents the menu's position and size.
+    selected : bool
+        Indicates whether the menu is selected or not.
+        
+    Methods
+    -------
+    __init__(self, image_path, x_y, scale_size, label)
+        Initializes a Menu object.
+    update(self)
+        Update the state of the menu.
+    """
     def __init__(self, image_path, x_y, scale_size, label):
+        """
+        Initializes a Menu object.
+
+        Parameters
+        ----------
+        image_path : str
+            The path to the image file for the menu.
+        x_y : tuple
+            The x and y coordinates of the menu.
+        scale_size : float
+            The scale size of the menu.
+        label : str
+            The label for the menu.
+            
+        Returns
+        -------
+        None
+        """
         super().__init__(image_path, x_y, scale_size)
         self.label = label
         self.rect = self.image.get_rect(center=x_y)
         self.selected = False
 
     def update(self):
-        # Testa se houve colisão com o mouse
+        """
+        Update the state of the menu.
+
+        Check for collision with the mouse and return True if there is a collision,
+        otherwise return False.
+
+        Returns
+        -------
+        bool
+            True if there is a collision with the mouse, False otherwise.
+        """
         mouse_pos = pygame.mouse.get_pos()
         is_over = self.rect.collidepoint(mouse_pos)
 
@@ -24,7 +70,60 @@ class Button(Entity):
 
 
 class Menu(Entity):
+    """
+    Represents a menu.
+    
+    Attributes
+    ----------
+    state_control : Game
+        The game object that controls the menu.
+    rect : Rect
+        The rectangle that represents the menu's position and size.
+    run_display : bool
+        Indicates whether the menu is running or not.
+    button_clicked : bool
+        Indicates whether a button was clicked or not.
+    selected_button : Button
+        The button that was selected.
+    buttons_group : Group
+        The group of buttons for the menu.
+    
+    Methods
+    -------
+    __init__(self, game, image_path, x_y, scale_size)
+        Initializes a Menu object.
+    draw_text(self, text, size, x, y)
+        Draw text on the screen.
+    update(self)
+        Update the state of the menu.
+    verify(self)
+        Verify the state of the menu.
+    choice_preview(self, screen)
+        Preview the selected choice.
+    __preview_selected_button(self, button, screen)
+        Preview the selected button.
+    check_input(self)
+        Check the input for the menu.
+    """
     def __init__(self, game, image_path, x_y, scale_size):
+        """
+        Initializes a Menu object.
+        
+        Parameters
+        ----------
+        game : Game
+            The game object that controls the menu.
+        image_path : str
+            The path to the image file for the menu.
+        x_y : tuple
+            The x and y coordinates of the menu.
+        scale_size : float
+            The scale size of the menu.
+        
+        Returns
+        -------
+        None
+        """
         super().__init__(image_path, x_y, scale_size)
 
         self.state_control = game
@@ -42,22 +141,67 @@ class Menu(Entity):
         self.buttons_group = pygame.sprite.Group()
 
     def draw_text(self, text, size, x, y ):
-        font = pygame.font.Font(self.font_name, size)
+        """
+        Draw text on the screen.
+        
+        Parameters
+        ----------
+        text : str
+            The text to draw.
+        size : int
+            The size of the text.
+        x : int
+            The x coordinate of the text.
+        y : int
+            The y coordinate of the text.
+        
+        Returns
+        -------
+        None
+        """
+        self.font_name = pygame.font.get_default_font()
+        font = pygame.font.Font(self.font_name,size)
         text_surface = font.render(text, True, WHITE)
         text_rect = text_surface.get_rect()
         text_rect.center = (x,y)
         self.state_control.screen.blit(text_surface, text_rect)
 
     def update(self):
+        """
+        Update the state of the menu.
+        
+        Returns
+        -------
+        None
+        """
         pygame.display.update()
         self.state_control.reset_keys()
     
     def verify(self):
+        """ 
+        Verify the state of the menu.
+        
+        Returns
+        -------
+        None
+        """
         self.state_control.check_events()
         self.choice_preview(self.state_control.screen)
         self.check_input()
 
     def choice_preview(self, screen):
+        """
+        Preview the selected choice.
+        
+        Parameters
+        ----------
+        screen : Surface
+            The screen to preview the selected choice.
+        
+        Returns
+        -------
+        None
+        """
         # Verifica se o mouse está em cima da carta
         for button in self.buttons_group:
             if button.update():
@@ -78,6 +222,20 @@ class Menu(Entity):
 
     @staticmethod
     def __preview_selected_button(button, screen):
+        """ 
+        Preview the selected button.
+        
+        Parameters
+        ----------
+        button : Button
+            The button to preview.
+        screen : Surface
+            The screen to preview the button.
+        
+        Returns
+        -------
+        None        
+        """
         # Desenha o contorno do botão selecionado
         rect_pos = (button.rect.left - BUTTON_SELECTED_WIDTH, button.rect.top - BUTTON_SELECTED_WIDTH)
         rect_size = (button.rect.width + 2 * BUTTON_SELECTED_WIDTH, button.rect.height + 2 * BUTTON_SELECTED_WIDTH)
@@ -87,11 +245,73 @@ class Menu(Entity):
         pygame.draw.rect(screen, RED, rectangle, width=2 * BUTTON_SELECTED_WIDTH)
 
     def check_input(self):
+        """
+        Check the input for the menu.
+        
+        Returns
+        -------
+        None
+        """
         pass
 
 
 class MainMenu(Menu):
+    """
+    Represents the main menu.
+    
+    Attributes
+    ----------
+    next_state : str
+        The next state to transition to.
+    start_x : int
+        The x coordinate of the start button.
+    start_y : int
+        The y coordinate of the start button.
+    options_x : int
+        The x coordinate of the options button.
+    options_y : int
+        The y coordinate of the options button.
+    credits_x : int
+        The x coordinate of the credits button.
+    credits_y : int
+        The y coordinate of the credits button.
+    btn_the_grid : Button
+        The button to transition to the grid.
+    btn_options : Button
+        The button to transition to the options menu.
+    btn_credits : Button
+        The button to transition to the credits menu.
+    buttons_group : Group
+        The group of buttons for the menu.
+    
+    Methods
+    -------
+    __init__(self, game, image_path, x_y, scale_size)
+        Initializes a MainMenu object.
+    display_menu(self)
+        Display the main menu.
+    check_input(self)
+        Check the input for the menu.
+    """
     def __init__(self, game, image_path, x_y, scale_size):
+        """
+        Initializes a MainMenu object.
+        
+        Parameters
+        ----------
+        game : Game
+            The game object that controls the menu.
+        image_path : str
+            The path to the image file for the menu.
+        x_y : tuple
+            The x and y coordinates of the menu.
+        scale_size : float
+            The scale size of the menu.
+        
+        Returns
+        -------
+        None
+        """
         super().__init__(game, image_path, x_y, scale_size)
         self.action = "the_grid"
 
@@ -112,6 +332,13 @@ class MainMenu(Menu):
         self.buttons_group = pygame.sprite.Group(self.btn_the_grid, self.btn_options, self.btn_credits)
 
     def display_menu(self):
+        """
+        Display the main menu.
+        
+        Returns
+        -------
+        None
+        """
         self.run_display = True
         while self.run_display:
             # Preenche o fundo
@@ -129,6 +356,13 @@ class MainMenu(Menu):
             self.update()
 
     def check_input(self):
+        """
+        Check the input for the menu.
+        
+        Returns
+        -------
+        None
+        """
         if self.state_control.ESC_KEY:
             self.state_control.running = False
             self.state_control.curr_menu.run_display = False
@@ -149,7 +383,46 @@ class MainMenu(Menu):
 
 
 class OptionsMenu(Menu):
+    """
+    Represents the options menu.
+    
+    Attributes
+    ----------
+    next_state : str
+        The next state to transition to.
+    btn_back : Button
+        The button to transition to the main menu.
+    buttons_group : Group
+        The group of buttons for the menu.
+        
+    Methods
+    -------
+    __init__(self, game, image_path, x_y, scale_size)
+        Initializes a OptionsMenu object.
+    display_menu(self)
+        Display the options menu.
+    check_input(self)
+        Check the input for the menu.        
+    """
     def __init__(self, game, image_path, x_y, scale_size):
+        """
+        Initializes a OptionsMenu object.
+        
+        Parameters
+        ----------
+        game : Game
+            The game object that controls the menu.
+        image_path : str    
+            The path to the image file for the menu.
+        x_y : tuple
+            The x and y coordinates of the menu.
+        scale_size : float
+            The scale size of the menu.
+            
+        Returns
+        -------
+        None
+        """
         super().__init__(game, image_path, x_y, scale_size)
         self.action = "main_menu"
 
@@ -180,6 +453,13 @@ class OptionsMenu(Menu):
         self.buttons_group.add(self.btn_vol_1, self.btn_vol_2, self.btn_vol_3, self.btn_vol_4, self.btn_vol_5)
 
     def display_menu(self):
+        """
+        Display the options menu.
+        
+        Returns
+        -------
+        None
+        """
         self.run_display = True
         while self.run_display:
             self.state_control.screen.fill(BLACK)
@@ -198,6 +478,13 @@ class OptionsMenu(Menu):
             self.update()
 
     def check_input(self):
+        """
+        Check the input for the menu.
+        
+        Returns
+        -------
+        None
+        """
         if self.state_control.ESC_KEY:
             self.state_control.curr_menu = self.state_control.main_menu
             self.run_display = False
@@ -219,7 +506,56 @@ class OptionsMenu(Menu):
 
 
 class CreditsMenu(Menu):
+    """
+    Represents the credits menu.
+    
+    Attributes
+    ----------
+    next_state : str
+        The next state to transition to.
+    font_size : list
+        The font sizes for the menu.
+    space_size : list
+        The space sizes for the menu.
+    txt_x : int
+        The x coordinate of the text.
+    txt_y : int
+        The y coordinate of the text.
+    background_image : Surface  
+        The background image for the menu.
+    btn_back : Button
+        The button to transition to the main menu.
+    buttons_group : Group
+        The group of buttons for the menu.
+        
+    Methods
+    -------
+    __init__(self, game, image_path, x_y, scale_size)
+        Initializes a CreditsMenu object.
+    display_menu(self)
+        Display the credits menu.
+    check_input(self)
+        Check the input for the menu.
+    """
     def __init__(self, game, image_path, x_y, scale_size):
+        """
+        Initializes a CreditsMenu object.
+        
+        Parameters
+        ----------
+        game : Game
+            The game object that controls the menu.
+        image_path : str
+            The path to the image file for the menu.
+        x_y : tuple 
+            The x and y coordinates of the menu.
+        scale_size : float
+            The scale size of the menu.
+        
+        Returns
+        -------
+        None
+        """
         super().__init__(game, image_path, x_y, scale_size)
         self.action = "main_menu"
 
@@ -243,6 +579,13 @@ class CreditsMenu(Menu):
         self.buttons_group.add(self.btn_back)
 
     def display_menu(self):
+        """
+        Display the credits menu.
+        
+        Returns
+        -------
+        None
+        """
         self.run_display = True
         while self.run_display:
             # Exibe o plano de fundo da tela
@@ -270,6 +613,13 @@ class CreditsMenu(Menu):
             self.update()
 
     def check_input(self):
+        """
+        Check the input for the menu.
+        
+        Returns
+        -------
+        None
+        """
         if self.state_control.ESC_KEY:
             self.state_control.curr_menu = self.state_control.main_menu
             self.run_display = False
@@ -289,7 +639,42 @@ class CreditsMenu(Menu):
 
 
 class ResultScreen(Menu):
+    """
+    Represents the result screen.
+    
+    Attributes
+    ----------
+    next_state : str
+        The next state to transition to.
+    
+    Methods
+    -------
+    __init__(self, game, image_path, x_y, scale_size)
+        Initializes a ResultScreen object.
+    display_menu(self)
+        Display the result screen.
+    check_input(self)
+        Check the input for the menu.
+    """
     def __init__(self, game, image_path, x_y, scale_size):
+        """
+        Initializes a ResultScreen object.
+        
+        Parameters
+        ----------
+        game : Game
+            The game object that controls the menu.
+        image_path : str
+            The path to the image file for the menu.
+        x_y : tuple
+            The x and y coordinates of the menu.
+        scale_size : float
+            The scale size of the menu.
+            
+        Returns
+        -------
+        None
+        """
         super().__init__(game, image_path, x_y, scale_size)
         self.action = "main_menu"
 
@@ -306,6 +691,13 @@ class ResultScreen(Menu):
         self.buttons_group.add(self.btn_menu, self.btn_exit)
 
     def display_menu(self):
+        """
+        Display the result screen.
+        
+        Returns
+        -------
+        None
+        """
         self.run_display = True
         while self.run_display:
             self.state_control.screen.fill(BLACK)
@@ -324,6 +716,13 @@ class ResultScreen(Menu):
             self.update()
 
     def check_input(self):
+        """
+        Check the input for the menu.
+        
+        Returns
+        -------
+        None
+        """
         if self.state_control.ESC_KEY:
             self.state_control.curr_menu = self.state_control.main_menu
             self.run_display = False
@@ -340,7 +739,42 @@ class ResultScreen(Menu):
 
 
 class TutorialScreen(Menu):
+    """
+    Represents the tutorial screen.
+    
+    Attributes
+    ----------
+    next_state : str
+        The next state to transition to.
+        
+    Methods
+    -------
+    __init__(self, game, image_path, x_y, scale_size)
+        Initializes a TutorialScreen object.
+    display_menu(self)
+        Display the tutorial screen.
+    check_input(self)
+        Check the input for the menu.
+    """
     def __init__(self, game, image_path, x_y, scale_size):
+        """
+        Initializes a TutorialScreen object.
+        
+        Parameters
+        ----------
+        game : Game
+            The game object that controls the menu.
+        image_path : str
+            The path to the image file for the menu.
+        x_y : tuple
+            The x and y coordinates of the menu.
+        scale_size : float
+            The scale size of the menu.
+            
+        Returns
+        -------
+        None
+        """
         super().__init__(game, image_path, x_y, scale_size)
         self.action = "right_arrow"
         self.page = 1
@@ -376,6 +810,13 @@ class TutorialScreen(Menu):
         self.buttons_group.add(self.btn_right)
 
     def display_menu(self):
+        """
+        Display the tutorial screen.
+        
+        Returns
+        -------
+        None
+        """
         self.run_display = True
         while self.run_display:
             self.state_control.screen.fill(BLACK)
@@ -411,6 +852,13 @@ class TutorialScreen(Menu):
             self.update()
 
     def check_input(self):
+        """
+        Check the input for the menu.
+        
+        Returns
+        -------
+        None
+        """
         if self.state_control.ESC_KEY:
             self.state_control.curr_menu = self.state_control.main_menu
             self.run_display = False

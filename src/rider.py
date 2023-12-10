@@ -7,7 +7,72 @@ from config import *
 
 
 class Rider(Entity):
+    """
+    Represents a rider object.
+        
+    Attributes
+    ----------
+    _number : int
+        The number of the player.
+    _path : list
+        A list of the rider's positions.
+    _velocity : float
+        The velocity of the rider.
+    _hand : pygame.sprite.Group
+        The rider's hand.
+    _color : str
+        The color of the rider.
+    __timer : int
+        The timer of the rider.
+    state_alive : bool
+        The state of the rider.
+    clicked_card : tuple
+        The card that the rider clicked.
+    _last_card : tuple
+        The last card that the rider clicked.
+    mask : pygame.rect.Rect
+        The mask of the rider.
+    line_mask : pygame.mask.Mask
+        The line mask of the rider.
+    _last_line_mask : pygame.mask.Mask
+        The last line mask of the rider.
+        
+    Methods
+    -------
+    update(self, deck)
+        Update the rider's state based on the given deck.
+    move_rider(self, deck)
+        Move the rider according to the card it clicked.
+    __change_move(self, card, time)
+        Move the rider's position based on the given card and time.
+    __set_temp_variables(self)
+        Set temporary variables that save code in movement.
+    __reset_movement(self, deck)
+        Resets the movement of the rider.
+    _get_line_mask(color,start, end)
+        Create a line mask based on the given color, start, and end points.
+    select_card(self, card)
+        Select a card for the rider.
+    """
     def __init__(self, number, x_y, scale_size, deck):
+        """
+        Initialize a Rider object.
+
+        Parameters
+        ----------
+        number : int
+            The number of the player.
+        x_y : tuple
+            The initial position of the rider.
+        scale_size : float
+            The scale size of the rider.
+        deck : Deck
+            The deck object that represents the game deck.
+
+        Returns
+        -------
+        None
+        """
         # Carrega texturas diferentes dependendo do nº do jogador
         archive = "rider_" + str(number) + ".png"
 
@@ -54,6 +119,18 @@ class Rider(Entity):
         self._last_line_mask = self.line_mask
 
     def update(self):
+        """
+        Update the rider's state based on the given deck.
+
+        Parameters
+        ----------
+        deck : Deck
+            The deck object that represents the game deck.
+
+        Returns
+        -------
+        None
+        """
         # Muda a imagem do rider dependendo do estágio da animação
         archive = "rider_dead_" + str(self.__death_stage) + ".png"
 
@@ -67,6 +144,19 @@ class Rider(Entity):
         self.__death_stage += 1
 
     def move_rider(self, deck, backward=False):
+        """
+        Move the rider according to the card it clicked.
+
+        Parameters
+        ----------
+        deck : Deck
+            The deck object.
+
+        Returns
+        -------
+        bool
+            True if the rider is moved, False otherwise.
+        """
         self.__set_temp_variables()
 
         # Move o jogador de acordo com essa desigualdade (quase sempre satisfeita)
@@ -93,6 +183,26 @@ class Rider(Entity):
         return True
 
     def __change_move(self, card, time):
+        """
+        Move the rider's position based on the given card and time.
+
+        Parameters
+        ----------
+        card : tuple
+            The difference that the rider should move in the x and y directions.
+        time : int
+            The time duration of the movement.
+
+        Returns
+        -------
+        None
+        
+        Notes
+        -----
+        This method updates the rider's position by calculating the temporary positions
+        based on the card and time values. The rider's position is then rounded to the
+        nearest integer and updated accordingly.
+        """
         # Diferença que a moto deverá andar
         delta_x = card[0]
         delta_y = card[1]
@@ -112,6 +222,18 @@ class Rider(Entity):
         self.mask.center = self.rect.center
 
     def __set_temp_variables(self):
+        """
+        Set temporary variables that save code in movement.
+
+        Parameters
+        ----------
+        self : Rider
+            The Rider object.
+
+        Returns
+        -------
+        None
+        """
         # Variáveis temporárias que poupam código no movimento
         self.__temp_player_center = self.rect.center
         self.__temp_player_target = self.__player_target
@@ -126,6 +248,18 @@ class Rider(Entity):
             self.__temp_player_target = (self.__temp_player_target[0], -self.__temp_player_target[1])
 
     def __reset_movement(self, deck):
+        """
+        Resets the movement of the rider.
+
+        Parameters
+        ----------
+        deck : Deck
+            The deck of cards.
+
+        Returns
+        -------
+        None
+        """
         # Retorna _timer para 0
         self.__timer = 0
 
@@ -151,6 +285,24 @@ class Rider(Entity):
 
     @staticmethod
     def _get_line_mask(color,start, end):
+        """
+        Create a line mask based on the given color, start, and end points.
+
+        Parameters
+        ----------
+        color : str
+            The color of the line.
+        start : tuple
+            The starting point of the line.
+        end : tuple
+            The ending point of the line.
+
+        Returns
+        -------
+        pygame.mask.Mask
+            The line mask.
+
+        """
         # Cria uma superfície em preto
         temp_surf = pygame.Surface((GRID_X, GRID_Y))
         temp_surf.set_colorkey((0, 0, 0))
@@ -160,7 +312,18 @@ class Rider(Entity):
         return pygame.mask.from_surface(temp_surf)
 
     def select_card(self, card):
-        # Seleciona a carta passada e define parametros internos do movimento
+        """
+        Select a card for the rider.
+
+        Parameters
+        ----------
+        card : tuple
+            The card that the rider clicked.
+
+        Returns
+        -------
+        None
+        """
         self.clicked_card = card
 
         self.__player_target = self.rect.center
@@ -246,40 +409,244 @@ class Rider(Entity):
 
 @utilities.Singleton
 class Player():
+    """
+    Class representing a player in the game.
+
+    Attributes
+    ----------
+    __wrapper : pygame.sprite.GroupSingle
+        The wrapper around the Rider sprite.
+
+    Methods
+    -------
+    sprite()
+        Returns the sprite of the SingleGroup.
+    update()
+        Updates the SingleGroup.
+    draw(screen)
+        Draws the SingleGroup.
+    """
+
     def __init__(self, number, x_y, scale_size, deck):
+        """
+        Initialize a Player object.
+
+        Parameters
+        ----------
+        number : int
+            The player's number.
+        x_y : tuple
+            The initial position of the player.
+        scale_size : int
+            The scale size of the player.
+        deck : Deck
+            The player's deck.
+
+        Returns
+        -------
+        None
+        """
         # Cria um envoltório entorno de um Rider
         self.__wrapper = Rider(number, x_y, scale_size, deck)
         self.__wrapper = pygame.sprite.GroupSingle(self.__wrapper)
 
     def __getattr__(self, attrvalue):
+        """
+        Get the attribute from the sprite and not from the group.
+
+        Parameters
+        ----------
+        attrvalue : str
+            The name of the attribute to retrieve.
+
+        Returns
+        -------
+        Any
+            The value of the requested attribute.
+
+        Notes
+        -----
+        This method is called when an attribute is accessed on the `Rider` object
+        that is not defined directly in the class. It delegates the attribute
+        retrieval to the underlying sprite object.
+
+        """
+        return getattr(self.__wrapper.sprite, attrvalue)
+    
+    def __getattr__(self, attrvalue):
+        """
+        Get the attribute from the sprite and not from the group.
+
+        Parameters
+        ----------
+        attrvalue : str
+            The name of the attribute to get.
+
+        Returns
+        -------
+        Any
+            The value of the requested attribute.
+
+        Notes
+        -----
+        This method is called when an attribute is not found in the current object.
+        It allows accessing attributes of the sprite directly instead of the group.
+
+        Examples
+        --------
+        >>> rider = Rider()
+        >>> rider.x
+        100
+        >>> rider.y
+        200
+        """
         # Pega o atributo do sprite e não do grupo
         return getattr(self.__wrapper.sprite, attrvalue)
     
     def __bool__(self):
-        # Retorna o booleano do SingleGroup
+        """
+        Return the boolean value of the SingleGroup.
+
+        Returns
+        -------
+        bool
+            The boolean value of the SingleGroup.
+
+        """
         return bool(self.__wrapper)
     
     def sprite(self):
-        # Retorna o sprite do SingleGroup
+        """
+        Return the sprite of the SingleGroup.
+
+        Returns
+        -------
+        sprite : object
+            The sprite object representing the SingleGroup.
+
+        """
         return self.__wrapper.sprite
         
     def update(self):
+        """
+        Update the SingleGroup.
+
+        Returns
+        -------
+        updated : bool
+            True if the update was successful, False otherwise.
+        """
         # Atualiza o SingleGroup
         return self.__wrapper.update()
 
     def draw(self, screen):
-        # Desenha o SingleGroup
-        return self.__wrapper.draw(screen)
-    
+            """
+            Draw the SingleGroup on the screen.
+
+            Parameters
+            ----------
+            screen : pygame.Surface
+                The surface to draw on.
+
+            Returns
+            -------
+            pygame.Rect
+                The rectangle that represents the area of the drawn SingleGroup.
+            """
+            # Desenha o SingleGroup
+            return self.__wrapper.draw(screen)
 
 class Bot(Rider):
-    def __init___(self, number, x_y, scale_size):
-        super().__init__(number, x_y, scale_size)
+    """
+    Represents a bot object.
+    
+    Attributes
+    ----------
+    _number : int
+        The number of the player.
+    _path : list
+        A list of the rider's positions.
+    _velocity : float
+        The velocity of the rider.
+    _hand : pygame.sprite.Group
+        The rider's hand.
+    _color : str
+        The color of the rider.
+    __timer : int
+        The timer of the rider.
+    state_alive : bool
+        The state of the rider.
+    clicked_card : tuple
+        The card that the rider clicked.
+    _last_card : tuple
+        The last card that the rider clicked.
+    mask : pygame.rect.Rect
+        The mask of the rider.
+    line_mask : pygame.mask.Mask
+        The line mask of the rider.
+    _last_line_mask : pygame.mask.Mask
+        The last line mask of the rider.
+        
+    Methods
+    -------
+    update(self, deck)
+        Update the rider's state based on the given deck.
+    move_rider(self, deck)
+        Move the rider according to the card it clicked.
+    __change_move(self, card, time)
+        Move the rider's position based on the given card and time.
+    __set_temp_variables(self)
+        Set temporary variables that save code in movement.
+    __reset_movement(self, deck)
+        Resets the movement of the rider.
+    _get_line_mask(color,start, end)
+        Create a line mask based on the given color, start, and end points.
+    select_card(self, card)
+        Select a card for the rider.
+    """
+    def __init__(self, number, x_y, scale_size, deck):
+        """
+        Initializes a Rider object.
+
+        Parameters
+        ----------
+        number : int
+            The rider's number.
+        x_y : tuple
+            The initial position of the rider as a tuple of (x, y) coordinates.
+        scale_size : float
+            The scale size of the rider.
+
+        Returns
+        -------
+        None
+        """
+        super().__init__(number, x_y, scale_size, deck)
 
     def choose_card(self, all_riders):
+        """
+        Choose a card from the rider's hand based on the preview movement.
+
+        Parameters
+        ----------
+        all_riders : list
+            A list of all riders in the game.
+
+        Returns
+        -------
+        pygame.sprite.Sprite
+            The chosen card from the rider's hand.
+
+        Notes
+        -----
+        This method iterates through each card in the rider's hand and checks if the preview movement is valid or not.
+        If a card's movement is valid, it is added to the choices list.
+        If there are valid choices, a random card is returned from the choices list.
+        If there are no valid choices, a random card from the rider's hand is returned.
+        """
         choices = []
 
-        # Laceia cada carda e decide se o movimento é válido ou não
+        # Laceia cada carta e decide se o movimento é válido ou não
         for card in self._hand.sprites():
             # Se for, adiciona à lista choices
             if self.__preview_movement(card, all_riders):
@@ -293,6 +660,21 @@ class Bot(Rider):
             return random.choice(self._hand.sprites())
 
     def __preview_movement(self, card, all_riders):
+        """
+        Calculate the preview movement of the rider based on the given card.
+
+        Parameters
+        ----------
+        card : tuple
+            A tuple representing the movement card (x, y).
+        all_riders : list
+            A list of all riders in the game.
+
+        Returns
+        -------
+        bool
+            True if the preview movement is valid, False otherwise.
+        """
         # Pega o ponto inicial e final do vetor
         start = self._path[-1]
         end = (start[0] + card[0] * DISTANCE, start[1] - card[1] * DISTANCE)
