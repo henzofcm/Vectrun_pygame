@@ -216,14 +216,12 @@ class GridGame(Entity):
         self.channel.play(self.sound[1], -1)
 
     def __first_turn_collision(self):
-        # Verifica se alguém colidiu
+        # Verifica se alguém colidiu no primeiro turno
         for rider in self._all_riders.sprites()[::-1]:
-            if utilities.check_border_collision(rider.rect.center):
-                rider.kill()
-                continue
-
+            # Testa apenas colisão com as linhas pois é impossivel colidir com fronteira
             if utilities.check_line_collision(self._all_riders, rider) and self._game_turn:
-                rider.kill()
+                rider.kill_rider()
+                self.channel.play(self.sound[0])
                 continue
 
     def check_collision(self, rider):
@@ -231,7 +229,6 @@ class GridGame(Entity):
         if utilities.check_border_collision(rider.rect.center):
             rider.kill_rider()
             self.channel.play(self.sound[0])
-            self.channel.queue(self.sound[2], -1)
             return
 
         # Testa colisão com as linhas
