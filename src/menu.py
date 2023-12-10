@@ -61,10 +61,10 @@ class Button(Entity):
         mouse_pos = pygame.mouse.get_pos()
         is_over = self.rect.collidepoint(mouse_pos)
 
-            if is_over:
-                return True
-            else:
-                return False
+        if is_over:
+            return True
+        else:
+            return False
 
 
 class Menu(Entity):

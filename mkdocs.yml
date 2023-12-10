@@ -1,0 +1,10 @@
+site_name: VectRun
+site_url: https://mirandabia.github.io/Vectrun-pygame
+nav:
+  - Home: index.md
+theme: readthedocs
+
+plugins:
+- search
+- mkdocstrings
+          
