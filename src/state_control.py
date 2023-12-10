@@ -44,9 +44,31 @@ class StateControl():
         The current menu being displayed.
     game_run : GridGame
         The game instance.
+        
+    Methods
+    -------
+    game_loop(self)
+        Main game loop that updates and renders the game until the game is no longer being played.
+    check_events(self)
+        Check for user events such as key presses or window close events.
+    reset_keys(self)
+        Reset the key flags to their initial state.
+    start(self)
+        Start the game by displaying the main menu and entering the game loop.
     """
 
     def __init__(self):
+        """
+        Initialize the StateControl object.
+        
+        Parameters
+        ----------
+        None
+        
+        Returns
+        -------
+        None
+        """
         # Iniciação das variáveis de controle
         self.running, self.playing = True, False
         self.UP_KEY, self.DOWN_KEY, self.START_KEY, self.BACK_KEY, self.ESC_KEY = False, False, False, False, False
