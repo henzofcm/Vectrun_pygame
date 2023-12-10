@@ -9,7 +9,7 @@ from config import *
 
 
 class GridGame(Entity):
-    def __init__(self, image_path, x_y, scale_size, bot_number):
+    def __init__(self, image_path, x_y, scale_size, bot_number, volume):
         super().__init__(image_path, x_y, scale_size)
 
         # Atributos para o estado do jogo
@@ -34,6 +34,16 @@ class GridGame(Entity):
 
         # Grupo com todos personagens animados (bots e player)
         self._all_riders = pygame.sprite.Group((self._player.sprite()), self._bots.sprites()[::-1])
+
+        # Carrega efeitos sonoros pra memória
+        self.volume = volume
+        self.sound = []
+        
+        for index in range(SOUND_NUMBER):
+            archive = "sound_" + str(index) + ".mp3"
+            sound = pygame.mixer.Sound(SOUND_PATH + archive)
+            sound.set_volume(self.volume)
+            self.sound.append(sound)
 
     def update(self):
         # Eventos principais deste menu
@@ -210,11 +220,13 @@ class GridGame(Entity):
         # Testa colisão com a fronteira
         if utilities.check_border_collision(rider.rect.center):
             rider.kill_rider()
+            self.sound[0].play()
             return
 
         # Testa colisão com as linhas
         if utilities.check_line_collision(self._all_riders, rider) and self._game_turn:
             rider.kill_rider()
+            self.sound[0].play()
             return
 
         # Verifica se colidiram entre si
@@ -225,6 +237,7 @@ class GridGame(Entity):
             if utilities.check_riders_collision(rider, enemy) and self._game_turn:
                 rider.kill_rider()
                 enemy.kill_rider()
+                self.sound[0].play()
                 return
 
     def __end_death(self):

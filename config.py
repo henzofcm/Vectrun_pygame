@@ -1,11 +1,11 @@
 # Define caminho de todas as pastas que usaremos
 ASSET_PATH = "assets/"
 TEXTURE_PATH = ASSET_PATH + "textures/"
-TEXTURE_MENU_PATH = TEXTURE_PATH + "menu/"
 MUSIC_PATH = ASSET_PATH + "music/"
-SOUNDS_PATH = ASSET_PATH + "sounds/"
+SOUND_PATH = ASSET_PATH + "sound/"
 FONTS_PATH = ASSET_PATH + "fonts/"
 
+TEXTURE_MENU_PATH = TEXTURE_PATH + "menu/"
 CARDS_PATH = TEXTURE_PATH + "cards/"
 RIDER_PATH = TEXTURE_PATH + "rider/"
 
@@ -44,3 +44,6 @@ DISTANCE = 43.5
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 RED = (186, 63, 73)
+
+# Número de efeitos sonoros
+SOUND_NUMBER = 2
