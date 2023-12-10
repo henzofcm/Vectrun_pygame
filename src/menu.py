@@ -36,6 +36,10 @@ class Button(Entity):
             The scale size of the menu.
         label : str
             The label for the menu.
+            
+        Returns
+        -------
+        None
         """
         super().__init__(image_path, x_y, scale_size)
         self.label = label
