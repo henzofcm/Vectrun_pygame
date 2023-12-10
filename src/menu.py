@@ -1,6 +1,8 @@
 import pygame
 from config import *
 from entity import *
+from texts import *
+import textwrap
 
 
 class Button(Entity):
@@ -60,7 +62,7 @@ class Menu(Entity):
         for button in self.buttons_group:
             if button.update():
                 # Seleciona a tela equivalente ao botão
-                self.next_state = button.label
+                self.action = button.label
 
                 # Desenha o contorno
                 self.__preview_selected_button(button, screen)
@@ -91,7 +93,7 @@ class Menu(Entity):
 class MainMenu(Menu):
     def __init__(self, game, image_path, x_y, scale_size):
         super().__init__(game, image_path, x_y, scale_size)
-        self.next_state = "the_grid"
+        self.action = "the_grid"
 
         # Posições para os elementos na tela
         self.start_x, self.start_y = (WIDTH/2), (HEIGHT/2)
@@ -133,11 +135,11 @@ class MainMenu(Menu):
 
         # Checa os cliques em botões
         if self.state_control.START_KEY or self.state_control.BUTTON_CLICKED:
-            if self.next_state == "the_grid":
+            if self.action == "the_grid":
                 self.state_control.playing = True
-            elif self.next_state == "options_menu":
+            elif self.action == "options_menu":
                 self.state_control.curr_menu = self.state_control.options_menu
-            elif self.next_state == "credits_menu":
+            elif self.action == "credits_menu":
                 self.state_control.curr_menu = self.state_control.credits_menu
             self.run_display = False
 
@@ -145,7 +147,7 @@ class MainMenu(Menu):
 class OptionsMenu(Menu):
     def __init__(self, game, image_path, x_y, scale_size):
         super().__init__(game, image_path, x_y, scale_size)
-        self.next_state = "main_menu"
+        self.action = "main_menu"
 
         # Define variáveis com valores recorrentes no menu
         self.vol_space = 80
@@ -199,9 +201,9 @@ class OptionsMenu(Menu):
             self.state_control.curr_menu = self.state_control.main_menu
             self.run_display = False
         if self.state_control.START_KEY or self.state_control.BUTTON_CLICKED:
-            if self.next_state in ["vol_1", "vol_2", "vol_3", "vol_4", "vol_5"]:
+            if self.action in ["vol_1", "vol_2", "vol_3", "vol_4", "vol_5"]:
                self.change_volume()
-            elif self.next_state == "main_menu":
+            elif self.action == "main_menu":
                 self.state_control.curr_menu = self.state_control.main_menu
                 self.run_display = False
 
@@ -214,7 +216,7 @@ class OptionsMenu(Menu):
 class CreditsMenu(Menu):
     def __init__(self, game, image_path, x_y, scale_size):
         super().__init__(game, image_path, x_y, scale_size)
-        self.next_state = "main_menu"
+        self.action = "main_menu"
 
         # Define a fonte a ser usada
         self.font_name = FONTS_PATH + "tron.ttf"
@@ -226,7 +228,7 @@ class CreditsMenu(Menu):
         self.txt_y = HEIGHT / 4 + 20
 
         # Carrega a imagem da tela de fundo
-        self.background_image = pygame.image.load(TEXTURE_MENU_PATH + "background_credits.png").convert()
+        self.background_image = Entity(TEXTURE_MENU_PATH + "background_credits.png", (0,0), (1000,750))
 
         # Define os botões dessa tela
         self.btn_back = Button(TEXTURE_MENU_PATH + "back_button.png", (WIDTH/2, (HEIGHT - 100)),
@@ -239,7 +241,7 @@ class CreditsMenu(Menu):
         self.run_display = True
         while self.run_display:
             # Exibe o plano de fundo da tela
-            self.state_control.screen.blit(self.background_image, (0,0))
+            self.state_control.screen.blit(self.background_image, self.background_image.rect)
 
             #Verifica as entradas e interação com os botões
             self.verify()
@@ -270,11 +272,11 @@ class CreditsMenu(Menu):
             self.state_control.curr_menu = self.state_control.main_menu
             self.run_display = False
         if self.state_control.START_KEY or self.state_control.BUTTON_CLICKED:
-            if self.next_state == "main_menu":
+            if self.action == "main_menu":
                 self.state_control.curr_menu = self.state_control.main_menu
-            elif self.next_state == "scree_1":
+            elif self.action == "scree_1":
                 pass
-            elif self.next_state == "screen_2":
+            elif self.action == "screen_2":
                 pass
             else:
                 self.state_control.curr_menu = self.state_control.main_menu
@@ -284,7 +286,7 @@ class CreditsMenu(Menu):
 class ResultScreen(Menu):
     def __init__(self, game, image_path, x_y, scale_size):
         super().__init__(game, image_path, x_y, scale_size)
-        self.next_state = "main_menu"
+        self.action = "main_menu"
 
         # Define a fonte a ser usada
         self.font_name = FONTS_PATH + "tron.ttf"
@@ -324,9 +326,9 @@ class ResultScreen(Menu):
             self.state_control.curr_menu = self.state_control.main_menu
             self.run_display = False
         if self.state_control.START_KEY or self.state_control.BUTTON_CLICKED:
-            if self.next_state == "main_menu":
+            if self.action == "main_menu":
                 self.state_control.curr_menu = self.state_control.main_menu
-            if self.next_state == "exit":
+            if self.action == "exit":
                 self.state_control.running = False
                 self.state_control.curr_menu.run_display = False
             self.run_display = False
@@ -335,17 +337,30 @@ class ResultScreen(Menu):
 class TutorialScreen(Menu):
     def __init__(self, game, image_path, x_y, scale_size):
         super().__init__(game, image_path, x_y, scale_size)
-        self.next_state = "right_arrow"
+        self.action = "right_arrow"
         self.page = 1
-        self.num_of_pages = 5
+        self.num_of_pages = 3
+        self.tutorial_read = False
+
+        self.font_size = 25
 
         # Define a fonte a ser usada
         self.font_name = FONTS_PATH + "terminator.otf"
 
+        # Carrega as imagens que serão usadas
+        self.img_wall = Entity(IMG_MANUAL_PATH + "collision_with_side_walls.png",
+                               (150, HEIGHT/4), (200, 200))
+        self.img_moto = Entity(IMG_MANUAL_PATH + "intersection_with_motorcycle.png",
+                               (400, HEIGHT/4), (200, 200))
+        self.img_line = Entity(IMG_MANUAL_PATH + "intersection_with_the_line.png",
+                               (650, HEIGHT/4), (200, 200))
+
         # Define os botões dessa tela
-        self.btn_right = Button(TEXTURE_MENU_PATH + "right_arrow.png", (WIDTH - 80, HEIGHT/2),
+        self.btn_play = Button(TEXTURE_MENU_PATH + "play_button.png", (WIDTH/2, HEIGHT-80),
+                               (BUTTON_X, BUTTON_Y), "play")
+        self.btn_right = Button(TEXTURE_MENU_PATH + "right_arrow.png", (WIDTH - 70, HEIGHT/2),
                                (60, 60), "right_arrow")
-        self.btn_left = Button(TEXTURE_MENU_PATH + "left_arrow.png", (80, HEIGHT/2),
+        self.btn_left = Button(TEXTURE_MENU_PATH + "left_arrow.png", (70, HEIGHT/2),
                                 (60, 60), "left_arrow")
 
         # Adiciona os botões a um grupo
@@ -362,12 +377,24 @@ class TutorialScreen(Menu):
             # Exibe a imagem "Tutorial"
             self.state_control.screen.blit(self.image, self.rect)
 
-            # Telas de tutorial
             self.buttons_group.draw(self.state_control.screen)
 
 
+            # Telas de tutorial
+            if self.page == 1:
+                self.draw_large_text(txt_regra_1, self.font_size, WIDTH/2, 180, 54)
+                self.draw_large_text(txt_regra_2, self.font_size, WIDTH/2, 380, 54)
+                self.draw_large_text(txt_regra_3, self.font_size, WIDTH/2, 480, 54)
+            elif self.page == 2:
+                self.draw_large_text(txt_regra_4, self.font_size, WIDTH/2, 180, 54)
+                self.draw_large_text(txt_regra_5, self.font_size, WIDTH/2, 340, 54)
+            else:
+                self.state_control.screen.blit(self.img_wall.image, self.img_wall.rect)
+                self.state_control.screen.blit(self.img_moto.image, self.img_moto.rect)
+                self.state_control.screen.blit(self.img_line.image, self.img_line.rect)
+
             # Exibe o núemro da página
-            self.draw_text(str(self.page), 20, WIDTH-100, HEIGHT-75)
+            self.draw_text(str(self.page), 30, WIDTH-100, HEIGHT-75)
 
             self.update()
 
@@ -379,22 +406,44 @@ class TutorialScreen(Menu):
             self.state_control.curr_menu = self.state_control.main_menu
             self.run_display = False
         if self.state_control.START_KEY or self.state_control.BUTTON_CLICKED:
-            if self.next_state == "right_arrow":
-                if self.page < self.num_of_pages - 1:
-                    if self.page <= 1:
-                        # Adiciona o botão esquerdo para exibi-lo
+            if self.action == "right_arrow":
+                if self.page < self.num_of_pages:
+                    # Adiciona o botão esquerdo para exibi-lo se necessário
+                    if self.page == 1:
                         self.buttons_group.add(self.btn_left)
                     self.page += 1
-                else:
-                    # Remove o botão direito para deixar de exibi-lo
-                    self.buttons_group.remove(self.btn_right)
 
-            if self.next_state == "left_arrow":
-                if self.page > 1:
-                    if self.page >= self.num_of_pages - 1:
-                        # Adiciona o botão direito para exibi-lo
+                    # Remove o botão direito para deixar de exibi-lo se atingir a última página
+                    if self.page == self.num_of_pages:
+                        self.buttons_group.remove(self.btn_right)
+
+                    # Permite que o jogador avance para o jogo após ler o tutorial
+                    if not self.tutorial_read and self.page == self.num_of_pages:
+                        self.buttons_group.add(self.btn_play)
+                        self.tutorial_read = True
+
+            elif self.action == "left_arrow":
+                if self.page <= self.num_of_pages:
+                    # Adiciona o botão direito para exibi-lo se necessário
+                    if self.page == self.num_of_pages:
                         self.buttons_group.add(self.btn_right)
                     self.page -= 1
-                else:
+
                     # Remove o botão esquerdo para deixar de exibi-lo
-                    self.buttons_group.remove(self.btn_left)
+                    if self.page == 1:
+                        self.buttons_group.remove(self.btn_left)
+
+            if self.action == "play":
+                pass
+
+    def draw_large_text(self, text, size, x, y, max_line_length):
+        lines = textwrap.wrap(text, width=max_line_length)
+        y_offset = 0
+
+        for line in lines:
+            text_surface = (pygame.font.Font(pygame.font.get_default_font(), size).
+                            render(line, True, (255, 255, 255)))
+            text_rect = text_surface.get_rect()
+            text_rect.center = (x, y + y_offset)
+            self.state_control.screen.blit(text_surface, text_rect)
+            y_offset += text_rect.height + 10 # Adicione a altura da linha ao deslocamento y
