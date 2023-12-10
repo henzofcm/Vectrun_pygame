@@ -270,30 +270,163 @@ class Rider(Entity):
 
 @utilities.Singleton
 class Player():
+    """
+    Class representing a player in the game.
+
+    Parameters
+    ----------
+    number : int
+        The player's number.
+    x_y : tuple
+        The initial position of the player.
+    scale_size : int
+        The scale size of the player.
+    deck : Deck
+        The player's deck.
+
+    Attributes
+    ----------
+    __wrapper : pygame.sprite.GroupSingle
+        The wrapper around the Rider sprite.
+
+    Methods
+    -------
+    sprite()
+        Returns the sprite of the SingleGroup.
+    update()
+        Updates the SingleGroup.
+    draw(screen)
+        Draws the SingleGroup.
+    """
+
     def __init__(self, number, x_y, scale_size, deck):
+        """
+        Initialize a Player object.
+
+        Parameters
+        ----------
+        number : int
+            The player's number.
+        x_y : tuple
+            The initial position of the player.
+        scale_size : int
+            The scale size of the player.
+        deck : Deck
+            The player's deck.
+
+        Retorns
+        -------
+        None
+        """
         # Cria um envoltório entorno de um Rider
         self.__wrapper = Rider(number, x_y, scale_size, deck)
         self.__wrapper = pygame.sprite.GroupSingle(self.__wrapper)
 
     def __getattr__(self, attrvalue):
+        """
+        Get the attribute from the sprite and not from the group.
+
+        Parameters
+        ----------
+        attrvalue : str
+            The name of the attribute to retrieve.
+
+        Returns
+        -------
+        Any
+            The value of the requested attribute.
+
+        Notes
+        -----
+        This method is called when an attribute is accessed on the `Rider` object
+        that is not defined directly in the class. It delegates the attribute
+        retrieval to the underlying sprite object.
+
+        """
+        return getattr(self.__wrapper.sprite, attrvalue)
+    
+    def __getattr__(self, attrvalue):
+        """
+        Get the attribute from the sprite and not from the group.
+
+        Parameters
+        ----------
+        attrvalue : str
+            The name of the attribute to get.
+
+        Returns
+        -------
+        Any
+            The value of the requested attribute.
+
+        Notes
+        -----
+        This method is called when an attribute is not found in the current object.
+        It allows accessing attributes of the sprite directly instead of the group.
+
+        Examples
+        --------
+        >>> rider = Rider()
+        >>> rider.x
+        100
+        >>> rider.y
+        200
+        """
         # Pega o atributo do sprite e não do grupo
         return getattr(self.__wrapper.sprite, attrvalue)
     
     def __bool__(self):
-        # Retorna o booleano do SingleGroup
+        """
+        Return the boolean value of the SingleGroup.
+
+        Returns
+        -------
+        bool
+            The boolean value of the SingleGroup.
+
+        """
         return bool(self.__wrapper)
     
     def sprite(self):
-        # Retorna o sprite do SingleGroup
+        """
+        Return the sprite of the SingleGroup.
+
+        Returns
+        -------
+        sprite : object
+            The sprite object representing the SingleGroup.
+
+        """
         return self.__wrapper.sprite
         
     def update(self):
+        """
+        Update the SingleGroup.
+
+        Returns
+        -------
+        updated : bool
+            True if the update was successful, False otherwise.
+        """
         # Atualiza o SingleGroup
         return self.__wrapper.update()
 
     def draw(self, screen):
-        # Desenha o SingleGroup
-        return self.__wrapper.draw(screen)
+            """
+            Draw the SingleGroup on the screen.
+
+            Parameters
+            ----------
+            screen : pygame.Surface
+                The surface to draw on.
+
+            Returns
+            -------
+            pygame.Rect
+                The rectangle that represents the area of the drawn SingleGroup.
+            """
+            # Desenha o SingleGroup
+            return self.__wrapper.draw(screen)
 
 class Bot(Rider):
     def __init___(self, number, x_y, scale_size):
