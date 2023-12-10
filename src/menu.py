@@ -493,16 +493,14 @@ class OptionsMenu(Menu):
             self.run_display = False
         if self.state_control.START_KEY or self.state_control.BUTTON_CLICKED:
             if self.action in ["vol_1", "vol_2", "vol_3", "vol_4", "vol_5"]:
-               self.change_volume()
+               self.change_volume(self.action)
             elif self.action == "main_menu":
                 self.state_control.curr_menu = self.state_control.main_menu
                 self.run_display = False
 
-    def change_volume(self):
-        # CODIGO PARA CONTROLAR VOLUME
-        # pygame.mixer.init()
-        # pygame.mixer.set_volume(0.5)
-        pass
+    def change_volume(self, vol):
+        sound = int(vol[-1])
+        pygame.mixer.set_volume(0.15 * sound)
 
 
 class CreditsMenu(Menu):
