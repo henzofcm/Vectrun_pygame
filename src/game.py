@@ -19,7 +19,7 @@ class GridGame(Entity):
         self._clicked = False
 
         # Cria o deck
-        self._deck = Deck(TEXTURE_PATH + "cards/", (CARD_X, CARD_Y))
+        self._deck = Deck(CARDS_PATH, (CARD_X, CARD_Y))
 
         # Cria o jogador
         self._player = Player(1, (GRID_X / 2 - 1, GRID_Y / 2 - 2), (RIDER_X, RIDER_Y), self._deck)
@@ -51,10 +51,25 @@ class GridGame(Entity):
                 if event.button == 1 and not self._clicked and self._player:
                     self.__validate_click()
 
+            for rider in self._all_riders:
+                if event.type == rider.clock:
+                    rider.update()
+
         # Se tiver clicado, roda o movimento do jogador ou dos bots e testa colisão
         if self._clicked and self._all_riders:
-            self.move_player(self._all_riders.sprites()[self._mov_stage])
-            self.check_collision(self._all_riders.sprites()[self._mov_stage])
+            rider = self._all_riders.sprites()[self._mov_stage]
+
+            # Só movimenta se o jogador estiver vivo
+            if rider.state_alive:
+                self.move_player(rider)
+                self.check_collision(rider)
+
+        # Verifica se alguém morreu e roda sua animação
+        for rider in self._all_riders:
+            if not rider.state_alive:
+                # Quando acabar continua a rodada
+                if rider.update_death():
+                    self.__end_death()
 
         return False
 
@@ -74,6 +89,11 @@ class GridGame(Entity):
         # Faz blit no jogador e nos bots
         self._bots.draw(screen)
         self._player.draw(screen)
+
+        # Se alguém estiver na animação de morte, desenha de acordo
+        for rider in self._all_riders.sprites():
+            if not rider.state_alive:
+                screen.blit(rider.last_image, rider.last_rect)
 
     def choice_preview(self, screen):
         # Verifica se o mouse está em cima da carta
@@ -129,8 +149,8 @@ class GridGame(Entity):
             
     def move_player(self, rider):
         # Move o rider
-        if rider.update(self._deck):
-            pass
+        if rider.move_rider(self._deck):
+            return
         # Se ficou parado, reseta o movimento
         else:
             self.__next_player_movement()
@@ -189,22 +209,30 @@ class GridGame(Entity):
     def check_collision(self, rider):
         # Testa colisão com a fronteira
         if utilities.check_border_collision(rider.rect.center):
-            self.__kill_rider(rider)
+            rider.kill_rider()
             return
 
         # Testa colisão com as linhas
         if utilities.check_line_collision(self._all_riders, rider) and self._game_turn:
-            self.__kill_rider(rider)
+            rider.kill_rider()
             return
 
         # Verifica se colidiram entre si
-        #utilities.check_riders_collision(self._player, self._bots)
+        temp_group = self._all_riders.copy()
+        temp_group.remove(rider)
 
-    def __kill_rider(self, rider):
-        # Mata o rider
-        rider.kill()
+        for enemy in temp_group:
+            if utilities.check_riders_collision(rider, enemy) and self._game_turn:
+                rider.kill_rider()
+                enemy.kill_rider()
+                return
 
-        # Avança o turno
+    def __end_death(self):
+        # Termina a rodada se não houver mais nenhuma animação ocorrendo
+        for rider in self._all_riders.sprites():
+            if not rider.state_alive:
+                return
+
+        # Se todos que sobraram estiverem vivos, continua a partida
         self._mov_stage -= 1
         self.__next_player_movement()
-

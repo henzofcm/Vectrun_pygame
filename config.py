@@ -6,6 +6,9 @@ MUSIC_PATH = ASSET_PATH + "music/"
 SOUNDS_PATH = ASSET_PATH + "sounds/"
 FONTS_PATH = ASSET_PATH + "fonts/"
 
+CARDS_PATH = TEXTURE_PATH + "cards/"
+RIDER_PATH = TEXTURE_PATH + "rider/"
+
 # Tamanho da tela
 WIDTH = 1000
 HEIGHT = 750
