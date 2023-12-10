@@ -429,13 +429,52 @@ class Player():
             return self.__wrapper.draw(screen)
 
 class Bot(Rider):
-    def __init___(self, number, x_y, scale_size):
+    """
+    Represents a bot object.
+    """
+    def __init__(self, number, x_y, scale_size):
+        """
+        Initializes a Rider object.
+
+        Parameters
+        ----------
+        number : int
+            The rider's number.
+        x_y : tuple
+            The initial position of the rider as a tuple of (x, y) coordinates.
+        scale_size : float
+            The scale size of the rider.
+
+        Returns
+        -------
+        None
+        """
         super().__init__(number, x_y, scale_size)
 
     def choose_card(self, all_riders):
+        """
+        Choose a card from the rider's hand based on the preview movement.
+
+        Parameters
+        ----------
+        all_riders : list
+            A list of all riders in the game.
+
+        Returns
+        -------
+        pygame.sprite.Sprite
+            The chosen card from the rider's hand.
+
+        Notes
+        -----
+        This method iterates through each card in the rider's hand and checks if the preview movement is valid or not.
+        If a card's movement is valid, it is added to the choices list.
+        If there are valid choices, a random card is returned from the choices list.
+        If there are no valid choices, a random card from the rider's hand is returned.
+        """
         choices = []
 
-        # Laceia cada carda e decide se o movimento é válido ou não
+        # Laceia cada carta e decide se o movimento é válido ou não
         for card in self._hand.sprites():
             # Se for, adiciona à lista choices
             if self.__preview_movement(card, all_riders):
@@ -449,6 +488,21 @@ class Bot(Rider):
             return random.choice(self._hand.sprites())
 
     def __preview_movement(self, card, all_riders):
+        """
+        Calculate the preview movement of the rider based on the given card.
+
+        Parameters
+        ----------
+        card : tuple
+            A tuple representing the movement card (x, y).
+        all_riders : list
+            A list of all riders in the game.
+
+        Returns
+        -------
+        bool
+            True if the preview movement is valid, False otherwise.
+        """
         # Pega o ponto inicial e final do vetor
         start = self._path[-1]
         end = (start[0] + card[0] * DISTANCE, start[1] - card[1] * DISTANCE)
@@ -463,7 +517,7 @@ class Bot(Rider):
         # Se for colidir com as linhas de outrem retorna
         if utilities.check_line_cross(all_riders, self, line_mask, card):
             return False
-        
+
         # Se não colidir com nada, a carta é válida
         return True
 
