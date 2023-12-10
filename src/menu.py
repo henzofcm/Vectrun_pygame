@@ -314,7 +314,7 @@ class ResultScreen(Menu):
 
             self.state_control.screen.blit(self.image, self.rect)
 
-            self.draw_text("Seleect your", 40, WIDTH/2, HEIGHT/2 - 40)
+            self.draw_text("Select your", 40, WIDTH/2, HEIGHT/2 - 40)
             self.draw_text("next action :", 40, WIDTH/2, HEIGHT/2 + 40)
 
             # Insere os botões na tela:
@@ -332,6 +332,7 @@ class ResultScreen(Menu):
         if self.state_control.START_KEY or self.state_control.BUTTON_CLICKED:
             if self.action == "main_menu":
                 self.state_control.curr_menu = self.state_control.main_menu
+                self.state_control.playing = True
             if self.action == "exit":
                 self.state_control.running = False
                 self.state_control.curr_menu.run_display = False
@@ -447,6 +448,7 @@ class TutorialScreen(Menu):
             if self.action == "play":
                 self.state_control.playing = True
                 self.run_display = False
+                self.state_control.first_time = False
 
     def draw_large_text(self, text, size, x, y, max_line_length):
         lines = textwrap.wrap(text, width=max_line_length)

@@ -27,19 +27,24 @@ class StateControl():
         self.options_menu = OptionsMenu(self, (TEXTURE_MENU_PATH + "options_button.png"), (WIDTH / 2, (HEIGHT / 6 - 50)), (2 * BUTTON_X, 2 * BUTTON_Y))
         self.credits_menu = CreditsMenu(self, (TEXTURE_MENU_PATH + "credits_button.png"), (WIDTH / 2, (HEIGHT / 6 - 50)), (2 * BUTTON_X, 2 * BUTTON_Y))
 
-        # EDIÇão FUtura para considerar ambos casos (derrrota e virtoria)
-        self.result_screen = ResultScreen(self, (TEXTURE_MENU_PATH + "you_win.png"), (WIDTH/2, HEIGHT/5), (LOGO_X,LOGO_Y))
+        # Cria a tela de vitória e derrota
+        self.win_screen = ResultScreen(self, (TEXTURE_MENU_PATH + "you_win.png"), (WIDTH/2, HEIGHT/5), (LOGO_X,LOGO_Y))
+        self.lose_screen = ResultScreen(self, (TEXTURE_MENU_PATH + "you_lose.png"), (WIDTH/2, HEIGHT/5), (LOGO_X,LOGO_Y))
+        self.winner = 0
 
+        # Tela do tutorial
         self.tutorial_screen = TutorialScreen(self, (TEXTURE_MENU_PATH + "tutorial_text.png"), (WIDTH / 2, HEIGHT / 6 - 50), (2 * BUTTON_X, 2 * BUTTON_Y))
 
         # Define a tela inicial
         self.curr_menu = self.main_menu
 
-        # Cria um objeto para o jogo
-        self.game_run = GridGame(TEXTURE_PATH + "grid.png", (0, 0), (GRID_X, GRID_Y), 3)
-        # Posteriormente, criar um a cada vez que o jogo for iniciado
+        # Holder pro jogo: só será criado de fato quando começar a partida
+        self.game_run = None
 
     def game_loop(self):
+        # Cria o jogo
+        self.game_run = GridGame(TEXTURE_PATH + "grid.png", (0, 0), (GRID_X, GRID_Y), 3, self)
+
         while self.playing:
             # Preenche a tela
             self.screen.fill(BLACK)
@@ -52,11 +57,17 @@ class StateControl():
             pygame.display.update()
             self.fps_clock.tick(30)
 
-        # INSERIR AQUI
-        # (DETECTAR DERROTA OU VITORIA)
-        if False:
-            self.curr_menu = self.result_screen
+        # Se o jogador não saiu no meio da partida então alguém venceu
+        if self.winner:
+            # Se for o jogador, ele ganha
+            if self.winner == 1:
+                self.curr_menu = self.win_screen
+            # Se for algum dos bots, ele perde
+            else:
+                self.curr_menu = self.lose_screen
 
+            # Reinicia o estado para exibir a tela
+            self.start()
 
     def check_events(self):
         for event in pygame.event.get():
@@ -81,11 +92,26 @@ class StateControl():
         self.BUTTON_CLICKED = False
 
     def start(self):
+        # Mostra os menus e, quando decidir jogar ou sair, sai deste loop
         while not self.playing:
             self.curr_menu.display_menu()
 
             if not self.running:
                 return
 
-
+        # Entra no jogo
         self.game_loop()
+
+        # Se não houve ganhador é porque o jogador voltou ao menu principal
+        # Então é válido recomeçar o estado de jogo
+        if not self.winner:
+            self.restart()
+
+    def restart(self):
+        # Volta para o menu principal
+        self.curr_menu = self.main_menu
+
+        # Apaga o jogador antigo
+        del self.game_run._player
+
+        self.start()

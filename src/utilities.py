@@ -132,3 +132,8 @@ class Singleton:
             self.instance = self.aClass(*args, **kwargs)
 
         return self.instance
+    
+    def __del__(self):
+        # Apaga a instancia original
+        del self.instance
+        self.instance = None

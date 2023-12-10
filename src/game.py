@@ -9,8 +9,9 @@ from config import *
 
 
 class GridGame(Entity):
-    def __init__(self, image_path, x_y, scale_size, bot_number):
+    def __init__(self, image_path, x_y, scale_size, bot_number, state_control):
         super().__init__(image_path, x_y, scale_size)
+        self.state_control = state_control
 
         # Atributos para o estado do jogo
         self.next_menu = "none"
@@ -39,13 +40,11 @@ class GridGame(Entity):
         # Eventos principais deste menu
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
+                self.state_control.playing = False
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    pygame.quit()
-                    sys.exit()
+                    self.state_control.playing = False
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1 and not self._clicked and self._player:
@@ -54,6 +53,13 @@ class GridGame(Entity):
             for rider in self._all_riders:
                 if event.type == rider.clock:
                     rider.update()
+
+        # Verifica se sobrou apenas um, que será o vencedor
+        if len(self._all_riders) == 1:
+            # E então retorna ao state_control as informações pertinentes
+            self.state_control.winner = self._all_riders.sprites()[0]._number
+            self.state_control.playing = False
+            return
 
         # Se tiver clicado, roda o movimento do jogador ou dos bots e testa colisão
         if self._clicked and self._all_riders:
