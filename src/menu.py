@@ -2,23 +2,67 @@ import pygame
 from config import *
 from entity import *
 
-
 class Button(Entity):
+    """
+    Represents a menu button.
+    
+    Attributes
+    ----------
+    label : str
+        The label for the menu.
+    rect : Rect
+        The rectangle that represents the menu's position and size.
+    selected : bool
+        Indicates whether the menu is selected or not.
+        
+    Methods
+    -------
+    __init__(self, image_path, x_y, scale_size, label)
+        Initializes a Menu object.
+    update(self)
+        Update the state of the menu.
+
+        
+    """
     def __init__(self, image_path, x_y, scale_size, label):
+        """
+        Initializes a Menu object.
+
+        Parameters
+        ----------
+        image_path : str
+            The path to the image file for the menu.
+        x_y : tuple
+            The x and y coordinates of the menu.
+        scale_size : float
+            The scale size of the menu.
+        label : str
+            The label for the menu.
+        """
         super().__init__(image_path, x_y, scale_size)
         self.label = label
         self.rect = self.image.get_rect(center=x_y)
         self.selected = False
 
     def update(self):
-        # Testa se houve colisão com o mouse
+        """
+        Update the state of the menu.
+
+        Check for collision with the mouse and return True if there is a collision,
+        otherwise return False.
+
+        Returns
+        -------
+        bool
+            True if there is a collision with the mouse, False otherwise.
+        """
         mouse_pos = pygame.mouse.get_pos()
         is_over = self.rect.collidepoint(mouse_pos)
 
-        if is_over:
-            return True
-        else:
-            return False
+            if is_over:
+                return True
+            else:
+                return False
 
 
 class Menu(Entity):
