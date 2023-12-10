@@ -362,6 +362,17 @@ class GridGame(Entity):
         #utilities.check_riders_collision(self._player, self._bots)
 
     def __kill_rider(self, rider):
+        """
+        Kills the specified rider and advances the turn.
+
+        Parameters
+        ----------
+        rider (Rider): The rider to be killed.
+
+        Returns
+        -------
+        None
+        """
         # Mata o rider
         rider.kill()
 
