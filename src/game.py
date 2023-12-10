@@ -9,6 +9,72 @@ from config import *
 
 
 class GridGame(Entity):
+    """
+    Represents the grid game.
+    
+    This class inherits from Entity and represents the grid game.
+    It is responsible for handling the game's main events, such as quitting the game,
+    pressing the escape key, and clicking the mouse button. If a click occurs,
+    it validates the click and performs the player's movement and collision testing.
+    
+    Attributes
+    ----------
+    image_path : str
+        The path to the image file.
+    x_y : tuple
+        The x and y coordinates of the game object.
+    scale_size : float
+        The scale size of the game object.
+    bot_number : int
+        The number of bots in the game.
+    next_menu : str
+        The next menu to be displayed.
+    _game_turn : int
+        The current turn of the game.
+    _mov_stage : int
+        The current stage of the player's movement.
+    _clicked : bool
+        True if the player has clicked, False otherwise.
+    _deck : Deck
+        The deck of cards.
+    _player : Player
+        The player object.
+    _bots : Group
+        The group of bots.
+    _all_riders : Group
+        The group of all riders.
+        
+    Methods
+    -------
+    __init__(self, image_path, x_y, scale_size, bot_number)
+        Initializes the Game object.
+    update(self)
+        Update the game state.
+    draw(self, screen)
+        Draw the game elements on the screen.
+    choice_preview(self, screen)
+        Preview the selected card and its path on the screen.
+    __preview_selected_card(card, screen)
+        Draw the outline of the selected card.
+    __preview_selected_path(card, screen)
+        Preview the selected path on the screen.
+    __validate_click(self)
+        Verifies if the player clicked on a card and prepares the player's movement.
+    __card_clicked(self)
+        Verifies if a card has been clicked by the player.
+    move_player(self, rider)
+        Move the player's rider.
+    __end_turn(self)
+        Reverses the game state and advances the turn.
+    __next_player_movement(self, card=None)
+        Perform the movement of the next player in the game.
+    __first_turn_collision(self)
+        Verifies if any rider has collided during the first turn.
+    check_collision(self, rider)
+        Check for collisions between the rider and the game elements.
+    __kill_rider(self, rider)
+        Kills the specified rider and advances the turn.
+    """
     def __init__(self, image_path, x_y, scale_size, bot_number):
         """
         Initializes the Game object.
