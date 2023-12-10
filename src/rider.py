@@ -8,6 +8,50 @@ from config import *
 class Rider(Entity):
     """
     Represents a rider object.
+        
+    Attributes
+    ----------
+    _number : int
+        The number of the player.
+    _path : list
+        A list of the rider's positions.
+    _velocity : float
+        The velocity of the rider.
+    _hand : pygame.sprite.Group
+        The rider's hand.
+    _color : str
+        The color of the rider.
+    __timer : int
+        The timer of the rider.
+    state_alive : bool
+        The state of the rider.
+    clicked_card : tuple
+        The card that the rider clicked.
+    _last_card : tuple
+        The last card that the rider clicked.
+    mask : pygame.rect.Rect
+        The mask of the rider.
+    line_mask : pygame.mask.Mask
+        The line mask of the rider.
+    _last_line_mask : pygame.mask.Mask
+        The last line mask of the rider.
+        
+    Methods
+    -------
+    update(self, deck)
+        Update the rider's state based on the given deck.
+    move_rider(self, deck)
+        Move the rider according to the card it clicked.
+    __change_move(self, card, time)
+        Move the rider's position based on the given card and time.
+    __set_temp_variables(self)
+        Set temporary variables that save code in movement.
+    __reset_movement(self, deck)
+        Resets the movement of the rider.
+    _get_line_mask(color,start, end)
+        Create a line mask based on the given color, start, and end points.
+    select_card(self, card)
+        Select a card for the rider.
     """
     def __init__(self, number, x_y, scale_size, deck):
         """
@@ -135,12 +179,15 @@ class Rider(Entity):
         time : int
             The time duration of the movement.
 
+        Returns
+        -------
+        None
+        
         Notes
         -----
         This method updates the rider's position by calculating the temporary positions
         based on the card and time values. The rider's position is then rounded to the
         nearest integer and updated accordingly.
-
         """
         # Diferença que a moto deverá andar
         delta_x = card[0]
@@ -273,17 +320,6 @@ class Player():
     """
     Class representing a player in the game.
 
-    Parameters
-    ----------
-    number : int
-        The player's number.
-    x_y : tuple
-        The initial position of the player.
-    scale_size : int
-        The scale size of the player.
-    deck : Deck
-        The player's deck.
-
     Attributes
     ----------
     __wrapper : pygame.sprite.GroupSingle
@@ -314,7 +350,7 @@ class Player():
         deck : Deck
             The player's deck.
 
-        Retorns
+        Returns
         -------
         None
         """
@@ -431,6 +467,50 @@ class Player():
 class Bot(Rider):
     """
     Represents a bot object.
+    
+    Attributes
+    ----------
+    _number : int
+        The number of the player.
+    _path : list
+        A list of the rider's positions.
+    _velocity : float
+        The velocity of the rider.
+    _hand : pygame.sprite.Group
+        The rider's hand.
+    _color : str
+        The color of the rider.
+    __timer : int
+        The timer of the rider.
+    state_alive : bool
+        The state of the rider.
+    clicked_card : tuple
+        The card that the rider clicked.
+    _last_card : tuple
+        The last card that the rider clicked.
+    mask : pygame.rect.Rect
+        The mask of the rider.
+    line_mask : pygame.mask.Mask
+        The line mask of the rider.
+    _last_line_mask : pygame.mask.Mask
+        The last line mask of the rider.
+        
+    Methods
+    -------
+    update(self, deck)
+        Update the rider's state based on the given deck.
+    move_rider(self, deck)
+        Move the rider according to the card it clicked.
+    __change_move(self, card, time)
+        Move the rider's position based on the given card and time.
+    __set_temp_variables(self)
+        Set temporary variables that save code in movement.
+    __reset_movement(self, deck)
+        Resets the movement of the rider.
+    _get_line_mask(color,start, end)
+        Create a line mask based on the given color, start, and end points.
+    select_card(self, card)
+        Select a card for the rider.
     """
     def __init__(self, number, x_y, scale_size):
         """
