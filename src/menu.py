@@ -211,6 +211,7 @@ class OptionsMenu(Menu):
         # pygame.mixer.set_volume(0.5)
         pass
 
+
 class CreditsMenu(Menu):
     def __init__(self, game, image_path, x_y, scale_size):
         super().__init__(game, image_path, x_y, scale_size)
