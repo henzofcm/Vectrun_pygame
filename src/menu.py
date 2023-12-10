@@ -21,8 +21,6 @@ class Button(Entity):
         Initializes a Menu object.
     update(self)
         Update the state of the menu.
-
-        
     """
     def __init__(self, image_path, x_y, scale_size, label):
         """
@@ -66,7 +64,60 @@ class Button(Entity):
 
 
 class Menu(Entity):
+    """
+    Represents a menu.
+    
+    Attributes
+    ----------
+    state_control : Game
+        The game object that controls the menu.
+    rect : Rect
+        The rectangle that represents the menu's position and size.
+    run_display : bool
+        Indicates whether the menu is running or not.
+    button_clicked : bool
+        Indicates whether a button was clicked or not.
+    selected_button : Button
+        The button that was selected.
+    buttons_group : Group
+        The group of buttons for the menu.
+    
+    Methods
+    -------
+    __init__(self, game, image_path, x_y, scale_size)
+        Initializes a Menu object.
+    draw_text(self, text, size, x, y)
+        Draw text on the screen.
+    update(self)
+        Update the state of the menu.
+    verify(self)
+        Verify the state of the menu.
+    choice_preview(self, screen)
+        Preview the selected choice.
+    __preview_selected_button(self, button, screen)
+        Preview the selected button.
+    check_input(self)
+        Check the input for the menu.
+    """
     def __init__(self, game, image_path, x_y, scale_size):
+        """
+        Initializes a Menu object.
+        
+        Parameters
+        ----------
+        game : Game
+            The game object that controls the menu.
+        image_path : str
+            The path to the image file for the menu.
+        x_y : tuple
+            The x and y coordinates of the menu.
+        scale_size : float
+            The scale size of the menu.
+        
+        Returns
+        -------
+        None
+        """
         super().__init__(image_path, x_y, scale_size)
 
         self.state_control = game
@@ -81,6 +132,24 @@ class Menu(Entity):
         self.buttons_group = pygame.sprite.Group()
 
     def draw_text(self, text, size, x, y ):
+        """
+        Draw text on the screen.
+        
+        Parameters
+        ----------
+        text : str
+            The text to draw.
+        size : int
+            The size of the text.
+        x : int
+            The x coordinate of the text.
+        y : int
+            The y coordinate of the text.
+        
+        Returns
+        -------
+        None
+        """
         self.font_name = pygame.font.get_default_font()
         font = pygame.font.Font(self.font_name,size)
         text_surface = font.render(text, True, WHITE)
@@ -89,15 +158,41 @@ class Menu(Entity):
         self.state_control.screen.blit(text_surface, text_rect)
 
     def update(self):
+        """
+        Update the state of the menu.
+        
+        Returns
+        -------
+        None
+        """
         pygame.display.update()
         self.state_control.reset_keys()
     
     def verify(self):
+        """ 
+        Verify the state of the menu.
+        
+        Returns
+        -------
+        None
+        """
         self.state_control.check_events()
         self.choice_preview(self.state_control.screen)
         self.check_input()
 
     def choice_preview(self, screen):
+        """
+        Preview the selected choice.
+        
+        Parameters
+        ----------
+        screen : Surface
+            The screen to preview the selected choice.
+        
+        Returns
+        -------
+        None
+        """
         # Verifica se o mouse está em cima da carta
         for button in self.buttons_group:
             if button.update():
@@ -118,6 +213,20 @@ class Menu(Entity):
 
     @staticmethod
     def __preview_selected_button(button, screen):
+        """ 
+        Preview the selected button.
+        
+        Parameters
+        ----------
+        button : Button
+            The button to preview.
+        screen : Surface
+            The screen to preview the button.
+        
+        Returns
+        -------
+        None        
+        """
         # Desenha o contorno do botão selecionado
         rect_pos = (button.rect.left - BUTTON_SELECTED_WIDTH, button.rect.top - BUTTON_SELECTED_WIDTH)
         rect_size = (button.rect.width + 2 * BUTTON_SELECTED_WIDTH, button.rect.height + 2 * BUTTON_SELECTED_WIDTH)
@@ -127,6 +236,13 @@ class Menu(Entity):
         pygame.draw.rect(screen, RED, rectangle, width=2 * BUTTON_SELECTED_WIDTH)
 
     def check_input(self):
+        """
+        Check the input for the menu.
+        
+        Returns
+        -------
+        None
+        """
         pass
 
 
