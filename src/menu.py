@@ -136,7 +136,11 @@ class MainMenu(Menu):
         # Checa os cliques em botões
         if self.state_control.START_KEY or self.state_control.BUTTON_CLICKED:
             if self.action == "the_grid":
-                self.state_control.playing = True
+                if self.state_control.first_time:
+                    # Abre o tutorial antes de iniciar a primeira partida
+                    self.state_control.curr_menu = self.state_control.tutorial_screen
+                else:
+                    self.state_control.playing = True
             elif self.action == "options_menu":
                 self.state_control.curr_menu = self.state_control.options_menu
             elif self.action == "credits_menu":
@@ -441,7 +445,8 @@ class TutorialScreen(Menu):
                         self.buttons_group.remove(self.btn_left)
 
             if self.action == "play":
-                pass
+                self.state_control.playing = True
+                self.run_display = False
 
     def draw_large_text(self, text, size, x, y, max_line_length):
         lines = textwrap.wrap(text, width=max_line_length)
@@ -449,8 +454,8 @@ class TutorialScreen(Menu):
 
         for line in lines:
             text_surface = (pygame.font.Font(pygame.font.get_default_font(), size).
-                            render(line, True, (255, 255, 255)))
+                            render(line, True, WHITE))
             text_rect = text_surface.get_rect()
             text_rect.center = (x, y + y_offset)
             self.state_control.screen.blit(text_surface, text_rect)
-            y_offset += text_rect.height + 10 # Adicione a altura da linha ao deslocamento y
+            y_offset += text_rect.height + 10

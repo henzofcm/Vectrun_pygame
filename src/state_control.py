@@ -12,6 +12,7 @@ class StateControl():
         self.running, self.playing = True, False
         self.UP_KEY, self.DOWN_KEY, self.START_KEY, self.BACK_KEY, self.ESC_KEY = False, False, False, False, False
         self.BUTTON_CLICKED = False
+        self.first_time = True
 
         # Cria a tela do jogo
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
