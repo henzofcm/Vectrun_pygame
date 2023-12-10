@@ -588,11 +588,53 @@ class CreditsMenu(Menu):
 
 
 class ResultScreen(Menu):
+    """
+    Represents the result screen.
+    
+    Attributes
+    ----------
+    next_state : str
+        The next state to transition to.
+    
+    Methods
+    -------
+    __init__(self, game, image_path, x_y, scale_size)
+        Initializes a ResultScreen object.
+    display_menu(self)
+        Display the result screen.
+    check_input(self)
+        Check the input for the menu.
+    """
     def __init__(self, game, image_path, x_y, scale_size):
+        """
+        Initializes a ResultScreen object.
+        
+        Parameters
+        ----------
+        game : Game
+            The game object that controls the menu.
+        image_path : str
+            The path to the image file for the menu.
+        x_y : tuple
+            The x and y coordinates of the menu.
+        scale_size : float
+            The scale size of the menu.
+            
+        Returns
+        -------
+        None
+        """
         super().__init__(game, image_path, x_y, scale_size)
         self.next_state = "main_menu"
 
     def display_menu(self):
+        """
+        Display the result screen.
+        
+        Returns
+        -------
+        None
+        """
         self.run_display = True
         while self.run_display:
             self.state_control.screen.fill(BLACK)
@@ -611,6 +653,13 @@ class ResultScreen(Menu):
             self.update()
 
     def check_input(self):
+        """
+        Check the input for the menu.
+        
+        Returns
+        -------
+        None
+        """
         if self.state_control.ESC_KEY:
             self.state_control.curr_menu = self.state_control.main_menu
             self.run_display = False
