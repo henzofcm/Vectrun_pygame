@@ -46,4 +46,5 @@ WHITE = (255, 255, 255)
 RED = (186, 63, 73)
 
 # Número de efeitos sonoros
-SOUND_NUMBER = 2
+SOUND_NUMBER = 3
+VOLUME_START = 0.3

@@ -33,7 +33,7 @@ class StateControl():
         self.curr_menu = self.main_menu
 
         # Carrega a música pra memória
-        self.volume = 0.4
+        self.volume = VOLUME_START
         self.__change_music("title.ogg", self.volume)
 
         # Cria um objeto para o jogo

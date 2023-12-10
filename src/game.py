@@ -36,14 +36,18 @@ class GridGame(Entity):
         self._all_riders = pygame.sprite.Group((self._player.sprite()), self._bots.sprites()[::-1])
 
         # Carrega efeitos sonoros pra memória
-        self.volume = volume
+        self.volume = volume * 3 / 4
         self.sound = []
-        
+
         for index in range(SOUND_NUMBER):
-            archive = "sound_" + str(index) + ".mp3"
+            archive = "sound_" + str(index) + ".ogg"
             sound = pygame.mixer.Sound(SOUND_PATH + archive)
             sound.set_volume(self.volume)
             self.sound.append(sound)
+
+        # Cria um canal para tocar os efeitos sonoros
+        self.channel = pygame.mixer.Channel(1)
+        self.channel.set_volume(self.volume)
 
     def update(self):
         # Eventos principais deste menu
@@ -176,6 +180,9 @@ class GridGame(Entity):
             self._mov_stage += 1
             self._clicked = True
 
+        # Para o som do movimento
+        self.channel.stop()
+
     def __next_player_movement(self, card=None):
         self._mov_stage += 1
 
@@ -205,6 +212,9 @@ class GridGame(Entity):
         # Atualiza o estado do próximo jogador
         next_player.select_card(card)
 
+        # Toca o som de movimento indefinidamente
+        self.channel.play(self.sound[1], -1)
+
     def __first_turn_collision(self):
         # Verifica se alguém colidiu
         for rider in self._all_riders.sprites()[::-1]:
@@ -220,13 +230,14 @@ class GridGame(Entity):
         # Testa colisão com a fronteira
         if utilities.check_border_collision(rider.rect.center):
             rider.kill_rider()
-            self.sound[0].play()
+            self.channel.play(self.sound[0])
+            self.channel.queue(self.sound[2], -1)
             return
 
         # Testa colisão com as linhas
         if utilities.check_line_collision(self._all_riders, rider) and self._game_turn:
             rider.kill_rider()
-            self.sound[0].play()
+            self.channel.play(self.sound[0])
             return
 
         # Verifica se colidiram entre si
