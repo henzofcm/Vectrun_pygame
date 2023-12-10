@@ -289,8 +289,6 @@ class ResultScreen(Menu):
         # Define a fonte a ser usada
         self.font_name = FONTS_PATH + "tron.ttf"
 
-        # Define variáveis com valores recorrentes no menu
-
         # Define os botões dessa tela
         self.btn_menu = Button(TEXTURE_MENU_PATH + "to_menu_button.png", (WIDTH/2, HEIGHT-200),
                                (BUTTON_X, BUTTON_Y), "main_menu")
@@ -337,7 +335,21 @@ class ResultScreen(Menu):
 class TutorialScreen(Menu):
     def __init__(self, game, image_path, x_y, scale_size):
         super().__init__(game, image_path, x_y, scale_size)
-        self.next_state = ""
+        self.next_state = "right_arrow"
+        self.page = 1
+        self.num_of_pages = 5
+
+        # Define a fonte a ser usada
+        self.font_name = FONTS_PATH + "terminator.otf"
+
+        # Define os botões dessa tela
+        self.btn_right = Button(TEXTURE_MENU_PATH + "right_arrow.png", (WIDTH - 80, HEIGHT/2),
+                               (60, 60), "right_arrow")
+        self.btn_left = Button(TEXTURE_MENU_PATH + "left_arrow.png", (80, HEIGHT/2),
+                                (60, 60), "left_arrow")
+
+        # Adiciona os botões a um grupo
+        self.buttons_group.add(self.btn_right)
 
     def display_menu(self):
         self.run_display = True
@@ -347,12 +359,42 @@ class TutorialScreen(Menu):
             # Verifica as entradas e interação com os botões
             self.verify()
             
-            # CODE TO FINISH -->
-            # <-- CODE TO FINISH
+            # Exibe a imagem "Tutorial"
+            self.state_control.screen.blit(self.image, self.rect)
+
+            # Telas de tutorial
+            self.buttons_group.draw(self.state_control.screen)
+
+
+            # Exibe o núemro da página
+            self.draw_text(str(self.page), 20, WIDTH-100, HEIGHT-75)
 
             self.update()
 
     def check_input(self):
-        pass
-        # CODE TO FINISH -->
-        # <-- CODE TO FINISH
+        if self.state_control.ESC_KEY:
+            self.state_control.curr_menu = self.state_control.main_menu
+            self.run_display = False
+        if self.state_control.BACK_KEY:
+            self.state_control.curr_menu = self.state_control.main_menu
+            self.run_display = False
+        if self.state_control.START_KEY or self.state_control.BUTTON_CLICKED:
+            if self.next_state == "right_arrow":
+                if self.page < self.num_of_pages - 1:
+                    if self.page <= 1:
+                        # Adiciona o botão esquerdo para exibi-lo
+                        self.buttons_group.add(self.btn_left)
+                    self.page += 1
+                else:
+                    # Remove o botão direito para deixar de exibi-lo
+                    self.buttons_group.remove(self.btn_right)
+
+            if self.next_state == "left_arrow":
+                if self.page > 1:
+                    if self.page >= self.num_of_pages - 1:
+                        # Adiciona o botão direito para exibi-lo
+                        self.buttons_group.add(self.btn_right)
+                    self.page -= 1
+                else:
+                    # Remove o botão esquerdo para deixar de exibi-lo
+                    self.buttons_group.remove(self.btn_left)
