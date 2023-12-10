@@ -1,5 +1,6 @@
 # Define caminho de todas as pastas que usaremos
 ASSET_PATH = "assets/"
+IMG_MANUAL_PATH = ASSET_PATH + "manual/img/"
 TEXTURE_PATH = ASSET_PATH + "textures/"
 MUSIC_PATH = ASSET_PATH + "music/"
 SOUND_PATH = ASSET_PATH + "sound/"

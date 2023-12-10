@@ -270,6 +270,7 @@ class Player():
     def draw(self, screen):
         # Desenha o SingleGroup
         return self.__wrapper.draw(screen)
+    
 
 class Bot(Rider):
     def __init___(self, number, x_y, scale_size):
