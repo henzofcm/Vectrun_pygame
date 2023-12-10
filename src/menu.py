@@ -332,7 +332,6 @@ class ResultScreen(Menu):
         if self.state_control.START_KEY or self.state_control.BUTTON_CLICKED:
             if self.action == "main_menu":
                 self.state_control.curr_menu = self.state_control.main_menu
-                self.state_control.playing = True
             if self.action == "exit":
                 self.state_control.running = False
                 self.state_control.curr_menu.run_display = False
