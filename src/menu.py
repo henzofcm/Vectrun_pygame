@@ -673,11 +673,53 @@ class ResultScreen(Menu):
 
 
 class TutorialScreen(Menu):
+    """
+    Represents the tutorial screen.
+    
+    Attributes
+    ----------
+    next_state : str
+        The next state to transition to.
+        
+    Methods
+    -------
+    __init__(self, game, image_path, x_y, scale_size)
+        Initializes a TutorialScreen object.
+    display_menu(self)
+        Display the tutorial screen.
+    check_input(self)
+        Check the input for the menu.
+    """
     def __init__(self, game, image_path, x_y, scale_size):
+        """
+        Initializes a TutorialScreen object.
+        
+        Parameters
+        ----------
+        game : Game
+            The game object that controls the menu.
+        image_path : str
+            The path to the image file for the menu.
+        x_y : tuple
+            The x and y coordinates of the menu.
+        scale_size : float
+            The scale size of the menu.
+            
+        Returns
+        -------
+        None
+        """
         super().__init__(game, image_path, x_y, scale_size)
         self.next_state = ""
 
     def display_menu(self):
+        """
+        Display the tutorial screen.
+        
+        Returns
+        -------
+        None
+        """
         self.run_display = True
         while self.run_display:
             self.state_control.screen.fill(BLACK)
@@ -691,6 +733,13 @@ class TutorialScreen(Menu):
             self.update()
 
     def check_input(self):
+        """
+        Check the input for the menu.
+        
+        Returns
+        -------
+        None
+        """
         pass
         # CODE TO FINISH -->
         # <-- CODE TO FINISH
