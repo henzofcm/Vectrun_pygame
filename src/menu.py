@@ -247,7 +247,62 @@ class Menu(Entity):
 
 
 class MainMenu(Menu):
+    """
+    Represents the main menu.
+    
+    Attributes
+    ----------
+    next_state : str
+        The next state to transition to.
+    start_x : int
+        The x coordinate of the start button.
+    start_y : int
+        The y coordinate of the start button.
+    options_x : int
+        The x coordinate of the options button.
+    options_y : int
+        The y coordinate of the options button.
+    credits_x : int
+        The x coordinate of the credits button.
+    credits_y : int
+        The y coordinate of the credits button.
+    btn_the_grid : Button
+        The button to transition to the grid.
+    btn_options : Button
+        The button to transition to the options menu.
+    btn_credits : Button
+        The button to transition to the credits menu.
+    buttons_group : Group
+        The group of buttons for the menu.
+    
+    Methods
+    -------
+    __init__(self, game, image_path, x_y, scale_size)
+        Initializes a MainMenu object.
+    display_menu(self)
+        Display the main menu.
+    check_input(self)
+        Check the input for the menu.
+    """
     def __init__(self, game, image_path, x_y, scale_size):
+        """
+        Initializes a MainMenu object.
+        
+        Parameters
+        ----------
+        game : Game
+            The game object that controls the menu.
+        image_path : str
+            The path to the image file for the menu.
+        x_y : tuple
+            The x and y coordinates of the menu.
+        scale_size : float
+            The scale size of the menu.
+        
+        Returns
+        -------
+        None
+        """
         super().__init__(game, image_path, x_y, scale_size)
         self.next_state = "the_grid"
 
@@ -268,6 +323,13 @@ class MainMenu(Menu):
         self.buttons_group = pygame.sprite.Group(self.btn_the_grid, self.btn_options, self.btn_credits)
 
     def display_menu(self):
+        """
+        Display the main menu.
+        
+        Returns
+        -------
+        None
+        """
         self.run_display = True
         while self.run_display:
             # Preenche o fundo
@@ -285,6 +347,13 @@ class MainMenu(Menu):
             self.update()
 
     def check_input(self):
+        """
+        Check the input for the menu.
+        
+        Returns
+        -------
+        None
+        """
         if self.state_control.ESC_KEY:
             self.state_control.running = False
             self.state_control.curr_menu.run_display = False
