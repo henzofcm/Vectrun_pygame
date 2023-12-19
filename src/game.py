@@ -139,7 +139,7 @@ class GridGame(Entity):
         for index in range(SOUND_NUMBER):
             archive = "sound_" + str(index) + ".ogg"
             sound = pygame.mixer.Sound(SOUND_PATH + archive)
-            sound.set_volume(self.volume)
+            sound.set_volume(self.volume / 2)
             self.sound.append(sound)
 
         # Cria um canal para tocar os efeitos sonoros
@@ -202,6 +202,7 @@ class GridGame(Entity):
             if not rider.state_alive:
                 # Quando acabar continua a rodada
                 if rider.update_death():
+                    self._mov_stage -= 1
                     self.__end_death()
 
         return False
@@ -343,6 +344,7 @@ class GridGame(Entity):
         # Se tiver clicado, prepara o movimento do player
         if player_card:
             self._clicked = True
+            self.sound[3].play()
             self.__next_player_movement(player_card)
 
     def __card_clicked(self):
@@ -477,7 +479,7 @@ class GridGame(Entity):
                 and self._game_turn
             ):
                 rider.kill_rider()
-                self.channel.play(self.sound[0])
+                self.sound[0].play()
                 continue
 
     def check_collision(self, rider):
@@ -495,13 +497,7 @@ class GridGame(Entity):
         # Testa colisão com a fronteira
         if utilities.check_border_collision(rider.rect.center):
             rider.kill_rider()
-            self.channel.play(self.sound[0])
-            return
-
-        # Testa colisão com as linhas
-        if utilities.check_line_collision(self._all_riders, rider) and self._game_turn:
-            rider.kill_rider()
-            self.channel.play(self.sound[0])
+            self.sound[0].play()
             return
 
         # Verifica se colidiram entre si
@@ -515,6 +511,12 @@ class GridGame(Entity):
                 self.channel.play(self.sound[0])
                 return
 
+        # Testa colisão com as linhas
+        if utilities.check_line_collision(self._all_riders, rider) and self._game_turn:
+            rider.kill_rider()
+            self.sound[0].play()
+            return
+        
     def __end_death(self):
         # Termina a rodada se não houver mais nenhuma animação ocorrendo
         for rider in self._all_riders.sprites():
@@ -522,5 +524,4 @@ class GridGame(Entity):
                 return
 
         # Se todos que sobraram estiverem vivos, continua a partida
-        self._mov_stage -= 1
         self.__next_player_movement()

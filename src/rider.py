@@ -92,7 +92,7 @@ class Rider(Entity):
 
         for foo in range(3):
             card = deck.draw_card()
-            card.rect.topleft = (GRID_X + 50, GRID_Y / 2 - 55 + foo * 125)
+            card.rect.topleft = (GRID_X + 50, GRID_Y / 4 - CARD_Y / 2 + foo * GRID_Y / 4)
 
             self._hand.add(card)
 
@@ -363,7 +363,7 @@ class Rider(Entity):
                 self.__flipped = not self.__flipped
 
     def update_death(self):
-        # TODO: Quando acabar os eventos de clock, apaga a imagem do rider
+        # Quando acabar os eventos de clock, apaga a imagem do rider
         if self.__death_stage == 8:
             self.__remove_rider()
 
