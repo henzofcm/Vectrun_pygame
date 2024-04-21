@@ -1,10 +1,13 @@
 import pygame
+
 from config import *
-from entity import *
-from texts import *
+
+import texts as txt
+import entity
 import textwrap
 
-class Button(Entity):
+
+class Button(entity.Entity):
     """
     Represents a menu button.
     
@@ -24,7 +27,8 @@ class Button(Entity):
     update(self)
         Update the state of the menu.
     """
-    def __init__(self, image_path, x_y, scale_size, label):
+
+    def __init__(self, image_path, x_y, scale_size, value):
         """
         Initializes a Menu object.
 
@@ -44,9 +48,9 @@ class Button(Entity):
         None
         """
         super().__init__(image_path, x_y, scale_size)
-        self.label = label
+
         self.rect = self.image.get_rect(center=x_y)
-        self.selected = False
+        self.value = value
 
     def update(self):
         """
@@ -60,52 +64,19 @@ class Button(Entity):
         bool
             True if there is a collision with the mouse, False otherwise.
         """
+        # Testa se houve colisão com o mouse
         mouse_pos = pygame.mouse.get_pos()
-        is_over = self.rect.collidepoint(mouse_pos)
 
-        if is_over:
+        # Se houver, retorna True
+        if self.rect.collidepoint(mouse_pos):
             return True
         else:
             return False
 
 
-class Menu(Entity):
-    """
-    Represents a menu.
-    
-    Attributes
-    ----------
-    state_control : Game
-        The game object that controls the menu.
-    rect : Rect
-        The rectangle that represents the menu's position and size.
-    run_display : bool
-        Indicates whether the menu is running or not.
-    button_clicked : bool
-        Indicates whether a button was clicked or not.
-    selected_button : Button
-        The button that was selected.
-    buttons_group : Group
-        The group of buttons for the menu.
-    
-    Methods
-    -------
-    __init__(self, game, image_path, x_y, scale_size)
-        Initializes a Menu object.
-    draw_text(self, text, size, x, y)
-        Draw text on the screen.
-    update(self)
-        Update the state of the menu.
-    verify(self)
-        Verify the state of the menu.
-    choice_preview(self, screen)
-        Preview the selected choice.
-    __preview_selected_button(self, button, screen)
-        Preview the selected button.
-    check_input(self)
-        Check the input for the menu.
-    """
-    def __init__(self, game, image_path, x_y, scale_size):
+class Menu(entity.Entity):
+
+    def __init__(self, image_path, x_y, scale_size):
         """
         Initializes a Menu object.
         
@@ -125,22 +96,16 @@ class Menu(Entity):
         None
         """
         super().__init__(image_path, x_y, scale_size)
-
-        self.state_control = game
         self.rect = self.image.get_rect(center=x_y)
 
         # Define a fonte a ser usada
         self.font_name = pygame.font.get_default_font()
 
-        # Define variáveis de controle
-        self.run_display = True
-        self.button_clicked = False
-        self.selected_button = None
-
         # Cria um grupo para os sprites
         self.buttons_group = pygame.sprite.Group()
+        self.options_group = pygame.sprite.Group()
 
-    def draw_text(self, text, size, x, y ):
+    def draw_text(self, text, size, x, y, screen):
         """
         Draw text on the screen.
         
@@ -160,34 +125,13 @@ class Menu(Entity):
         None
         """
         self.font_name = pygame.font.get_default_font()
-        font = pygame.font.Font(self.font_name,size)
+        font = pygame.font.Font(self.font_name, size)
+
         text_surface = font.render(text, True, WHITE)
         text_rect = text_surface.get_rect()
-        text_rect.center = (x,y)
-        self.state_control.screen.blit(text_surface, text_rect)
+        text_rect.center = (x, y)
 
-    def update(self):
-        """
-        Update the state of the menu.
-        
-        Returns
-        -------
-        None
-        """
-        pygame.display.update()
-        self.state_control.reset_keys()
-    
-    def verify(self):
-        """ 
-        Verify the state of the menu.
-        
-        Returns
-        -------
-        None
-        """
-        self.state_control.check_events()
-        self.choice_preview(self.state_control.screen)
-        self.check_input()
+        screen.blit(text_surface, text_rect)
 
     def choice_preview(self, screen):
         """
@@ -202,27 +146,15 @@ class Menu(Entity):
         -------
         None
         """
-        # Verifica se o mouse está em cima da carta
+        # Verifica se o mouse está em cima do botão
         for button in self.buttons_group:
             if button.update():
-                # Seleciona a tela equivalente ao botão
-                self.action = button.label
-
                 # Desenha o contorno
-                self.__preview_selected_button(button, screen)
-
-                # Verifica se o botão esquerdo do mouse é pressionado
-                mouse_clicked = pygame.mouse.get_pressed()[0]
-
-                if mouse_clicked or self.state_control.START_KEY:
-                    self.state_control.BUTTON_CLICKED = True
-                    # Delay para evitar cliques indesejados
-                    pygame.time.delay(170)
-                    return None
+                self._preview_selected_button(button, screen)
 
     @staticmethod
-    def __preview_selected_button(button, screen):
-        """ 
+    def _preview_selected_button(button, screen):
+        """
         Preview the selected button.
         
         Parameters
@@ -244,56 +176,16 @@ class Menu(Entity):
 
         pygame.draw.rect(screen, RED, rectangle, width=2 * BUTTON_SELECTED_WIDTH)
 
-    def check_input(self):
-        """
-        Check the input for the menu.
-        
-        Returns
-        -------
-        None
-        """
-        pass
+    def _validate_click(self):
+        # Verifica em qual botão clicou
+        for button in self.buttons_group:
+            if button.update():
+                return button.value
 
 
 class MainMenu(Menu):
-    """
-    Represents the main menu.
-    
-    Attributes
-    ----------
-    next_state : str
-        The next state to transition to.
-    start_x : int
-        The x coordinate of the start button.
-    start_y : int
-        The y coordinate of the start button.
-    options_x : int
-        The x coordinate of the options button.
-    options_y : int
-        The y coordinate of the options button.
-    credits_x : int
-        The x coordinate of the credits button.
-    credits_y : int
-        The y coordinate of the credits button.
-    btn_the_grid : Button
-        The button to transition to the grid.
-    btn_options : Button
-        The button to transition to the options menu.
-    btn_credits : Button
-        The button to transition to the credits menu.
-    buttons_group : Group
-        The group of buttons for the menu.
-    
-    Methods
-    -------
-    __init__(self, game, image_path, x_y, scale_size)
-        Initializes a MainMenu object.
-    display_menu(self)
-        Display the main menu.
-    check_input(self)
-        Check the input for the menu.
-    """
-    def __init__(self, game, image_path, x_y, scale_size):
+
+    def __init__(self, image_path, x_y, scale_size):
         """
         Initializes a MainMenu object.
         
@@ -312,598 +204,552 @@ class MainMenu(Menu):
         -------
         None
         """
-        super().__init__(game, image_path, x_y, scale_size)
-        self.action = "the_grid"
-
-        # Posições para os elementos na tela
-        self.start_x, self.start_y = (WIDTH/2), (HEIGHT/2)
-        self.options_x, self.options_y = (WIDTH/2), (HEIGHT/2 + 100)
-        self.credits_x, self.credits_y = (WIDTH/2), (HEIGHT/2 + 200)
+        super().__init__(image_path, x_y, scale_size)
 
         # Define os botões dessa tela
-        self.btn_the_grid = Button(TEXTURE_MENU_PATH + "grid_logo.png", (self.start_x, self.start_y),
-                              (BUTTON_X, BUTTON_Y), "the_grid")
-        self.btn_options = Button(TEXTURE_MENU_PATH + "options_button.png", (self.options_x, self.options_y),
-                                   (BUTTON_X, BUTTON_Y), "options_menu")
-        self.btn_credits = Button(TEXTURE_MENU_PATH + "credits_button.png", (self.credits_x, self.credits_y),
-                                   (BUTTON_X, BUTTON_Y), "credits_menu")
+        self.btn_the_grid = Button(
+            TEXTURE_MENU_PATH + "grid_logo.png",
+            (WIDTH / 2, HEIGHT / 2),
+            (BUTTON_X, BUTTON_Y),
+            4,
+        )
+        self.btn_tutorial = Button(
+            TEXTURE_MENU_PATH + "tutorial_button.png",
+            (WIDTH / 2, HEIGHT / 2 + 100),
+            (BUTTON_X, BUTTON_Y),
+            2,
+        )
+        self.btn_options = Button(
+            TEXTURE_MENU_PATH + "options_button.png",
+            (WIDTH / 2, HEIGHT / 2 + 200),
+            (BUTTON_X, BUTTON_Y),
+            3,
+        )
+        self.btn_credits = Button(
+            TEXTURE_MENU_PATH + "credits_button.png",
+            (WIDTH / 2, HEIGHT / 2 + 300),
+            (BUTTON_X, BUTTON_Y),
+            8,
+        )
 
         # Adiciona os botões a um grupo
-        self.buttons_group = pygame.sprite.Group(self.btn_the_grid, self.btn_options, self.btn_credits)
+        self.buttons_group = pygame.sprite.Group(
+            self.btn_the_grid, self.btn_options, self.btn_credits, self.btn_tutorial
+        )
 
-    def display_menu(self):
-        """
-        Display the main menu.
-        
-        Returns
-        -------
-        None
-        """
-        self.run_display = True
-        while self.run_display:
-            # Preenche o fundo
-            self.state_control.screen.fill(BLACK)
+    def draw(self, screen):
+        # Exibe o logo do jogo
+        screen.blit(self.image, self.rect)
 
-            #Verifica as entradas e interação com os botões
-            self.verify()
+        # Insere os botões na tela
+        self.buttons_group.draw(screen)
 
-            # Exibie o logo do jogo
-            self.state_control.screen.blit(self.image, self.rect)
+        # Desenha o contorno
+        self.choice_preview(screen)
 
-            # Insere os botões na tela:
-            self.buttons_group.draw(self.state_control.screen)
+    def update(self):
+        # Loop dos eventos principais
+        for event in pygame.event.get():
+            # Valida o fechamento
+            if event.type == pygame.QUIT:
+                return -1
 
-            self.update()
+            if event.type == pygame.KEYDOWN:
+                # ESC
+                if event.key == pygame.K_ESCAPE:
+                    return -1
 
-    def check_input(self):
-        """
-        Check the input for the menu.
-        
-        Returns
-        -------
-        None
-        """
-        if self.state_control.ESC_KEY:
-            self.state_control.running = False
-            self.state_control.curr_menu.run_display = False
-
-        # Checa os cliques em botões
-        if self.state_control.START_KEY or self.state_control.BUTTON_CLICKED:
-            if self.action == "the_grid":
-                if self.state_control.first_time:
-                    # Abre o tutorial antes de iniciar a primeira partida
-                    self.state_control.curr_menu = self.state_control.tutorial_screen
-                else:
-                    self.state_control.playing = True
-            elif self.action == "options_menu":
-                self.state_control.curr_menu = self.state_control.options_menu
-            elif self.action == "credits_menu":
-                self.state_control.curr_menu = self.state_control.credits_menu
-            self.run_display = False
+            # Clique dos botões
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    return self._validate_click()
 
 
 class OptionsMenu(Menu):
-    """
-    Represents the options menu.
-    
-    Attributes
-    ----------
-    next_state : str
-        The next state to transition to.
-    btn_back : Button
-        The button to transition to the main menu.
-    buttons_group : Group
-        The group of buttons for the menu.
-        
-    Methods
-    -------
-    __init__(self, game, image_path, x_y, scale_size)
-        Initializes a OptionsMenu object.
-    display_menu(self)
-        Display the options menu.
-    check_input(self)
-        Check the input for the menu.        
-    """
-    def __init__(self, game, image_path, x_y, scale_size):
-        """
-        Initializes a OptionsMenu object.
-        
-        Parameters
-        ----------
-        game : Game
-            The game object that controls the menu.
-        image_path : str    
-            The path to the image file for the menu.
-        x_y : tuple
-            The x and y coordinates of the menu.
-        scale_size : float
-            The scale size of the menu.
-            
-        Returns
-        -------
-        None
-        """
-        super().__init__(game, image_path, x_y, scale_size)
-        self.action = "main_menu"
+    def __init__(self, image_path, x_y, scale_size, state):
+        super().__init__(image_path, x_y, scale_size)
+        self.state = state
 
         # Define variáveis com valores recorrentes no menu
-        self.vol_space = 80
-        self.vol_y = HEIGHT/3 + 30
-        self.vol_x = WIDTH/3 + 5
-        self.vol_position = (
-        (self.vol_x + 2*self.vol_space, self.vol_y), (self.vol_x + 3*self.vol_space, self.vol_y), (self.vol_x + 4*self.vol_space, self.vol_y),
-        (self.vol_x + 5*self.vol_space, self.vol_y), (self.vol_x + 6*self.vol_space, self.vol_y))
-        self.vol_dict = {"vol_1": 0, "vol_2": 0.25, "vol_3": 0.5, "vol_4": 0.75, "vol_5": 1}
+        vol_space = 80
+        vol_y = HEIGHT / 3 + 30
+        vol_x = WIDTH / 3 + 5
+
+        vol_position = (
+            (vol_x + 2 * vol_space, vol_y),
+            (vol_x + 3 * vol_space, vol_y),
+            (vol_x + 4 * vol_space, vol_y),
+            (vol_x + 5 * vol_space, vol_y),
+            (vol_x + 6 * vol_space, vol_y),
+        )
 
         # Carrega as imagens a exibir
-        self.volume_image = Entity(TEXTURE_MENU_PATH + "volume_text.png", (self.vol_x - 30, self.vol_y), (BUTTON_X, BUTTON_Y))
-        self.volume_image.rect = self.volume_image.image.get_rect(center=(self.vol_x - 30, self.vol_y))
+        volume_logo = Button(
+            TEXTURE_MENU_PATH + "volume_text.png",
+            (vol_x - 30, vol_y),
+            (BUTTON_X, BUTTON_Y),
+            0,
+        )
+        volume_logo.rect = volume_logo.image.get_rect(center=(vol_x - 30, vol_y))
 
         # Define os botões dessa tela
-        self.btn_back = Button(TEXTURE_MENU_PATH + "back_button.png", (WIDTH / 2, (HEIGHT - 100)),
-                               (BUTTON_X, BUTTON_Y), "main_menu")
-        self.btn_vol_1 = Button(TEXTURE_MENU_PATH + "square_full.png", self.vol_position[0], (50,50), "vol_1")
-        self.btn_vol_2 = Button(TEXTURE_MENU_PATH + "square_full.png", self.vol_position[1], (50, 50), "vol_2")
-        self.btn_vol_3 = Button(TEXTURE_MENU_PATH + "square_full.png", self.vol_position[2], (50, 50), "vol_3")
-        self.btn_vol_4 = Button(TEXTURE_MENU_PATH + "square_full.png", self.vol_position[3], (50, 50), "vol_4")
-        self.btn_vol_5 = Button(TEXTURE_MENU_PATH + "square_full.png", self.vol_position[4], (50, 50), "vol_5")
+        self.btn_back = Button(
+            TEXTURE_MENU_PATH + "back_button.png",
+            (WIDTH / 2, (HEIGHT - 100)),
+            (BUTTON_X, BUTTON_Y),
+            1,
+        )
+        self.btn_vol_1 = Button(
+            TEXTURE_MENU_PATH + "square_empty.png",
+            vol_position[0],
+            (50, 50),
+            1,
+        )
+        self.btn_vol_2 = Button(
+            TEXTURE_MENU_PATH + "square_empty.png",
+            vol_position[1],
+            (50, 50),
+            2,
+        )
+        self.btn_vol_3 = Button(
+            TEXTURE_MENU_PATH + "square_full.png",
+            vol_position[2],
+            (50, 50),
+            3,
+        )
+        self.btn_vol_4 = Button(
+            TEXTURE_MENU_PATH + "square_empty.png",
+            vol_position[3],
+            (50, 50),
+            4,
+        )
+        self.btn_vol_5 = Button(
+            TEXTURE_MENU_PATH + "square_empty.png",
+            vol_position[4],
+            (50, 50),
+            5,
+        )
 
         # Adiciona os botões a um grupo
+        self.options_group.add(volume_logo)
         self.buttons_group.add(self.btn_back)
-        self.buttons_group.add(self.btn_vol_1, self.btn_vol_2, self.btn_vol_3, self.btn_vol_4, self.btn_vol_5)
 
-    def display_menu(self):
-        """
-        Display the options menu.
-        
-        Returns
-        -------
-        None
-        """
-        self.run_display = True
-        while self.run_display:
-            self.state_control.screen.fill(BLACK)
-            
-            # Verifica as entradas e interação com os botões
-            self.verify()
+        self.volume_group = pygame.sprite.Group()
+        self.volume_group.add(
+            self.btn_vol_1,
+            self.btn_vol_2,
+            self.btn_vol_3,
+            self.btn_vol_4,
+            self.btn_vol_5,
+        )
 
-            # Exibe a imagem "Options"
-            self.state_control.screen.blit(self.image, self.rect)
-            # Exibe a imagem "volume"
-            self.state_control.screen.blit(self.volume_image.image, self.volume_image.rect)
+    def draw(self, screen):
+        # Exibe a imagem "Options"
+        screen.blit(self.image, self.rect)
 
-            # Insere os botões na tela:
-            self.buttons_group.draw(self.state_control.screen)
+        # Exibe a imagem das opções
+        self.options_group.draw(screen)
+        self.buttons_group.draw(screen)
 
-            self.update()
+        # E os volumes
+        self.volume_group.draw(screen)
 
-    def check_input(self):
-        """
-        Check the input for the menu.
-        
-        Returns
-        -------
-        None
-        """
-        if self.state_control.ESC_KEY:
-            self.state_control.curr_menu = self.state_control.main_menu
-            self.run_display = False
-        if self.state_control.BACK_KEY:
-            self.state_control.curr_menu = self.state_control.main_menu
-            self.run_display = False
-        if self.state_control.START_KEY or self.state_control.BUTTON_CLICKED:
-            if self.action in ["vol_1", "vol_2", "vol_3", "vol_4", "vol_5"]:
-               self.change_volume(self.action)
-            elif self.action == "main_menu":
-                self.state_control.curr_menu = self.state_control.main_menu
-                self.run_display = False
+        # Desenha o contorno
+        self.choice_preview(screen)
+
+    def update(self):
+        # Loop dos eventos principais
+        for event in pygame.event.get():
+            # Valida o fechamento
+            if event.type == pygame.QUIT:
+                return -1
+
+            if event.type == pygame.KEYDOWN:
+                # ESC
+                if event.key == pygame.K_ESCAPE:
+                    return 1
+
+            # Clique dos botões
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    return self._validate_click()
+
+    def _validate_click(self):
+        # Verifica em qual volume clicou
+        for button in self.volume_group:
+            if button.update():
+                self.change_volume(button.value)
+                return 0
+
+        # Ou em qual botao de saida clicou
+        for button in self.buttons_group:
+            if button.update():
+                return button.value
+
+    def choice_preview(self, screen):
+        # Verifica se o mouse está em cima do botão
+        for button in self.buttons_group:
+            if button.update():
+                # Desenha o contorno
+                self._preview_selected_button(button, screen)
+
+        # E verifica outros botões
+        for button in self.volume_group:
+            if button.update():
+                # Desenha o contorno
+                self._preview_selected_button(button, screen)
 
     def change_volume(self, vol):
-        sound = int(vol[-1])
-        pygame.mixer.set_volume(0.15 * sound)
+        # Volume antigo e novo
+        temp_vol = int(self.state.volume / 0.15)
 
+        # Muda as imagens
+        self.__change_button_image(temp_vol + 1, False)
+        self.__change_button_image(vol)
 
-class CreditsMenu(Menu):
-    """
-    Represents the credits menu.
-    
-    Attributes
-    ----------
-    next_state : str
-        The next state to transition to.
-    font_size : list
-        The font sizes for the menu.
-    space_size : list
-        The space sizes for the menu.
-    txt_x : int
-        The x coordinate of the text.
-    txt_y : int
-        The y coordinate of the text.
-    background_image : Surface  
-        The background image for the menu.
-    btn_back : Button
-        The button to transition to the main menu.
-    buttons_group : Group
-        The group of buttons for the menu.
-        
-    Methods
-    -------
-    __init__(self, game, image_path, x_y, scale_size)
-        Initializes a CreditsMenu object.
-    display_menu(self)
-        Display the credits menu.
-    check_input(self)
-        Check the input for the menu.
-    """
-    def __init__(self, game, image_path, x_y, scale_size):
-        """
-        Initializes a CreditsMenu object.
-        
-        Parameters
-        ----------
-        game : Game
-            The game object that controls the menu.
-        image_path : str
-            The path to the image file for the menu.
-        x_y : tuple 
-            The x and y coordinates of the menu.
-        scale_size : float
-            The scale size of the menu.
-        
-        Returns
-        -------
-        None
-        """
-        super().__init__(game, image_path, x_y, scale_size)
-        self.action = "main_menu"
+        # Muda o volume
+        pygame.mixer.music.set_volume(0.15 * (vol - 1))
+        self.state.volume = 0.15 * (vol - 1)
 
-        # Define a fonte a ser usada
-        self.font_name = FONTS_PATH + "tron.ttf"
+    def __change_button_image(self, num, clicked=True):
+        # Decide se vai preencher ou esvaziar
+        click = "empty.png"
+        if clicked:
+            click = "full.png"
 
-        # Define variáveis com valores recorrentes no menu
-        self.font_size = [17, 20, 25]
-        self.space_size = [38, 30]
-        self.txt_x = WIDTH / 2
-        self.txt_y = HEIGHT / 4 + 20
+        # Cria a imagem
+        img = pygame.image.load(TEXTURE_MENU_PATH + "square_" + click).convert_alpha()
+        img = pygame.transform.smoothscale(img, (50, 50))
 
-        # Carrega a imagem da tela de fundo
-        self.background_image = Entity(TEXTURE_MENU_PATH + "background_credits.png", (0,0), (1000,750))
-
-        # Define os botões dessa tela
-        self.btn_back = Button(TEXTURE_MENU_PATH + "back_button.png", (WIDTH/2, (HEIGHT - 100)),
-                                   (BUTTON_X, BUTTON_Y), "main_menu")
-
-        # Adiciona os botões a um grupo
-        self.buttons_group.add(self.btn_back)
-
-    def display_menu(self):
-        """
-        Display the credits menu.
-        
-        Returns
-        -------
-        None
-        """
-        self.run_display = True
-        while self.run_display:
-            # Exibe o plano de fundo da tela
-            self.state_control.screen.blit(self.background_image.image, self.background_image.rect)
-
-            #Verifica as entradas e interação com os botões
-            self.verify()
-
-            # Exibe a imagem "credits"
-            self.state_control.screen.blit(self.image, self.rect)
-
-            # Insere os botões na tela:
-            self.buttons_group.draw(self.state_control.screen)
-
-            # Desenha os textos na tela
-            self.draw_text("A2 - LP - 2023", self.font_size[2], self.txt_x, self.txt_y)
-            self.draw_text("- Code by:", self.font_size[1], self.txt_x, (self.txt_y + 2*self.space_size[0]))
-            self.draw_text("Beatriz Miranda Bezerra", self.font_size[0], self.txt_x, (self.txt_y + 3*self.space_size[0]))
-            self.draw_text("Gustavo Murilo Cavalcante Carvalho", self.font_size[0], self.txt_x, (self.txt_y + 4*self.space_size[0]))
-            self.draw_text("Henzo Felipe Carvalho de Mattos", self.font_size[0], self.txt_x, (self.txt_y + 5*self.space_size[0]))
-            self.draw_text("- Art and Concept granted by:", self.font_size[1], self.txt_x, (self.txt_y + 7*self.space_size[0]))
-            self.draw_text("Tulio Konecny", self.font_size[0], self.txt_x, (self.txt_y + 8*self.space_size[0]))
-
-            # Atualiza a tela
-            self.update()
-
-    def check_input(self):
-        """
-        Check the input for the menu.
-        
-        Returns
-        -------
-        None
-        """
-        if self.state_control.ESC_KEY:
-            self.state_control.curr_menu = self.state_control.main_menu
-            self.run_display = False
-        if self.state_control.BACK_KEY:
-            self.state_control.curr_menu = self.state_control.main_menu
-            self.run_display = False
-        if self.state_control.START_KEY or self.state_control.BUTTON_CLICKED:
-            if self.action == "main_menu":
-                self.state_control.curr_menu = self.state_control.main_menu
-            elif self.action == "scree_1":
-                pass
-            elif self.action == "screen_2":
-                pass
-            else:
-                self.state_control.curr_menu = self.state_control.main_menu
-            self.run_display = False
-
-
-class ResultScreen(Menu):
-    """
-    Represents the result screen.
-    
-    Attributes
-    ----------
-    next_state : str
-        The next state to transition to.
-    
-    Methods
-    -------
-    __init__(self, game, image_path, x_y, scale_size)
-        Initializes a ResultScreen object.
-    display_menu(self)
-        Display the result screen.
-    check_input(self)
-        Check the input for the menu.
-    """
-    def __init__(self, game, image_path, x_y, scale_size):
-        """
-        Initializes a ResultScreen object.
-        
-        Parameters
-        ----------
-        game : Game
-            The game object that controls the menu.
-        image_path : str
-            The path to the image file for the menu.
-        x_y : tuple
-            The x and y coordinates of the menu.
-        scale_size : float
-            The scale size of the menu.
-            
-        Returns
-        -------
-        None
-        """
-        super().__init__(game, image_path, x_y, scale_size)
-        self.action = "main_menu"
-
-        # Define a fonte a ser usada
-        self.font_name = FONTS_PATH + "tron.ttf"
-
-        # Define os botões dessa tela
-        self.btn_menu = Button(TEXTURE_MENU_PATH + "to_menu_button.png", (WIDTH/2, HEIGHT-200),
-                               (BUTTON_X, BUTTON_Y), "main_menu")
-        self.btn_exit = Button(TEXTURE_MENU_PATH + "exit_button.png", (WIDTH/2, HEIGHT-100),
-                               (BUTTON_X, BUTTON_Y), "exit")
-
-        # Adiciona os botões a um grupo
-        self.buttons_group.add(self.btn_menu, self.btn_exit)
-
-    def display_menu(self):
-        """
-        Display the result screen.
-        
-        Returns
-        -------
-        None
-        """
-        self.run_display = True
-        while self.run_display:
-            self.state_control.screen.fill(BLACK)
-
-            # Verifica as entradas e interação com os botões
-            self.verify()
-
-            self.state_control.screen.blit(self.image, self.rect)
-
-            self.draw_text("Select your", 40, WIDTH/2, HEIGHT/2 - 40)
-            self.draw_text("next action :", 40, WIDTH/2, HEIGHT/2 + 40)
-
-            # Insere os botões na tela:
-            self.buttons_group.draw(self.state_control.screen)
-
-            self.update()
-
-    def check_input(self):
-        """
-        Check the input for the menu.
-        
-        Returns
-        -------
-        None
-        """
-        if self.state_control.ESC_KEY:
-            self.state_control.curr_menu = self.state_control.main_menu
-            self.run_display = False
-        if self.state_control.BACK_KEY:
-            self.state_control.curr_menu = self.state_control.main_menu
-            self.run_display = False
-        if self.state_control.START_KEY or self.state_control.BUTTON_CLICKED:
-            if self.action == "main_menu":
-                self.state_control.curr_menu = self.state_control.main_menu
-            if self.action == "exit":
-                self.state_control.running = False
-                self.state_control.curr_menu.run_display = False
-            self.run_display = False
+        # E altera
+        exec("self.btn_vol_" + str(num) + ".image = img", None, locals())
 
 
 class TutorialScreen(Menu):
-    """
-    Represents the tutorial screen.
-    
-    Attributes
-    ----------
-    next_state : str
-        The next state to transition to.
-        
-    Methods
-    -------
-    __init__(self, game, image_path, x_y, scale_size)
-        Initializes a TutorialScreen object.
-    display_menu(self)
-        Display the tutorial screen.
-    check_input(self)
-        Check the input for the menu.
-    """
-    def __init__(self, game, image_path, x_y, scale_size):
-        """
-        Initializes a TutorialScreen object.
-        
-        Parameters
-        ----------
-        game : Game
-            The game object that controls the menu.
-        image_path : str
-            The path to the image file for the menu.
-        x_y : tuple
-            The x and y coordinates of the menu.
-        scale_size : float
-            The scale size of the menu.
-            
-        Returns
-        -------
-        None
-        """
-        super().__init__(game, image_path, x_y, scale_size)
-        self.action = "right_arrow"
-        self.page = 1
-        self.num_of_pages = 3
-        self.tutorial_read = False
 
-        # Definição de variáveis
-        self.font_size = 25
-        self.img_x = 150
-        self.img_y = 360
-        self.space_img = 100
+    def __init__(self, image_path, x_y, scale_size):
+        super().__init__(image_path, x_y, scale_size)
+
+        # Atributos de interesse
+        self.__page = 1
+        self.__page_num = 3
+        self.__font_size = 25
+
+        # Variáveis de posicionamento
+        img_x = 150
+        img_y = 360
+        space_img = 100
 
         # Define a fonte a ser usada
         self.font_name = FONTS_PATH + "tron.ttf"
 
         # Carrega as imagens que serão usadas
-        self.img_wall = Entity(IMG_MANUAL_PATH + "collision_with_side_walls.png",
-                               (self.img_x, self.img_y), (200, 200))
-        self.img_moto = Entity(IMG_MANUAL_PATH + "intersection_with_motorcycle.png",
-                               (2*self.img_x + self.space_img, self.img_y), (200, 200))
-        self.img_line = Entity(IMG_MANUAL_PATH + "intersection_with_the_line.png",
-                               (3*self.img_x + 2*self.space_img, self.img_y), (200, 200))
+        img_wall = entity.Entity(
+            IMG_MANUAL_PATH + "collision_with_side_walls.png",
+            (img_x, img_y),
+            (200, 200),
+        )
+        img_moto = entity.Entity(
+            IMG_MANUAL_PATH + "intersection_with_motorcycle.png",
+            (2 * img_x + space_img, img_y),
+            (200, 200),
+        )
+        img_line = entity.Entity(
+            IMG_MANUAL_PATH + "intersection_with_the_line.png",
+            (3 * img_x + 2 * space_img, img_y),
+            (200, 200),
+        )
+
+        self.__imgs = pygame.sprite.Group(img_moto, img_line, img_wall)
 
         # Define os botões dessa tela
-        self.btn_play = Button(TEXTURE_MENU_PATH + "play_button.png", (WIDTH/2, HEIGHT-80),
-                               (BUTTON_X, BUTTON_Y), "play")
-        self.btn_right = Button(TEXTURE_MENU_PATH + "right_arrow.png", (WIDTH - 70, HEIGHT/2),
-                               (60, 60), "right_arrow")
-        self.btn_left = Button(TEXTURE_MENU_PATH + "left_arrow.png", (70, HEIGHT/2),
-                                (60, 60), "left_arrow")
+        self.btn_right = Button(
+            TEXTURE_MENU_PATH + "right_arrow.png",
+            (WIDTH - 70, HEIGHT / 2),
+            (60, 60),
+            21,
+        )
+        self.btn_left = Button(
+            TEXTURE_MENU_PATH + "left_arrow.png",
+            (70, HEIGHT / 2),
+            (60, 60),
+            20,
+        )
+
+        self.btn_back = Button(
+            TEXTURE_MENU_PATH + "back_button.png",
+            (WIDTH / 2, HEIGHT - 80),
+            (BUTTON_X, BUTTON_Y),
+            1,
+        )
 
         # Adiciona os botões a um grupo
-        self.buttons_group.add(self.btn_right)
+        self.buttons_group.add(self.btn_back, self.btn_right)
 
-    def display_menu(self):
-        """
-        Display the tutorial screen.
-        
-        Returns
-        -------
-        None
-        """
-        self.run_display = True
-        while self.run_display:
-            self.state_control.screen.fill(BLACK)
+    def draw(self, screen):
+        # Exibe a logo e os botões principais
+        screen.blit(self.image, self.rect)
+        self.buttons_group.draw(screen)
 
-            # Verifica as entradas e interação com os botões
-            self.verify()
-            
-            # Exibe a imagem "Tutorial"
-            self.state_control.screen.blit(self.image, self.rect)
+        # Telas de tutorial
+        if self.__page == 1:
+            self.__draw_text(
+                txt.txt_regra_1, self.__font_size, WIDTH / 2, 210, 55, screen
+            )
+            self.__draw_text(
+                txt.txt_regra_2, self.__font_size, WIDTH / 2, 440, 55, screen
+            )
+        elif self.__page == 2:
+            self.__draw_text(
+                txt.txt_regra_3, self.__font_size, WIDTH / 2, 210, 55, screen
+            )
+            self.__draw_text(
+                txt.txt_regra_4, self.__font_size, WIDTH / 2, 390, 55, screen
+            )
+        else:
+            self.__draw_text(
+                txt.txt_regra_5, self.__font_size, WIDTH / 2, 210, 55, screen
+            )
+            self.__draw_text(
+                "Colisões com paredes", self.__font_size, 250, 300, 15, screen
+            )
+            self.__draw_text("Colisões diretas", self.__font_size, 500, 300, 15, screen)
+            self.__draw_text(
+                "Colisões com as linhas", self.__font_size, 750, 300, 15, screen
+            )
 
-            self.buttons_group.draw(self.state_control.screen)
+            # Imagens de colisões
+            self.__imgs.draw(screen)
 
+        # Exibe o número da página
+        self.draw_text(str(self.__page), 30, WIDTH - 100, HEIGHT - 75, screen)
 
-            # Telas de tutorial
-            if self.page == 1:
-                self.draw_large_text(txt_regra_1, self.font_size, WIDTH/2, 210, 55)
-                self.draw_large_text(txt_regra_2, self.font_size, WIDTH/2, 410, 55)
-            elif self.page == 2:
-                self.draw_large_text(txt_regra_3, self.font_size, WIDTH/2, 210, 55)
-                self.draw_large_text(txt_regra_4, self.font_size, WIDTH/2, 370, 55)
-            else:
-                self.draw_large_text(txt_regra_5, self.font_size, WIDTH/2, 210, 55)
-                self.draw_large_text("Colisões com paredes",    self.font_size, 250, 300, 15)
-                self.draw_large_text("Colisões diretas",        self.font_size, 500, 300, 15)
-                self.draw_large_text("Colisões com as linhas",  self.font_size, 750, 300, 15)
-                self.state_control.screen.blit(self.img_wall.image, self.img_wall.rect)
-                self.state_control.screen.blit(self.img_moto.image, self.img_moto.rect)
-                self.state_control.screen.blit(self.img_line.image, self.img_line.rect)
+        # Desenha o contorno
+        self.choice_preview(screen)
 
-            # Exibe o núemro da página
-            self.draw_text(str(self.page), 30, WIDTH-100, HEIGHT-75)
+    def update(self):
+        # Loop dos eventos principais
+        for event in pygame.event.get():
+            # Valida o fechamento
+            if event.type == pygame.QUIT:
+                return -1
 
-            self.update()
+            if event.type == pygame.KEYDOWN:
+                # ESC
+                if event.key == pygame.K_ESCAPE:
+                    return 1
 
-    def check_input(self):
-        """
-        Check the input for the menu.
-        
-        Returns
-        -------
-        None
-        """
-        if self.state_control.ESC_KEY:
-            self.state_control.curr_menu = self.state_control.main_menu
-            self.run_display = False
-        if self.state_control.BACK_KEY:
-            self.state_control.curr_menu = self.state_control.main_menu
-            self.run_display = False
-        if self.state_control.START_KEY or self.state_control.BUTTON_CLICKED:
-            if self.action == "right_arrow":
-                if self.page < self.num_of_pages:
+            # Clique dos botões
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    return self._validate_click()
+
+    def _validate_click(self):
+        # Verifica em qual direção clicou
+        for button in self.buttons_group:
+            if button.update():
+                # Se clicar para a direita
+                if button.value == 21:
                     # Adiciona o botão esquerdo para exibi-lo se necessário
-                    if self.page == 1:
+                    if self.__page == 1:
                         self.buttons_group.add(self.btn_left)
-                    self.page += 1
 
-                    # Remove o botão direito para deixar de exibi-lo se atingir a última página
-                    if self.page == self.num_of_pages:
-                        self.buttons_group.remove(self.btn_right)
+                    if self.__page < self.__page_num:
+                        # Muda de página
+                        self.__page += 1
 
-                    # Permite que o jogador avance para o jogo após ler o tutorial
-                    if not self.tutorial_read and self.page == self.num_of_pages:
-                        self.buttons_group.add(self.btn_play)
-                        self.tutorial_read = True
+                        # Remove o botão direito para deixar de exibi-lo se atingir a última página
+                        if self.__page == self.__page_num:
+                            self.buttons_group.remove(self.btn_right)
 
-            elif self.action == "left_arrow":
-                if self.page <= self.num_of_pages:
+                    return 0
+
+                # Se clicar para a esquerda
+                if button.value == 20:
                     # Adiciona o botão direito para exibi-lo se necessário
-                    if self.page == self.num_of_pages:
+                    if self.__page == self.__page_num:
                         self.buttons_group.add(self.btn_right)
-                    self.page -= 1
 
-                    # Remove o botão esquerdo para deixar de exibi-lo
-                    if self.page == 1:
-                        self.buttons_group.remove(self.btn_left)
+                    if self.__page <= self.__page_num:
+                        # Muda a página
+                        self.__page -= 1
 
-            if self.action == "play":
-                self.state_control.playing = True
-                self.run_display = False
-                self.state_control.first_time = False
+                        # Remove o botão esquerdo para deixar de exibi-lo
+                        if self.__page == 1:
+                            self.buttons_group.remove(self.btn_left)
 
-    def draw_large_text(self, text, size, x, y, max_line_length):
+                    return 0
+
+                # Se tiver sido nenhum, retorna
+                return button.value
+
+    def __draw_text(self, text, size, x, y, max_line_length, screen):
+        # Cria o texto separado em linhas de uma lista
         lines = textwrap.wrap(text, width=max_line_length)
         y_offset = 0
 
+        # Laceia cada linha, criando sua surface e fazendo blit
         for line in lines:
-            text_surface = (pygame.font.Font(pygame.font.get_default_font(), size).
-                            render(line, True, WHITE))
+            text_surface = pygame.font.Font(
+                pygame.font.get_default_font(), size
+            ).render(line, True, WHITE)
             text_rect = text_surface.get_rect()
             text_rect.center = (x, y + y_offset)
-            self.state_control.screen.blit(text_surface, text_rect)
+
+            screen.blit(text_surface, text_rect)
             y_offset += text_rect.height + 10
+
+
+class ResultScreen(Menu):
+
+    def __init__(self, image_path, x_y, scale_size):
+        super().__init__(image_path, x_y, scale_size)
+
+        # Define a fonte a ser usada
+        self.font_name = FONTS_PATH + "tron.ttf"
+
+        # Define os botões dessa tela
+        self.btn_menu = Button(
+            TEXTURE_MENU_PATH + "to_menu_button.png",
+            (WIDTH / 2, HEIGHT - 200),
+            (BUTTON_X, BUTTON_Y),
+            1,
+        )
+        self.btn_exit = Button(
+            TEXTURE_MENU_PATH + "exit_button.png",
+            (WIDTH / 2, HEIGHT - 100),
+            (BUTTON_X, BUTTON_Y),
+            -1,
+        )
+
+        # Adiciona os botões a um grupo
+        self.buttons_group.add(self.btn_menu, self.btn_exit)
+
+    def draw(self, screen):
+        # Mostra a logo desta tela
+        screen.blit(self.image, self.rect)
+
+        # Desenha o texto
+        self.draw_text("Select your", 40, WIDTH / 2, HEIGHT / 2 - 40, screen)
+        self.draw_text("next action :", 40, WIDTH / 2, HEIGHT / 2 + 40, screen)
+
+        # Insere os botões na tela:
+        self.buttons_group.draw(screen)
+
+        # Desenha o contorno
+        self.choice_preview(screen)
+
+    def update(self):
+        # Loop dos eventos principais
+        for event in pygame.event.get():
+            # Valida o fechamento
+            if event.type == pygame.QUIT:
+                return -1
+
+            if event.type == pygame.KEYDOWN:
+                # ESC
+                if event.key == pygame.K_ESCAPE:
+                    return 1
+
+            # Clique dos botões
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    return self._validate_click()
+
+
+class CreditsMenu(Menu):
+
+    def __init__(self, image_path, x_y, scale_size):
+        super().__init__(image_path, x_y, scale_size)
+
+        # Carrega a imagem da tela de fundo
+        self.background = entity.Entity(
+            TEXTURE_MENU_PATH + "background_credits.png", (0, 0), (WIDTH, HEIGHT)
+        )
+
+        # Define os botões dessa tela
+        self.btn_back = Button(
+            TEXTURE_MENU_PATH + "back_button.png",
+            (WIDTH / 2, (HEIGHT - 100)),
+            (BUTTON_X, BUTTON_Y),
+            1,
+        )
+
+        # Adiciona os botões a um grupo
+        self.buttons_group.add(self.btn_back)
+
+    def draw(self, screen):
+        # Exibe o plano de fundo da tela
+        screen.blit(self.background.image, self.background.rect)
+
+        # Exibe a imagem "credits"
+        screen.blit(self.image, self.rect)
+
+        # Insere os botões na tela:
+        self.buttons_group.draw(screen)
+
+         # Define variáveis com valores recorrentes no menu
+        font_size = [17, 20, 25]
+        space_size = [38, 30]
+        txt_x = WIDTH / 2
+        txt_y = HEIGHT / 4 + 20
+
+        # Desenha os textos na tela
+        self.draw_text("A2 LP - 2023", font_size[2], txt_x, txt_y, screen)
+        self.draw_text(
+            "- Coded by -",
+            font_size[1],
+            txt_x,
+            (txt_y + 2 * space_size[0]), screen
+        )
+        self.draw_text(
+            "Beatriz Miranda Bezerra",
+            font_size[0],
+            txt_x,
+            (txt_y + 3 * space_size[0]), screen
+        )
+        self.draw_text(
+            "Gustavo Murilo Cavalcante Carvalho",
+            font_size[0],
+            txt_x,
+            (txt_y + 4 * space_size[0]), screen
+        )
+        self.draw_text(
+            "Henzo Felipe Carvalho de Mattos",
+            font_size[0],
+            txt_x,
+            (txt_y + 5 * space_size[0]), screen
+        )
+        self.draw_text(
+            "- Art and Concept granted by -",
+            font_size[1],
+            txt_x,
+            (txt_y + 7 * space_size[0]), screen
+        )
+        self.draw_text(
+            "Tulio Konecny",
+            font_size[0],
+            txt_x,
+            (txt_y + 8 * space_size[0]), screen
+        )
+
+        # Desenha o contorno
+        self.choice_preview(screen)
+
+    def update(self):
+        # Loop dos eventos principais
+        for event in pygame.event.get():
+            # Valida o fechamento
+            if event.type == pygame.QUIT:
+                return -1
+
+            if event.type == pygame.KEYDOWN:
+                # ESC
+                if event.key == pygame.K_ESCAPE:
+                    return 1
+
+            # Clique dos botões
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    return self._validate_click()
+

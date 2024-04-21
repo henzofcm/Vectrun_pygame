@@ -27,8 +27,6 @@ class GridGame(Entity):
         The scale size of the game object.
     bot_number : int
         The number of bots in the game.
-    next_menu : str
-        The next menu to be displayed.
     _game_turn : int
         The current turn of the game.
     _mov_stage : int
@@ -75,7 +73,8 @@ class GridGame(Entity):
     __kill_rider(self, rider)
         Kills the specified rider and advances the turn.
     """
-    def __init__(self, image_path, x_y, scale_size, bot_number, volume, state_control):
+
+    def __init__(self, image_path, x_y, scale_size, bot_number, volume):
         """
         Initializes the Game object.
 
@@ -95,10 +94,8 @@ class GridGame(Entity):
         None
         """
         super().__init__(image_path, x_y, scale_size)
-        self.state_control = state_control
 
         # Atributos para o estado do jogo
-        self.next_menu = "none"
         self._game_turn = 0
         self._mov_stage = -1
         self._clicked = False
@@ -149,31 +146,35 @@ class GridGame(Entity):
         """
         # Eventos principais deste menu
         for event in pygame.event.get():
+            # Caso feche
             if event.type == pygame.QUIT:
                 self.channel.stop()
                 pygame.quit()
                 sys.exit()
 
+            # ESC
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    self.state_control.playing = False
                     self.channel.stop()
-                    return
-
+                    return 1
+                
+            # Cliques
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1 and not self._clicked and self._player:
                     self.__validate_click()
 
+            # Animações de movimento
             for rider in self._all_riders:
                 if event.type == rider.clock:
                     rider.update()
 
         # Verifica se sobrou apenas um, que será o vencedor
         if len(self._all_riders) == 1:
-            # E então retorna ao state_control as informações pertinentes
-            self.state_control.winner = self._all_riders.sprites()[0]._number
-            self.state_control.playing = False
-            return
+            # E então retorna o código do menu win ou lose
+            if self._all_riders.sprites()[0]._number == 1:
+                return 5
+            else:
+                return 6
 
         # Se tiver clicado, roda o movimento do jogador ou dos bots e testa colisão
         if self._clicked and self._all_riders:
@@ -191,7 +192,7 @@ class GridGame(Entity):
                 if rider.update_death():
                     self.__end_death()
 
-        return False
+        return 0
 
     def draw(self, screen):
         """

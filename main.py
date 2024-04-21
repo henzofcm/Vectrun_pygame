@@ -5,16 +5,16 @@ import sys
 sys.path.append("src/")
 
 # Importa todo o pacote de src/
-from src import state_control
+from src import state
 
 # Inicializa
 pygame.init()
 
 # Cria o jogo
-game = state_control.StateControl()
+game = state.Vectrun()
 
 # Começa o jogo
-game.start()
+game.play()
 
 # Quando retornar, fecha tudo
 pygame.quit()
