@@ -433,7 +433,7 @@ class TutorialScreen(Menu):
         # Atributos de interesse
         self.__page = 1
         self.__page_num = 3
-        self.__font_size = 25
+        self.__font_size = 17
 
         # Variáveis de posicionamento
         img_x = 150
@@ -504,25 +504,25 @@ class TutorialScreen(Menu):
                 txt.txt_regra_3, self.__font_size, WIDTH / 2, 210, 55, screen
             )
             self.__draw_text(
-                txt.txt_regra_4, self.__font_size, WIDTH / 2, 390, 55, screen
+                txt.txt_regra_4, self.__font_size, WIDTH / 2, 440, 55, screen
             )
         else:
             self.__draw_text(
                 txt.txt_regra_5, self.__font_size, WIDTH / 2, 210, 55, screen
             )
             self.__draw_text(
-                "Colisões com paredes", self.__font_size, 250, 300, 15, screen
+                txt.txt_collision_1, self.__font_size, 250, 300, 12, screen
             )
-            self.__draw_text("Colisões diretas", self.__font_size, 500, 300, 15, screen)
+            self.__draw_text(txt.txt_collision_2, self.__font_size, 500, 300, 12, screen)
             self.__draw_text(
-                "Colisões com as linhas", self.__font_size, 750, 300, 15, screen
+                txt.txt_collision_3, self.__font_size, 750, 300, 12, screen
             )
 
             # Imagens de colisões
             self.__imgs.draw(screen)
 
         # Exibe o número da página
-        self.draw_text(str(self.__page), 30, WIDTH - 100, HEIGHT - 75, screen)
+        self.__draw_text(str(self.__page), 30, WIDTH - 100, HEIGHT - 75, 20,screen)
 
         # Desenha o contorno
         self.choice_preview(screen)
@@ -538,11 +538,21 @@ class TutorialScreen(Menu):
                 # ESC
                 if event.key == pygame.K_ESCAPE:
                     return 1
+                
+                # RIGHT
+                if event.key == pygame.K_RIGHT and self.__page < self.__page_num:
+                    self.__change_page(True)
+
+                # LEFT
+                if event.key == pygame.K_LEFT and self.__page > 1:
+                    self.__change_page(False)
 
             # Clique dos botões
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     return self._validate_click()
+                
+        return 0
 
     def _validate_click(self):
         # Verifica em qual direção clicou
@@ -550,49 +560,55 @@ class TutorialScreen(Menu):
             if button.update():
                 # Se clicar para a direita
                 if button.value == 21:
-                    # Adiciona o botão esquerdo para exibi-lo se necessário
-                    if self.__page == 1:
-                        self.buttons_group.add(self.btn_left)
-
-                    if self.__page < self.__page_num:
-                        # Muda de página
-                        self.__page += 1
-
-                        # Remove o botão direito para deixar de exibi-lo se atingir a última página
-                        if self.__page == self.__page_num:
-                            self.buttons_group.remove(self.btn_right)
-
+                    self.__change_page(True)
                     return 0
 
                 # Se clicar para a esquerda
                 if button.value == 20:
-                    # Adiciona o botão direito para exibi-lo se necessário
-                    if self.__page == self.__page_num:
-                        self.buttons_group.add(self.btn_right)
-
-                    if self.__page <= self.__page_num:
-                        # Muda a página
-                        self.__page -= 1
-
-                        # Remove o botão esquerdo para deixar de exibi-lo
-                        if self.__page == 1:
-                            self.buttons_group.remove(self.btn_left)
-
+                    self.__change_page(False)
                     return 0
 
                 # Se tiver sido nenhum, retorna
                 return button.value
 
+    def __change_page(self, right=True):
+        # Adiciona o botão esquerdo para exibi-lo se necessário
+        if self.__page == 1:
+            self.buttons_group.add(self.btn_left)
+
+        # Adiciona o botão direito para exibi-lo se necessário
+        if self.__page == self.__page_num:
+            self.buttons_group.add(self.btn_right)
+
+        # Clique para a direita
+        if self.__page < self.__page_num and right:
+            # Muda de página
+            self.__page += 1
+
+            # Remove o botão direito para deixar de exibi-lo se atingir a última página
+            if self.__page == self.__page_num:
+                self.buttons_group.remove(self.btn_right)
+
+        # Clique para a esquerda
+        if self.__page >= 2 and not right:
+            # Muda a página
+            self.__page -= 1
+
+            # Remove o botão esquerdo para deixar de exibi-lo
+            if self.__page == 1:
+                self.buttons_group.remove(self.btn_left)
+
     def __draw_text(self, text, size, x, y, max_line_length, screen):
         # Cria o texto separado em linhas de uma lista
         lines = textwrap.wrap(text, width=max_line_length)
+
+        # Carrega a fonte e cria um buff para offset
+        font = pygame.font.Font(FONTS_PATH + "terminator.otf", size)
         y_offset = 0
 
         # Laceia cada linha, criando sua surface e fazendo blit
         for line in lines:
-            text_surface = pygame.font.Font(
-                pygame.font.get_default_font(), size
-            ).render(line, True, WHITE)
+            text_surface = font.render(line, True, WHITE)
             text_rect = text_surface.get_rect()
             text_rect.center = (x, y + y_offset)
 
