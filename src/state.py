@@ -63,6 +63,10 @@ class Vectrun:
                 return
             # Menu principal
             case 1:
+                if isinstance(self.curr_menu, game.GridGame):
+                    self.__change_music("title.ogg", self.volume)
+                    pygame.mixer.music.play(-1, 0, 2)
+
                 self.curr_menu = menu.MainMenu(
                     (TEXTURE_MENU_PATH + "vectrun_logo.png"),
                     (WIDTH / 2, HEIGHT / 5),
@@ -89,6 +93,7 @@ class Vectrun:
             # Grid
             case 4:
                 self.__change_music("grid_1.ogg", self.volume)
+                pygame.mixer.music.play(-1, 0, 2)
 
                 self.curr_menu = game.GridGame(
                     TEXTURE_PATH + "grid.png",
