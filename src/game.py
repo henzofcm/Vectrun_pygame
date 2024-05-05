@@ -74,7 +74,7 @@ class GridGame(Entity):
         Kills the specified rider and advances the turn.
     """
 
-    def __init__(self, image_path, x_y, scale_size, bot_number, volume):
+    def __init__(self, image_path, x_y, scale_size, bot_number, volume, deck):
         """
         Initializes the Game object.
 
@@ -101,7 +101,7 @@ class GridGame(Entity):
         self._clicked = False
 
         # Cria o deck
-        self._deck = Deck(CARDS_PATH, (CARD_X, CARD_Y))
+        self._deck = deck
 
         # Cria o jogador
         self._player = Player(1, (GRID_X / 2 - 1, GRID_Y / 2 - 2), (RIDER_X, RIDER_Y), self._deck)
