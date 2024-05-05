@@ -124,7 +124,6 @@ class Menu(entity.Entity):
         -------
         None
         """
-        self.font_name = pygame.font.get_default_font()
         font = pygame.font.Font(self.font_name, size)
 
         text_surface = font.render(text, True, WHITE)
@@ -769,3 +768,53 @@ class CreditsMenu(Menu):
                 if event.button == 1:
                     return self._validate_click()
 
+
+class LoadingScreen(Menu):
+
+    def __init__(self, image_path, x_y, scale_size, state):
+        super().__init__(image_path, x_y, scale_size)
+        self.__state = state
+
+        # Configura a fonte e o texto inicial
+        self.__font = pygame.font.Font(FONTS_PATH + "zig.ttf", 40)
+        self.__text = "Loading"
+
+        # Cria um evento para a animação
+        self.__clock = pygame.event.custom_type()
+        pygame.time.set_timer(self.__clock, 500, 5)
+
+        # Carrega a imagem da tela de fundo
+        # TODO
+    
+    def draw(self, screen):
+        # Mostra a logo desta tela
+        screen.fill((0, 0, 0))
+
+        # Desenha o texto
+        self.draw_text(self.__text, WIDTH * 0.05, HEIGHT * 0.9, screen)
+
+    def update(self):
+        # Loop dos eventos principais
+        for event in pygame.event.get():
+            # Valida o fechamento
+            if event.type == pygame.QUIT:
+                return -1
+            
+            # Atualiza o texto
+            if event.type == self.__clock:
+                self.__text += "."
+
+        # Quando tiver acabado a animação, carrega o jogo
+        if self.__text.endswith("....."):
+            self.__state._load()
+
+        return 0
+    
+    def draw_text(self, text, x, y, screen):
+        # Cria uma superficie com o texto nela
+        text_surface = self.__font.render(text, True, WHITE)
+        text_rect = text_surface.get_rect()
+        text_rect.topleft = (x, y)
+
+        # Põe na tela
+        screen.blit(text_surface, text_rect)

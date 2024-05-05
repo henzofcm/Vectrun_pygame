@@ -1,5 +1,5 @@
 import pygame
-
+import time
 import menu
 import game
 from config import *
@@ -17,22 +17,20 @@ class Vectrun:
         self.fps_clock = pygame.time.Clock()
 
         # Define a tela inicial
-        self.curr_menu = menu.MainMenu(
-            (TEXTURE_MENU_PATH + "vectrun_logo.png"),
-            (WIDTH / 2, HEIGHT / 5),
-            (LOGO_X, LOGO_Y),
-        )
+        self.curr_menu = menu.LoadingScreen(TEXTURE_MENU_PATH + "no_button.png", (0, 0), (WIDTH, HEIGHT), self)
 
         # Carrega a música pra memória
         self.volume = VOLUME_START
         self.__change_music("title.ogg", self.volume)
-        pygame.mixer.music.play(-1, 0, 2)
 
         # TODO
         self.winner = 0
         self.running = True
 
     def play(self):
+        # Carrega arquivos para memória
+        start = time.perf_counter()
+        print(time.perf_counter() - start)
         # Loop principal
         while self.running:
             # Preenche a tela
@@ -130,3 +128,54 @@ class Vectrun:
     def __change_music(title, volume):
         pygame.mixer.music.load(MUSIC_PATH + title)
         pygame.mixer.music.set_volume(volume)
+
+    def _load(self):
+        self.__menus = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+        self.__menus[1] = menu.MainMenu(
+                    (TEXTURE_MENU_PATH + "vectrun_logo.png"),
+                    (WIDTH / 2, HEIGHT / 5),
+                    (LOGO_X, LOGO_Y),
+                )
+
+        self.__menus[2] = menu.TutorialScreen(
+                    (TEXTURE_MENU_PATH + "tutorial_button.png"),
+                    (WIDTH / 2, HEIGHT / 6 - 50),
+                    (2 * BUTTON_X, 2 * BUTTON_Y),
+                )
+        
+        self.__menus[3] = menu.OptionsMenu(
+                    (TEXTURE_MENU_PATH + "options_button.png"),
+                    (WIDTH / 2, (HEIGHT / 6 - 50)),
+                    (2 * BUTTON_X, 2 * BUTTON_Y),
+                    self,
+                )
+        
+        self.__menus[4] = game.GridGame(
+                    TEXTURE_PATH + "grid.png",
+                    (0, 0),
+                    (GRID_X, GRID_Y),
+                    3,
+                    self.volume,
+                )
+        
+        self.__menus[5] = menu.ResultScreen(
+                    (TEXTURE_MENU_PATH + "you_win.png"),
+                    (WIDTH / 2, HEIGHT / 5),
+                    (LOGO_X, LOGO_Y),
+                )
+        
+        self.__menus[6] = menu.ResultScreen(
+                    (TEXTURE_MENU_PATH + "you_lose.png"),
+                    (WIDTH / 2, HEIGHT / 5),
+                    (LOGO_X, LOGO_Y),
+                )
+        
+        self.__menus[8] = menu.CreditsMenu(
+                    (TEXTURE_MENU_PATH + "credits_button.png"),
+                    (WIDTH / 2, (HEIGHT / 6 - 50)),
+                    (2 * BUTTON_X, 2 * BUTTON_Y),
+                )
+        
+        self.curr_menu = self.__menus[1]
+        pygame.mixer.music.play(-1, 0, 2)
