@@ -18,7 +18,7 @@ class Vectrun:
         self.fps_clock = pygame.time.Clock()
 
         # Define a tela inicial
-        self.curr_menu = menu.LoadingScreen(TEXTURE_MENU_PATH + "no_button.png", (0, 0), (WIDTH, HEIGHT), self)
+        self.curr_menu = menu.LoadingScreen(TEXTURE_MENU_PATH + "loading2.jpg", (0, 0), (WIDTH, HEIGHT), self)
 
         # Salva o volume
         self.volume = VOLUME_START
@@ -57,7 +57,7 @@ class Vectrun:
                 return
             # Menu principal
             case 1:
-                if isinstance(self.curr_menu, game.GridGame):
+                if isinstance(self.curr_menu, game.GridGame) or isinstance(self.curr_menu, menu.LoadingScreen):
                     self.__change_music("title.ogg", self.volume)
                     pygame.mixer.music.play(-1, 0, 2)
 
@@ -146,11 +146,7 @@ class Vectrun:
                     (WIDTH / 2, (HEIGHT / 6 - 50)),
                     (2 * BUTTON_X, 2 * BUTTON_Y),
                 )
-
-        # Muda para a tela principal
-        self.curr_menu = self.__menus[1]
-        self.__change_music("title.ogg", self.volume)
-        pygame.mixer.music.play(-1, 0, 2)
+        
 
     def __load_deck(self):
         # Cria o deck

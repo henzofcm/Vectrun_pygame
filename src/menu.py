@@ -773,6 +773,7 @@ class LoadingScreen(Menu):
 
     def __init__(self, image_path, x_y, scale_size, state):
         super().__init__(image_path, x_y, scale_size)
+        self.rect = self.image.get_rect(topleft=x_y)
         self.__state = state
 
         # Configura a fonte e o texto inicial
@@ -781,17 +782,22 @@ class LoadingScreen(Menu):
 
         # Cria um evento para a animação
         self.__clock = pygame.event.custom_type()
-        pygame.time.set_timer(self.__clock, 500, 5)
+        pygame.time.set_timer(self.__clock, 8, 125)
 
-        # Carrega a imagem da tela de fundo
-        # TODO
+        # Carrega o rider
+        self.__rider = entity.Entity(RIDER_PATH + "rider_1.png", (0, 0), (RIDER_X * 0.6, RIDER_Y * 0.6))
+        self.__rider.rect.center = (-30, 620)
     
     def draw(self, screen):
         # Mostra a logo desta tela
-        screen.fill((0, 0, 0))
+        screen.blit(self.image, self.rect)
 
         # Desenha o texto
-        self.draw_text(self.__text, WIDTH * 0.05, HEIGHT * 0.9, screen)
+        self.draw_text(self.__text, WIDTH * 0.72, HEIGHT * 0.9, screen)
+
+        # Desenha o rider e sua linha
+        pygame.draw.line(screen, "#258dc2", (-30, 620), self.__rider.rect.center, 3)
+        screen.blit(self.__rider.image, self.__rider.rect)
 
     def update(self):
         # Loop dos eventos principais
@@ -800,13 +806,22 @@ class LoadingScreen(Menu):
             if event.type == pygame.QUIT:
                 return -1
             
-            # Atualiza o texto
+            # Atualiza a animação
             if event.type == self.__clock:
-                self.__text += "."
+                self.__rider.rect.centerx += 2
 
         # Quando tiver acabado a animação, carrega o jogo
-        if self.__text.endswith("....."):
+        if self.__rider.rect.centerx == 220:
             self.__state._load()
+            self.__rider.rect.centerx += 2
+
+        # Quando acabar o loading, termina a animação
+        if self.__rider.rect.centerx == 222:
+            pygame.time.set_timer(self.__clock, 5, 580)
+
+        # Quando acabar a animação, troca de tela
+        if self.__rider.rect.left > WIDTH + 10:
+            return 1
 
         return 0
     

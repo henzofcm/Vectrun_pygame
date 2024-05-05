@@ -11,7 +11,7 @@ CARDS_PATH = TEXTURE_PATH + "cards\\"
 RIDER_PATH = TEXTURE_PATH + "rider\\"
 
 # Tamanho da tela
-WIDTH = 1000
+WIDTH = 1300
 HEIGHT = 750
 FULLSCREEN = False
 
