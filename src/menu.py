@@ -47,8 +47,16 @@ class Button(entity.Entity):
         -------
         None
         """
-        super().__init__(image_path, x_y, scale_size)
+        # Caso for carregar uma imagem da memória
+        if '\\' in image_path:
+            super().__init__(image_path, x_y, scale_size)
+        # Ou caso precise criar com texto
+        else:
+            super().__init__(TEXTURE_MENU_PATH + "square_full.png", x_y, scale_size)
+            font = pygame.font.Font(FONTS_PATH + "DOSVGA2.ttf", 30)
 
+            self.image = font.render(image_path, True, WHITE)
+        
         self.rect = self.image.get_rect(center=x_y)
         self.value = value
 
@@ -185,48 +193,41 @@ class Menu(entity.Entity):
 class MainMenu(Menu):
 
     def __init__(self, image_path, x_y, scale_size):
-        """
-        Initializes a MainMenu object.
-        
-        Parameters
-        ----------
-        game : Game
-            The game object that controls the menu.
-        image_path : str
-            The path to the image file for the menu.
-        x_y : tuple
-            The x and y coordinates of the menu.
-        scale_size : float
-            The scale size of the menu.
-        
-        Returns
-        -------
-        None
-        """
         super().__init__(image_path, x_y, scale_size)
+
+        # Cria o "botão" de seleção
+        font = pygame.font.Font(FONTS_PATH + "DOSVGA2.ttf", 30)
+        self.__selected = font.render("> ", True, WHITE)
+
+        # Muda o titulo
+        self.image = font.render("SolarOS 4.0.1 Generic_50203-02 sun4m 1986 Unknown.Unknown", True, WHITE)
+        self.rect.left = 50
+
+        # E extras
+        self.__pretitle = font.render("Vectrun:\> dir", True, WHITE)
 
         # Define os botões dessa tela
         self.btn_the_grid = Button(
-            TEXTURE_MENU_PATH + "grid_logo.png",
-            (WIDTH / 2, HEIGHT / 2),
+            "grid.exe",
+            (100, HEIGHT / 2),
             (BUTTON_X, BUTTON_Y),
             4,
         )
         self.btn_tutorial = Button(
-            TEXTURE_MENU_PATH + "tutorial_button.png",
-            (WIDTH / 2, HEIGHT / 2 + 100),
+            "tutorial.txt",
+            (100, HEIGHT / 2 + 100),
             (BUTTON_X, BUTTON_Y),
             2,
         )
         self.btn_options = Button(
-            TEXTURE_MENU_PATH + "options_button.png",
-            (WIDTH / 2, HEIGHT / 2 + 200),
+            "options.txt",
+            (100, HEIGHT / 2 + 200),
             (BUTTON_X, BUTTON_Y),
             3,
         )
         self.btn_credits = Button(
-            TEXTURE_MENU_PATH + "credits_button.png",
-            (WIDTH / 2, HEIGHT / 2 + 300),
+            "credits.txt",
+            (100, HEIGHT / 2 + 300),
             (BUTTON_X, BUTTON_Y),
             8,
         )
@@ -236,9 +237,15 @@ class MainMenu(Menu):
             self.btn_the_grid, self.btn_options, self.btn_credits, self.btn_tutorial
         )
 
+        self.btn_credits.rect.left = 80
+        self.btn_options.rect.left = 80
+        self.btn_tutorial.rect.left = 80
+        self.btn_the_grid.rect.left = 80
+
     def draw(self, screen):
         # Exibe o logo do jogo
         screen.blit(self.image, self.rect)
+        screen.blit(self.__pretitle, (50, HEIGHT/2 - 100))
 
         # Insere os botões na tela
         self.buttons_group.draw(screen)
@@ -262,6 +269,10 @@ class MainMenu(Menu):
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     return self._validate_click()
+
+    def _preview_selected_button(self, button, screen):
+        # Desenha > atrás da seleção
+        screen.blit(self.__selected, (button.rect.left - 35, button.rect.top))
 
 
 class OptionsMenu(Menu):
