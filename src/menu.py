@@ -132,7 +132,7 @@ class Menu(entity.Entity):
         -------
         None
         """
-        font = pygame.font.Font(self.font_name, size)
+        font = pygame.font.Font(FONTS_PATH + "terminator.otf", size)
 
         text_surface = font.render(text, True, WHITE)
         text_rect = text_surface.get_rect()
@@ -200,47 +200,47 @@ class MainMenu(Menu):
         self.__selected = font.render("> ", True, WHITE)
 
         # Muda o titulo
-        self.image = font.render("SolarOS 4.0.1 Generic_50203-02 sun4m 1986 Unknown.Unknown", True, WHITE)
+        self.image = font.render("SolarOS 4.0.1 Generic_50203-02 sun4m i386 Unknown.Unknown", True, WHITE)
         self.rect.left = 50
 
         # E extras
         self.__pretitle = font.render("Vectrun:\> dir", True, WHITE)
 
         # Define os botões dessa tela
-        self.btn_the_grid = Button(
+        btn_the_grid = Button(
             "grid.exe",
             (100, HEIGHT / 2),
             (BUTTON_X, BUTTON_Y),
             4,
         )
-        self.btn_tutorial = Button(
+        btn_tutorial = Button(
             "tutorial.txt",
             (100, HEIGHT / 2 + 100),
             (BUTTON_X, BUTTON_Y),
             2,
         )
-        self.btn_options = Button(
+        btn_options = Button(
             "options.txt",
             (100, HEIGHT / 2 + 200),
             (BUTTON_X, BUTTON_Y),
             3,
         )
-        self.btn_credits = Button(
+        btn_credits = Button(
             "credits.txt",
             (100, HEIGHT / 2 + 300),
             (BUTTON_X, BUTTON_Y),
             8,
         )
 
+        btn_credits.rect.left = 80
+        btn_options.rect.left = 80
+        btn_tutorial.rect.left = 80
+        btn_the_grid.rect.left = 80
+
         # Adiciona os botões a um grupo
         self.buttons_group = pygame.sprite.Group(
-            self.btn_the_grid, self.btn_options, self.btn_credits, self.btn_tutorial
+            btn_the_grid, btn_options, btn_credits, btn_tutorial
         )
-
-        self.btn_credits.rect.left = 80
-        self.btn_options.rect.left = 80
-        self.btn_tutorial.rect.left = 80
-        self.btn_the_grid.rect.left = 80
 
     def draw(self, screen):
         # Exibe o logo do jogo
@@ -443,12 +443,13 @@ class TutorialScreen(Menu):
         # Atributos de interesse
         self.__page = 1
         self.__page_num = 3
-        self.__font_size = 17
+        self.__font_size = 19
 
         # Variáveis de posicionamento
-        img_x = 150
-        img_y = 360
-        space_img = 100
+        self.__size = 200
+        self.__img_x = WIDTH / 2 - self.__size / 2
+        self.__img_y = 360
+        self.__space = 120
 
         # Define a fonte a ser usada
         self.font_name = FONTS_PATH + "tron.ttf"
@@ -456,18 +457,18 @@ class TutorialScreen(Menu):
         # Carrega as imagens que serão usadas
         img_wall = entity.Entity(
             IMG_MANUAL_PATH + "collision_with_side_walls.png",
-            (img_x, img_y),
-            (200, 200),
+            (self.__img_x - self.__size - self.__space, self.__img_y),
+            (self.__size, self.__size),
         )
         img_moto = entity.Entity(
             IMG_MANUAL_PATH + "intersection_with_motorcycle.png",
-            (2 * img_x + space_img, img_y),
-            (200, 200),
+            (self.__img_x, self.__img_y),
+            (self.__size, self.__size),
         )
         img_line = entity.Entity(
             IMG_MANUAL_PATH + "intersection_with_the_line.png",
-            (3 * img_x + 2 * space_img, img_y),
-            (200, 200),
+            (self.__img_x + self.__size + self.__space, self.__img_y),
+            (self.__size, self.__size),
         )
 
         self.__imgs = pygame.sprite.Group(img_moto, img_line, img_wall)
@@ -517,15 +518,19 @@ class TutorialScreen(Menu):
                 txt.txt_regra_4, self.__font_size, WIDTH / 2, 440, 55, screen
             )
         else:
+            new_y = self.__img_y - 60
+            new_x = self.__img_x + self.__size / 2
+            new_space = self.__space + self.__size
+
             self.__draw_text(
                 txt.txt_regra_5, self.__font_size, WIDTH / 2, 210, 55, screen
             )
             self.__draw_text(
-                txt.txt_collision_1, self.__font_size, 250, 300, 12, screen
+                txt.txt_collision_1, self.__font_size, new_x - new_space, new_y, 12, screen
             )
-            self.__draw_text(txt.txt_collision_2, self.__font_size, 500, 300, 12, screen)
+            self.__draw_text(txt.txt_collision_2, self.__font_size, new_x, new_y, 12, screen)
             self.__draw_text(
-                txt.txt_collision_3, self.__font_size, 750, 300, 12, screen
+                txt.txt_collision_3, self.__font_size, new_x + new_space, new_y, 12, screen
             )
 
             # Imagens de colisões
@@ -688,13 +693,8 @@ class CreditsMenu(Menu):
     def __init__(self, image_path, x_y, scale_size):
         super().__init__(image_path, x_y, scale_size)
 
-        # Carrega a imagem da tela de fundo
-        self.background = entity.Entity(
-            TEXTURE_MENU_PATH + "background_credits.png", (0, 0), (WIDTH, HEIGHT)
-        )
-
         # Define os botões dessa tela
-        self.btn_back = Button(
+        btn_back = Button(
             TEXTURE_MENU_PATH + "back_button.png",
             (WIDTH / 2, (HEIGHT - 100)),
             (BUTTON_X, BUTTON_Y),
@@ -702,58 +702,55 @@ class CreditsMenu(Menu):
         )
 
         # Adiciona os botões a um grupo
-        self.buttons_group.add(self.btn_back)
+        self.buttons_group.add(btn_back)
 
     def draw(self, screen):
-        # Exibe o plano de fundo da tela
-        screen.blit(self.background.image, self.background.rect)
-
         # Exibe a imagem "credits"
         screen.blit(self.image, self.rect)
 
         # Insere os botões na tela:
         self.buttons_group.draw(screen)
 
-         # Define variáveis com valores recorrentes no menu
-        font_size = [17, 20, 25]
-        space_size = [38, 30]
+        # Define variáveis com valores recorrentes no menu
+        font_size = [20, 24, 30]
+        space_size = [40, 30]
         txt_x = WIDTH / 2
         txt_y = HEIGHT / 4 + 20
 
         # Desenha os textos na tela
-        self.draw_text("A2 LP - 2023", font_size[2], txt_x, txt_y, screen)
+        self.draw_text("VECTRUN", font_size[2], txt_x, txt_y, screen)
         self.draw_text(
-            "- Coded by -",
+            "Art, concept and design",
             font_size[1],
             txt_x,
             (txt_y + 2 * space_size[0]), screen
         )
         self.draw_text(
-            "Beatriz Miranda Bezerra",
+            "Tulio Konecny",
             font_size[0],
             txt_x,
             (txt_y + 3 * space_size[0]), screen
         )
         self.draw_text(
-            "Gustavo Murilo Cavalcante Carvalho",
-            font_size[0],
-            txt_x,
-            (txt_y + 4 * space_size[0]), screen
-        )
-        self.draw_text(
-            "Henzo Felipe Carvalho de Mattos",
-            font_size[0],
+            "Programming",
+            font_size[1],
             txt_x,
             (txt_y + 5 * space_size[0]), screen
         )
         self.draw_text(
-            "- Art and Concept granted by -",
-            font_size[1],
+            "Beatriz Miranda Bezerra",
+            font_size[0],
+            txt_x,
+            (txt_y + 6 * space_size[0]), screen
+        )
+        self.draw_text(
+            "Gustavo Murilo Cavalcante Carvalho",
+            font_size[0],
             txt_x,
             (txt_y + 7 * space_size[0]), screen
         )
         self.draw_text(
-            "Tulio Konecny",
+            "Henzo Felipe Carvalho de Mattos",
             font_size[0],
             txt_x,
             (txt_y + 8 * space_size[0]), screen
