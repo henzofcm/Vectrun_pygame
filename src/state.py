@@ -25,6 +25,7 @@ class Vectrun:
 
         # TODO
         self.running = True
+        self.bot_num = 3
 
     def play(self):
         # Loop principal
@@ -81,7 +82,7 @@ class Vectrun:
                     TEXTURE_PATH + "grid.png",
                     (0, 0),
                     (GRID_X, GRID_Y),
-                    3,
+                    self.bot_num,
                     self.volume,
                     self.__deck
                 )

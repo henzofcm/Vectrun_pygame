@@ -284,14 +284,7 @@ class OptionsMenu(Menu):
         vol_space = 80
         vol_y = HEIGHT / 3 + 30
         vol_x = WIDTH / 3 + 5
-
-        vol_position = (
-            (vol_x + 2 * vol_space, vol_y),
-            (vol_x + 3 * vol_space, vol_y),
-            (vol_x + 4 * vol_space, vol_y),
-            (vol_x + 5 * vol_space, vol_y),
-            (vol_x + 6 * vol_space, vol_y),
-        )
+        vol_position = tuple((vol_x + x * vol_space, vol_y) for x in range(2, 7))
 
         # Carrega as imagens a exibir
         volume_logo = Button(
@@ -340,9 +333,21 @@ class OptionsMenu(Menu):
             5,
         )
 
+        # Mais botões
+        self.more_buttons_group = pygame.sprite.Group()
+        self.btn_fs = Button(TEXTURE_MENU_PATH + "square_empty.png", (vol_position[2][0], vol_y + vol_space), (50, 50), 0)
+
+        self.bot_buttons_group = pygame.sprite.Group()
+        btn_bot_1 = Button("1", (vol_position[0][0], vol_y + 2 * vol_space), (50, 50), 1)
+        btn_bot_2 = Button("2", (vol_position[1][0], vol_y + 2 * vol_space), (50, 50), 2)
+        btn_bot_3 = Button("3", (vol_position[2][0], vol_y + 2 * vol_space), (50, 50), 3)
+        self.btn_select = Button(TEXTURE_MENU_PATH + "square_empty.png", btn_bot_3.rect.center, (50, 50), 1)
+
         # Adiciona os botões a um grupo
         self.options_group.add(volume_logo)
         self.buttons_group.add(self.btn_back)
+        self.bot_buttons_group.add(btn_bot_1, btn_bot_2, btn_bot_3)
+        self.more_buttons_group.add(self.btn_fs, self.btn_select)
 
         self.volume_group = pygame.sprite.Group()
         self.volume_group.add(
@@ -360,6 +365,9 @@ class OptionsMenu(Menu):
         # Exibe a imagem das opções
         self.options_group.draw(screen)
         self.buttons_group.draw(screen)
+
+        self.bot_buttons_group.draw(screen)
+        self.more_buttons_group.draw(screen)
 
         # E os volumes
         self.volume_group.draw(screen)
@@ -395,6 +403,17 @@ class OptionsMenu(Menu):
         for button in self.buttons_group:
             if button.update():
                 return button.value
+        
+        # Ou se mudou a tela
+        if self.btn_fs.update():
+            self.change_fullscreen()
+            return 0
+        
+        # Ou se mudou os bots
+        for button in self.bot_buttons_group:
+            if button.update():
+                self.btn_select.rect.center = button.rect.center
+                self.state.bot_num = button.value
 
     def choice_preview(self, screen):
         # Verifica se o mouse está em cima do botão
@@ -408,6 +427,11 @@ class OptionsMenu(Menu):
             if button.update():
                 # Desenha o contorno
                 self._preview_selected_button(button, screen)
+
+        # Mais alguns
+        if self.btn_fs.update():
+            # Desenha o contorno
+            self._preview_selected_button(self.btn_fs, screen)
 
     def change_volume(self, vol):
         # Volume antigo e novo
@@ -434,6 +458,17 @@ class OptionsMenu(Menu):
         # E altera
         exec("self.btn_vol_" + str(num) + ".image = img", None, locals())
 
+    def change_fullscreen(self):
+        # Muda o botão
+        click = "full.png"
+        if self.btn_fs.value:
+            click = "empty.png"
+
+        self.btn_fs.image = pygame.image.load(TEXTURE_MENU_PATH + "square_" + click).convert_alpha()
+        self.btn_fs.image = pygame.transform.smoothscale(self.btn_fs.image, (50, 50))
+        
+        self.btn_fs.value = not self.btn_fs.value
+        pygame.display.toggle_fullscreen()
 
 class TutorialScreen(Menu):
 
