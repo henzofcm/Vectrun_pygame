@@ -274,6 +274,9 @@ class Rider(Entity):
         self._last_card = self.clicked_card
         self.clicked_card = (0, 0)
 
+        # Adiciona-a nas cartas usadas
+        deck.stack(self._last_card)
+
         # Salva a posição final do jogador no seu _path
         self._path.append(self.rect.center)
 

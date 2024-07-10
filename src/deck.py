@@ -125,8 +125,9 @@ class Deck(Entity):
         """
         super().__init__(card_path + "card_back.png", (0, 0), (0, 0))
 
-        self.cards = []
+        self.cards = [] # Cartas na pilha
         self.drawn_cards = []  # Cartas que foram tiradas do deck e estão em jogo
+        self.used_cards = [] # Cartas que foram tiradas e não estão mais em jogo
 
         # Carrega todas as cartas pra memória
         __card_count = 1
@@ -159,12 +160,23 @@ class Deck(Entity):
         -------
         None
         """
+        # Se não tiver nenhuma na mesa, vai embaralhar as usadas
         if not self.cards:
-            random.shuffle(self.drawn_cards)
-            self.cards = self.drawn_cards.copy()
-            self.drawn_cards.clear()
-        else:
-            random.shuffle(self.cards)
+            self.cards = self.used_cards
+            self.used_cards = []
+        
+        random.shuffle(self.cards)
+
+    def reshuffle(self):
+        # Readiciona todas cartas ao deck principal
+        self.cards += self.drawn_cards + self.used_cards
+
+        # Esvazia as outras pilhas
+        self.drawn_cards = []
+        self.used_cards = []
+
+        # E embaralha
+        random.shuffle(self.cards)
 
     def draw_card(self):
         """
@@ -183,3 +195,7 @@ class Deck(Entity):
 
         return card
 
+    def stack(self, card):
+        # Tira das cartas em jogo e adiciona-a nas usadas
+        self.drawn_cards.remove(card)
+        self.used_cards.append(card)

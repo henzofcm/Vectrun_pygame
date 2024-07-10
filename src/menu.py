@@ -47,8 +47,16 @@ class Button(entity.Entity):
         -------
         None
         """
-        super().__init__(image_path, x_y, scale_size)
+        # Caso for carregar uma imagem da memória
+        if '\\' in image_path:
+            super().__init__(image_path, x_y, scale_size)
+        # Ou caso precise criar com texto
+        else:
+            super().__init__(TEXTURE_MENU_PATH + "square_full.png", x_y, scale_size)
+            font = pygame.font.Font(FONTS_PATH + "DOSVGA2.ttf", 30)
 
+            self.image = font.render(image_path, True, WHITE)
+        
         self.rect = self.image.get_rect(center=x_y)
         self.value = value
 
@@ -124,8 +132,7 @@ class Menu(entity.Entity):
         -------
         None
         """
-        self.font_name = pygame.font.get_default_font()
-        font = pygame.font.Font(self.font_name, size)
+        font = pygame.font.Font(FONTS_PATH + "terminator.otf", size)
 
         text_surface = font.render(text, True, WHITE)
         text_rect = text_surface.get_rect()
@@ -186,60 +193,59 @@ class Menu(entity.Entity):
 class MainMenu(Menu):
 
     def __init__(self, image_path, x_y, scale_size):
-        """
-        Initializes a MainMenu object.
-        
-        Parameters
-        ----------
-        game : Game
-            The game object that controls the menu.
-        image_path : str
-            The path to the image file for the menu.
-        x_y : tuple
-            The x and y coordinates of the menu.
-        scale_size : float
-            The scale size of the menu.
-        
-        Returns
-        -------
-        None
-        """
         super().__init__(image_path, x_y, scale_size)
 
+        # Cria o "botão" de seleção
+        font = pygame.font.Font(FONTS_PATH + "DOSVGA2.ttf", 30)
+        self.__selected = font.render("> ", True, WHITE)
+
+        # Muda o titulo
+        self.image = font.render("SolarOS 4.0.1 Generic_50203-02 sun4m i386 Unknown.Unknown", True, WHITE)
+        self.rect.left = 50
+
+        # E extras
+        self.__pretitle = font.render("Vectrun:\> dir", True, WHITE)
+
         # Define os botões dessa tela
-        self.btn_the_grid = Button(
-            TEXTURE_MENU_PATH + "grid_logo.png",
-            (WIDTH / 2, HEIGHT / 2),
+        btn_the_grid = Button(
+            "grid.exe",
+            (100, HEIGHT / 2),
             (BUTTON_X, BUTTON_Y),
             4,
         )
-        self.btn_tutorial = Button(
-            TEXTURE_MENU_PATH + "tutorial_button.png",
-            (WIDTH / 2, HEIGHT / 2 + 100),
+        btn_tutorial = Button(
+            "tutorial.txt",
+            (100, HEIGHT / 2 + 100),
             (BUTTON_X, BUTTON_Y),
             2,
         )
-        self.btn_options = Button(
-            TEXTURE_MENU_PATH + "options_button.png",
-            (WIDTH / 2, HEIGHT / 2 + 200),
+        btn_options = Button(
+            "options.txt",
+            (100, HEIGHT / 2 + 200),
             (BUTTON_X, BUTTON_Y),
             3,
         )
-        self.btn_credits = Button(
-            TEXTURE_MENU_PATH + "credits_button.png",
-            (WIDTH / 2, HEIGHT / 2 + 300),
+        btn_credits = Button(
+            "credits.txt",
+            (100, HEIGHT / 2 + 300),
             (BUTTON_X, BUTTON_Y),
             8,
         )
 
+        btn_credits.rect.left = 80
+        btn_options.rect.left = 80
+        btn_tutorial.rect.left = 80
+        btn_the_grid.rect.left = 80
+
         # Adiciona os botões a um grupo
         self.buttons_group = pygame.sprite.Group(
-            self.btn_the_grid, self.btn_options, self.btn_credits, self.btn_tutorial
+            btn_the_grid, btn_options, btn_credits, btn_tutorial
         )
 
     def draw(self, screen):
         # Exibe o logo do jogo
         screen.blit(self.image, self.rect)
+        screen.blit(self.__pretitle, (50, HEIGHT/2 - 100))
 
         # Insere os botões na tela
         self.buttons_group.draw(screen)
@@ -263,6 +269,10 @@ class MainMenu(Menu):
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     return self._validate_click()
+
+    def _preview_selected_button(self, button, screen):
+        # Desenha > atrás da seleção
+        screen.blit(self.__selected, (button.rect.left - 35, button.rect.top))
 
 
 class OptionsMenu(Menu):
@@ -433,12 +443,13 @@ class TutorialScreen(Menu):
         # Atributos de interesse
         self.__page = 1
         self.__page_num = 3
-        self.__font_size = 17
+        self.__font_size = 19
 
         # Variáveis de posicionamento
-        img_x = 150
-        img_y = 360
-        space_img = 100
+        self.__size = 200
+        self.__img_x = WIDTH / 2 - self.__size / 2
+        self.__img_y = 360
+        self.__space = 120
 
         # Define a fonte a ser usada
         self.font_name = FONTS_PATH + "tron.ttf"
@@ -446,18 +457,18 @@ class TutorialScreen(Menu):
         # Carrega as imagens que serão usadas
         img_wall = entity.Entity(
             IMG_MANUAL_PATH + "collision_with_side_walls.png",
-            (img_x, img_y),
-            (200, 200),
+            (self.__img_x - self.__size - self.__space, self.__img_y),
+            (self.__size, self.__size),
         )
         img_moto = entity.Entity(
             IMG_MANUAL_PATH + "intersection_with_motorcycle.png",
-            (2 * img_x + space_img, img_y),
-            (200, 200),
+            (self.__img_x, self.__img_y),
+            (self.__size, self.__size),
         )
         img_line = entity.Entity(
             IMG_MANUAL_PATH + "intersection_with_the_line.png",
-            (3 * img_x + 2 * space_img, img_y),
-            (200, 200),
+            (self.__img_x + self.__size + self.__space, self.__img_y),
+            (self.__size, self.__size),
         )
 
         self.__imgs = pygame.sprite.Group(img_moto, img_line, img_wall)
@@ -507,15 +518,19 @@ class TutorialScreen(Menu):
                 txt.txt_regra_4, self.__font_size, WIDTH / 2, 440, 55, screen
             )
         else:
+            new_y = self.__img_y - 60
+            new_x = self.__img_x + self.__size / 2
+            new_space = self.__space + self.__size
+
             self.__draw_text(
                 txt.txt_regra_5, self.__font_size, WIDTH / 2, 210, 55, screen
             )
             self.__draw_text(
-                txt.txt_collision_1, self.__font_size, 250, 300, 12, screen
+                txt.txt_collision_1, self.__font_size, new_x - new_space, new_y, 12, screen
             )
-            self.__draw_text(txt.txt_collision_2, self.__font_size, 500, 300, 12, screen)
+            self.__draw_text(txt.txt_collision_2, self.__font_size, new_x, new_y, 12, screen)
             self.__draw_text(
-                txt.txt_collision_3, self.__font_size, 750, 300, 12, screen
+                txt.txt_collision_3, self.__font_size, new_x + new_space, new_y, 12, screen
             )
 
             # Imagens de colisões
@@ -678,13 +693,8 @@ class CreditsMenu(Menu):
     def __init__(self, image_path, x_y, scale_size):
         super().__init__(image_path, x_y, scale_size)
 
-        # Carrega a imagem da tela de fundo
-        self.background = entity.Entity(
-            TEXTURE_MENU_PATH + "background_credits.png", (0, 0), (WIDTH, HEIGHT)
-        )
-
         # Define os botões dessa tela
-        self.btn_back = Button(
+        btn_back = Button(
             TEXTURE_MENU_PATH + "back_button.png",
             (WIDTH / 2, (HEIGHT - 100)),
             (BUTTON_X, BUTTON_Y),
@@ -692,58 +702,55 @@ class CreditsMenu(Menu):
         )
 
         # Adiciona os botões a um grupo
-        self.buttons_group.add(self.btn_back)
+        self.buttons_group.add(btn_back)
 
     def draw(self, screen):
-        # Exibe o plano de fundo da tela
-        screen.blit(self.background.image, self.background.rect)
-
         # Exibe a imagem "credits"
         screen.blit(self.image, self.rect)
 
         # Insere os botões na tela:
         self.buttons_group.draw(screen)
 
-         # Define variáveis com valores recorrentes no menu
-        font_size = [17, 20, 25]
-        space_size = [38, 30]
+        # Define variáveis com valores recorrentes no menu
+        font_size = [20, 24, 30]
+        space_size = [40, 30]
         txt_x = WIDTH / 2
         txt_y = HEIGHT / 4 + 20
 
         # Desenha os textos na tela
-        self.draw_text("A2 LP - 2023", font_size[2], txt_x, txt_y, screen)
+        self.draw_text("VECTRUN", font_size[2], txt_x, txt_y, screen)
         self.draw_text(
-            "- Coded by -",
+            "Art, concept and design",
             font_size[1],
             txt_x,
             (txt_y + 2 * space_size[0]), screen
         )
         self.draw_text(
-            "Beatriz Miranda Bezerra",
+            "Tulio Konecny",
             font_size[0],
             txt_x,
             (txt_y + 3 * space_size[0]), screen
         )
         self.draw_text(
-            "Gustavo Murilo Cavalcante Carvalho",
-            font_size[0],
-            txt_x,
-            (txt_y + 4 * space_size[0]), screen
-        )
-        self.draw_text(
-            "Henzo Felipe Carvalho de Mattos",
-            font_size[0],
+            "Programming",
+            font_size[1],
             txt_x,
             (txt_y + 5 * space_size[0]), screen
         )
         self.draw_text(
-            "- Art and Concept granted by -",
-            font_size[1],
+            "Beatriz Miranda Bezerra",
+            font_size[0],
+            txt_x,
+            (txt_y + 6 * space_size[0]), screen
+        )
+        self.draw_text(
+            "Gustavo Murilo Cavalcante Carvalho",
+            font_size[0],
             txt_x,
             (txt_y + 7 * space_size[0]), screen
         )
         self.draw_text(
-            "Tulio Konecny",
+            "Henzo Felipe Carvalho de Mattos",
             font_size[0],
             txt_x,
             (txt_y + 8 * space_size[0]), screen
@@ -769,3 +776,68 @@ class CreditsMenu(Menu):
                 if event.button == 1:
                     return self._validate_click()
 
+
+class LoadingScreen(Menu):
+
+    def __init__(self, image_path, x_y, scale_size, state):
+        super().__init__(image_path, x_y, scale_size)
+        self.rect = self.image.get_rect(topleft=x_y)
+        self.__state = state
+
+        # Configura a fonte e o texto inicial
+        self.__font = pygame.font.Font(FONTS_PATH + "zig.ttf", 40)
+        self.__text = "Loading"
+
+        # Cria um evento para a animação
+        self.__clock = pygame.event.custom_type()
+        pygame.time.set_timer(self.__clock, 8, 125)
+
+        # Carrega o rider
+        self.__rider = entity.Entity(RIDER_PATH + "rider_1.png", (0, 0), (RIDER_X * 0.6, RIDER_Y * 0.6))
+        self.__rider.rect.center = (-30, 620)
+    
+    def draw(self, screen):
+        # Mostra a logo desta tela
+        screen.blit(self.image, self.rect)
+
+        # Desenha o texto
+        self.draw_text(self.__text, WIDTH * 0.72, HEIGHT * 0.9, screen)
+
+        # Desenha o rider e sua linha
+        pygame.draw.line(screen, "#258dc2", (-30, 620), self.__rider.rect.center, 3)
+        screen.blit(self.__rider.image, self.__rider.rect)
+
+    def update(self):
+        # Loop dos eventos principais
+        for event in pygame.event.get():
+            # Valida o fechamento
+            if event.type == pygame.QUIT:
+                return -1
+            
+            # Atualiza a animação
+            if event.type == self.__clock:
+                self.__rider.rect.centerx += 2
+
+        # Quando tiver acabado a animação, carrega o jogo
+        if self.__rider.rect.centerx == 220:
+            self.__state._load()
+            self.__rider.rect.centerx += 2
+
+        # Quando acabar o loading, termina a animação
+        if self.__rider.rect.centerx == 222:
+            pygame.time.set_timer(self.__clock, 5, 580)
+
+        # Quando acabar a animação, troca de tela
+        if self.__rider.rect.left > WIDTH + 10:
+            return 1
+
+        return 0
+    
+    def draw_text(self, text, x, y, screen):
+        # Cria uma superficie com o texto nela
+        text_surface = self.__font.render(text, True, WHITE)
+        text_rect = text_surface.get_rect()
+        text_rect.topleft = (x, y)
+
+        # Põe na tela
+        screen.blit(text_surface, text_rect)
