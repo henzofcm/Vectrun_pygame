@@ -1,4 +1,5 @@
 import pygame
+
 from config import *
 
 def check_border_collision(rider_position: tuple) -> bool:
@@ -198,6 +199,7 @@ def __hide_mask_origin(line_mask):
 
     return new_mask
 
+
 def check_riders_collision(rider_1, rider_2):
     """
     Check collision between two sprite groups and remove collided sprites.
@@ -220,7 +222,8 @@ def check_riders_collision(rider_1, rider_2):
         return True
     
     return False
-        
+
+
 class Singleton():
     """
     This class is used to create a singleton object.

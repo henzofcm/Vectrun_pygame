@@ -1,9 +1,10 @@
 import pygame
-from entity import *
 import random
 
+import entity
 
-class Card(Entity):
+
+class Card(entity.Entity):
     """
     Represents a card object.
 
@@ -87,7 +88,7 @@ class Card(Entity):
             return False
 
 
-class Deck(Entity):
+class Deck(entity.Entity):
     """
     Represents a deck of cards.
 
