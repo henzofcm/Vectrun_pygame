@@ -109,11 +109,13 @@ def __last_vector_collision(card, last_card):
     if card == (0, 0) or card is None or (card[0] == last_card[0] and card[1] == last_card[1]):
         return False
     
-    # Calcula o produto vetorial e retorna
+    # Calcula o produto vetorial para verificar paralelismo
     if (card[0] * last_card[1] - card[1] * last_card[0]) == 0:
-        return True
-    else:
-        return False
+        # Calcula o produto interno para verificar o sentido
+        if (card[0] * last_card[0] + card[1] * last_card[1]) < 0:
+            return True
+    
+    return False
 
 
 def check_line_cross(players_group, player, line, card=None):
