@@ -105,18 +105,13 @@ def __last_vector_collision(card, last_card):
     >>> __last_vector_collision((3, 4), (5, 6))
     False
     """
-    # Se algum valor de (x, y) for 0 verifica apenas o outro valor
-    if not card[0] and not last_card[0]:  
-        if card[1] * last_card[1] < 0:
-            return True
-    elif not card[1] and not last_card[1]:
-        if card[0] * last_card[0] < 0:
-            return True
-    # Se nenhum for, verifica se são proporcionais
-    elif card[0] != 0 and card[1] != 0:
-        if last_card[0] / card[0] == last_card[1] / card[1]:
-            if last_card[0] / card[0] < 0:
-                return True
+    # Debug interno
+    if card == (0, 0) or card is None or (card[0] == last_card[0] and card[1] == last_card[1]):
+        return False
+    
+    # Calcula o produto vetorial e retorna
+    if (card[0] * last_card[1] - card[1] * last_card[0]) == 0:
+        return True
     else:
         return False
 
