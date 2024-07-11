@@ -337,10 +337,6 @@ class Rider(entity.Entity):
         if self.clicked_card[0] * self._last_card[0] < 0:
             self.image = pygame.transform.flip(self.image, True, False)
             self.__flipped = not self.__flipped
-        # No caso de ser o primeiro movimento, age de acordo
-        elif self._last_card == (0, 0) and self.clicked_card[0] < 0:
-            self.image = pygame.transform.flip(self.image, True, False)
-            self.__flipped = not self.__flipped
         # Quando a última for do tipo (0, y), também gira se ainda não estiver naquela direção
         elif self._last_card[0] == 0 and self.clicked_card[0] < 0:
             if not self.__flipped:
