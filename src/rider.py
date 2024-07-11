@@ -1,12 +1,13 @@
 import pygame
 import random
 
-from entity import *
+import entity
 import utilities
+
 from config import *
 
 
-class Rider(Entity):
+class Rider(entity.Entity):
     """
     Represents a rider object.
         
@@ -410,7 +411,6 @@ class Rider(Entity):
         pygame.time.set_timer(self.clock, 100, 7)
 
 
-@utilities.Singleton
 class Player():
     """
     Class representing a player in the game.
@@ -452,29 +452,6 @@ class Player():
         # Cria um envoltório entorno de um Rider
         self.__wrapper = Rider(number, x_y, scale_size, deck)
         self.__wrapper = pygame.sprite.GroupSingle(self.__wrapper)
-
-    def __getattr__(self, attrvalue):
-        """
-        Get the attribute from the sprite and not from the group.
-
-        Parameters
-        ----------
-        attrvalue : str
-            The name of the attribute to retrieve.
-
-        Returns
-        -------
-        Any
-            The value of the requested attribute.
-
-        Notes
-        -----
-        This method is called when an attribute is accessed on the `Rider` object
-        that is not defined directly in the class. It delegates the attribute
-        retrieval to the underlying sprite object.
-
-        """
-        return getattr(self.__wrapper.sprite, attrvalue)
     
     def __getattr__(self, attrvalue):
         """
@@ -558,6 +535,7 @@ class Player():
             """
             # Desenha o SingleGroup
             return self.__wrapper.draw(screen)
+
 
 class Bot(Rider):
     """
