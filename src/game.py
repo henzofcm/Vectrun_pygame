@@ -105,13 +105,13 @@ class GridGame(entity.Entity):
         self._deck = deck
 
         # Cria o jogador
-        self._player = rider.Player(1, (GRID_X / 2 - 1, GRID_Y / 2 - 2), (RIDER_X, RIDER_Y), self._deck)
+        self._player = rider.Player(1, (WIDTH / 2 - 1, GRID_Y / 2 - 2), (RIDER_X, RIDER_Y), self._deck)
 
         # Cria os bots
         __bot_list = []
 
         for bot in range(bot_number):
-            __bot_list.append(rider.Bot(bot + 2, (GRID_X / 2 - 1, GRID_Y / 2 - 2), (RIDER_X, RIDER_Y), self._deck))
+            __bot_list.append(rider.Bot(bot + 2, (WIDTH / 2 - 1, GRID_Y / 2 - 2), (RIDER_X, RIDER_Y), self._deck))
 
         self._bots = pygame.sprite.OrderedUpdates(__bot_list[::-1])
 

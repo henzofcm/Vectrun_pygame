@@ -11,8 +11,8 @@ CARDS_PATH = TEXTURE_PATH + "cards\\"
 RIDER_PATH = TEXTURE_PATH + "rider\\"
 
 # Tamanho da tela
-WIDTH = 1300
-HEIGHT = 750
+WIDTH = 1536
+HEIGHT = 864
 FULLSCREEN = False
 
 # Tamanho do tabuleiro

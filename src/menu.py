@@ -335,7 +335,7 @@ class OptionsMenu(Menu):
 
         # Mais botões
         self.more_buttons_group = pygame.sprite.Group()
-        self.btn_fs = Button(TEXTURE_MENU_PATH + "square_empty.png", (vol_position[2][0], vol_y + vol_space), (50, 50), 0)
+        self.btn_fs = Button(TEXTURE_MENU_PATH + "square_full.png", (vol_position[2][0], vol_y + vol_space), (50, 50), 0)
 
         self.bot_buttons_group = pygame.sprite.Group()
         btn_bot_1 = Button("1", (vol_position[0][0], vol_y + 2 * vol_space), (50, 50), 1)
@@ -469,6 +469,7 @@ class OptionsMenu(Menu):
         
         self.btn_fs.value = not self.btn_fs.value
         pygame.display.toggle_fullscreen()
+
 
 class TutorialScreen(Menu):
 
@@ -824,12 +825,12 @@ class LoadingScreen(Menu):
         self.__text = "Loading"
 
         # Cria um evento para a animação
-        self.__clock = pygame.event.custom_type()
+        self.__clock = pygame.USEREVENT + 5
         pygame.time.set_timer(self.__clock, 8, 125)
 
         # Carrega o rider
         self.__rider = entity.Entity(RIDER_PATH + "rider_1.png", (0, 0), (RIDER_X * 0.6, RIDER_Y * 0.6))
-        self.__rider.rect.center = (-30, 620)
+        self.__rider.rect.center = (-30, HEIGHT * 0.9 - RIDER_Y * 0.6)
     
     def draw(self, screen):
         # Mostra a logo desta tela
@@ -839,7 +840,7 @@ class LoadingScreen(Menu):
         self.draw_text(self.__text, WIDTH * 0.72, HEIGHT * 0.9, screen)
 
         # Desenha o rider e sua linha
-        pygame.draw.line(screen, "#258dc2", (-30, 620), self.__rider.rect.center, 3)
+        pygame.draw.line(screen, "#258dc2", (-30, HEIGHT * 0.9 - RIDER_Y * 0.6), self.__rider.rect.center, 3)
         screen.blit(self.__rider.image, self.__rider.rect)
 
     def update(self):
@@ -860,7 +861,7 @@ class LoadingScreen(Menu):
 
         # Quando acabar o loading, termina a animação
         if self.__rider.rect.centerx == 222:
-            pygame.time.set_timer(self.__clock, 5, 580)
+            pygame.time.set_timer(self.__clock, 5, 800)
 
         # Quando acabar a animação, troca de tela
         if self.__rider.rect.left > WIDTH + 10:

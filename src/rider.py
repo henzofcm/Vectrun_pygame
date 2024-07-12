@@ -92,7 +92,7 @@ class Rider(entity.Entity):
 
         for foo in range(3):
             card = deck.draw_card()
-            card.rect.topleft = (GRID_X + 50, GRID_Y / 4 - CARD_Y / 2 + foo * GRID_Y / 4)
+            card.rect.topleft = ((WIDTH + GRID_X) / 2 + 100, GRID_Y / 4 - CARD_Y / 2 + foo * GRID_Y / 4)
 
             self._hand.add(card)
 

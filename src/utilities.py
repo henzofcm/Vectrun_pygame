@@ -16,7 +16,7 @@ def check_border_collision(rider_position: tuple) -> bool:
     bool
         True if there is a collision with the borders, False otherwise.
     """
-    if rider_position[0] > GRID_X - BORDER or rider_position[0] < BORDER:
+    if rider_position[0] > (WIDTH + GRID_X) / 2 - BORDER or rider_position[0] < (WIDTH - GRID_X) / 2 + BORDER:
         return True
 
     if rider_position[1] > GRID_Y - BORDER or rider_position[1] < BORDER:

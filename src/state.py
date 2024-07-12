@@ -81,7 +81,7 @@ class Vectrun:
                 self.__deck.reshuffle()
                 self.__menus[4] = game.GridGame(
                     TEXTURE_PATH + "grid.png",
-                    (0, 0),
+                    ((WIDTH - GRID_X) / 2, 0),
                     (GRID_X, GRID_Y),
                     self.bot_num,
                     self.volume,
