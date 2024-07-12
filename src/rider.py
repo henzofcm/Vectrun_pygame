@@ -89,11 +89,24 @@ class Rider(entity.Entity):
 
         # Salva a mão de cartas do jogador
         self._hand = pygame.sprite.Group()
+        buff = (GRID_Y - 3 * CARD_X) / 4
 
         for foo in range(3):
             card = deck.draw_card()
-            card.rect.topleft = ((WIDTH + GRID_X) / 2 + 100, GRID_Y / 4 - CARD_Y / 2 + foo * GRID_Y / 4)
 
+            # TODO: mudar posição das cartas do 4º player
+            if number == 1:
+                card.rect.topleft = ((WIDTH - GRID_X) / 2 + buff + foo * (buff + CARD_X), GRID_Y + 5)
+            elif number == 2:
+                card.image = pygame.transform.rotate(card.image, 270)
+                card.rect = card.image.get_rect(topleft=((WIDTH - GRID_X) / 2 - 50 - CARD_Y, buff + foo * (buff + CARD_X)))
+            elif number == 3:
+                card.image = pygame.transform.rotate(card.image, 90)
+                card.rect = card.image.get_rect(topleft=((WIDTH + GRID_X) / 2 + 50, buff + foo * (buff + CARD_X)))
+            elif number == 4:
+                card.image = pygame.transform.rotate(card.image, 180)
+                card.rect.topleft = ((WIDTH - GRID_X) / 2 + (1 + foo) * buff, - CARD_Y - 5)
+            
             self._hand.add(card)
 
         # Salva a cor da moto
@@ -266,8 +279,16 @@ class Rider(entity.Entity):
 
         # Pesca uma nova carta e adiciona à mão
         card = deck.draw_card()
-        card.rect.topleft = self.clicked_card.rect.topleft
 
+        # Muda o posicionamento da carta a depender do jogador que pescou
+        if self._color == "#ec6716":
+            card.image = pygame.transform.rotate(card.image, 270)
+        elif self._color == "#cb101a":
+            card.image = pygame.transform.rotate(card.image, 90)
+        elif self._color == "#ffb001":
+            card.image = pygame.transform.rotate(card.image, 180)
+
+        card.rect = self.clicked_card.image.get_rect(topleft=self.clicked_card.rect.topleft)
         self._hand.add(card)
 
         # Remove a carta usada e limpa _clicked_card

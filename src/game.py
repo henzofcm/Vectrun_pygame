@@ -216,9 +216,9 @@ class GridGame(entity.Entity):
             pygame.draw.lines(screen, rider._color, False, rider._path + [rider.rect.center], width=6)
 
         # Desenha o contorno e as cartas
-        if self._player:
-            self.choice_preview(screen)
-            self._player._hand.draw(screen)
+        for rider in self._all_riders:
+            self.choice_preview(screen, rider)
+            rider._hand.draw(screen)
 
         # Faz blit no jogador e nos bots
         self._bots.draw(screen)
@@ -229,7 +229,7 @@ class GridGame(entity.Entity):
             if not rider.state_alive:
                 screen.blit(rider.last_image, rider.last_rect)
 
-    def choice_preview(self, screen):
+    def choice_preview(self, screen, rider):
         """
         Preview the selected card and its path on the screen.
 
@@ -243,17 +243,17 @@ class GridGame(entity.Entity):
             None
         """
         # Verifica se o mouse está em cima da carta
-        for card in self._player._hand.sprites():
+        for card in rider._hand.sprites():
             if card.update():
                 # Desenha o contorno
-                self.__preview_selected_card(card, screen)
+                self.__preview_selected_card(card, screen, rider._color)
 
                 # Se não houver clicado antes, mostra a trajetória da carta
                 if not self._clicked:
-                    self.__preview_selected_path(card, screen)
+                    self.__preview_selected_path(card, screen, rider)
 
     @staticmethod
-    def __preview_selected_card(card, screen):
+    def __preview_selected_card(card, screen, color):
         """
         Draw the outline of the selected card.
 
@@ -274,9 +274,9 @@ class GridGame(entity.Entity):
 
         rectangle = pygame.Rect(rect_pos, rect_size)
 
-        pygame.draw.rect(screen, "#258dc2", rectangle, width=2 * CARD_SELECTED_WIDTH)
+        pygame.draw.rect(screen, color, rectangle, width=2 * CARD_SELECTED_WIDTH)
 
-    def __preview_selected_path(self, card, screen):
+    def __preview_selected_path(self, card, screen, rider):
         """
         Preview the selected path on the screen.
 
@@ -292,7 +292,7 @@ class GridGame(entity.Entity):
         None
         """
         # Pega o ponto inicial e final da reta
-        start = pygame.Vector2(self._player._path[-1])  # Converte para Vector2
+        start = pygame.Vector2(rider._path[-1])  # Converte para Vector2
         card_value = pygame.Vector2(card.value[0], -card.value[1])
 
         size_segments = 12  # Defina a distância desejada entre os segmentos da linha tracejada
@@ -302,7 +302,7 @@ class GridGame(entity.Entity):
         for i in range(0, num_segments, 2):
             segment_start = start + card_value * i * DISTANCE / num_segments
             segment_end = start + card_value * (i + 1) * DISTANCE / num_segments
-            pygame.draw.line(screen, self._player._color, segment_start, segment_end, width=5)
+            pygame.draw.line(screen, rider._color, segment_start, segment_end, width=5)
         
     def __validate_click(self):
         """
