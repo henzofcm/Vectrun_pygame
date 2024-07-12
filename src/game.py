@@ -497,3 +497,14 @@ class GridGame(entity.Entity):
         # Se todos que sobraram estiverem vivos, continua a partida
         self._mov_stage -= 1
         self.__next_player_movement()
+
+    def end(self):
+        # Desrotaciona as cartas
+        for rider in self._all_riders:
+            for card in rider._hand:
+                if rider._number == 2:
+                    card.image = pygame.transform.rotate(card.image, -270)
+                elif rider._number == 3:
+                    card.image = pygame.transform.rotate(card.image, -90)
+                elif rider._number == 4:
+                    card.image = pygame.transform.rotate(card.image, -180)

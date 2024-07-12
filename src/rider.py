@@ -280,15 +280,22 @@ class Rider(entity.Entity):
         # Pesca uma nova carta e adiciona à mão
         card = deck.draw_card()
 
-        # Muda o posicionamento da carta a depender do jogador que pescou
-        if self._color == "#ec6716":
-            card.image = pygame.transform.rotate(card.image, 270)
-        elif self._color == "#cb101a":
-            card.image = pygame.transform.rotate(card.image, 90)
-        elif self._color == "#ffb001":
-            card.image = pygame.transform.rotate(card.image, 180)
-
+        # Muda o posicionamento da carta atual e antiga
+        temp_rect = card.rect
         card.rect = self.clicked_card.image.get_rect(topleft=self.clicked_card.rect.topleft)
+        self.clicked_card.rect = temp_rect
+
+        # Gira a carta atual e desrotaciona a antiga
+        if self._number == 2:
+            card.image = pygame.transform.rotate(card.image, 270)
+            self.clicked_card.image = pygame.transform.rotate(self.clicked_card.image, -270)
+        elif self._number == 3:
+            card.image = pygame.transform.rotate(card.image, 90)
+            self.clicked_card.image = pygame.transform.rotate(self.clicked_card.image, -90)
+        elif self._number == 4:
+            card.image = pygame.transform.rotate(card.image, 180)
+            self.clicked_card.image = pygame.transform.rotate(self.clicked_card.image, -180)
+
         self._hand.add(card)
 
         # Remove a carta usada e limpa _clicked_card
@@ -374,6 +381,17 @@ class Rider(entity.Entity):
 
         # Se tiver acabado as linhas, apaga o sprite
         if len(self._path) == 1:
+            # Mas antes desrotaciona as cartas
+            for card in self._hand:
+                if self._number == 2:
+                    card.image = pygame.transform.rotate(card.image, -270)
+                elif self._number == 3:
+                    card.image = pygame.transform.rotate(card.image, -90)
+                elif self._number == 4:
+                    card.image = pygame.transform.rotate(card.image, -180)
+
+                card.rect = card.image.get_rect(topleft=(0, 0))
+            
             self.kill()
             return True
         
