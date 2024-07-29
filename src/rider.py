@@ -96,13 +96,13 @@ class Rider(entity.Entity):
 
             # TODO: mudar posição das cartas do 4º player
             if number == 1:
-                card.rect.topleft = ((WIDTH - GRID_X) / 2 + buff + foo * (buff + CARD_X), GRID_Y + 5)
+                card.image = pygame.transform.rotate(card.image, 90)
+                card.rect = card.image.get_rect(topleft=((WIDTH + GRID_X) / 2 + 50, buff + foo * (buff + CARD_X)))
             elif number == 2:
                 card.image = pygame.transform.rotate(card.image, 270)
                 card.rect = card.image.get_rect(topleft=((WIDTH - GRID_X) / 2 - 50 - CARD_Y, buff + foo * (buff + CARD_X)))
             elif number == 3:
-                card.image = pygame.transform.rotate(card.image, 90)
-                card.rect = card.image.get_rect(topleft=((WIDTH + GRID_X) / 2 + 50, buff + foo * (buff + CARD_X)))
+                card.rect.topleft = ((WIDTH - GRID_X) / 2 + buff + foo * (buff + CARD_X), GRID_Y + 5)
             elif number == 4:
                 card.image = pygame.transform.rotate(card.image, 180)
                 card.rect.topleft = ((WIDTH - GRID_X) / 2 + (1 + foo) * buff, - CARD_Y - 5)
@@ -286,12 +286,12 @@ class Rider(entity.Entity):
         self.clicked_card.rect = temp_rect
 
         # Gira a carta atual e desrotaciona a antiga
-        if self._number == 2:
-            card.image = pygame.transform.rotate(card.image, 270)
-            self.clicked_card.image = pygame.transform.rotate(self.clicked_card.image, -270)
-        elif self._number == 3:
+        if self._number == 1:
             card.image = pygame.transform.rotate(card.image, 90)
             self.clicked_card.image = pygame.transform.rotate(self.clicked_card.image, -90)
+        elif self._number == 2:
+            card.image = pygame.transform.rotate(card.image, 270)
+            self.clicked_card.image = pygame.transform.rotate(self.clicked_card.image, -270)
         elif self._number == 4:
             card.image = pygame.transform.rotate(card.image, 180)
             self.clicked_card.image = pygame.transform.rotate(self.clicked_card.image, -180)
@@ -383,10 +383,10 @@ class Rider(entity.Entity):
         if len(self._path) == 1:
             # Mas antes desrotaciona as cartas
             for card in self._hand:
-                if self._number == 2:
-                    card.image = pygame.transform.rotate(card.image, -270)
-                elif self._number == 3:
+                if self._number == 1:
                     card.image = pygame.transform.rotate(card.image, -90)
+                elif self._number == 2:
+                    card.image = pygame.transform.rotate(card.image, -270)
                 elif self._number == 4:
                     card.image = pygame.transform.rotate(card.image, -180)
 
