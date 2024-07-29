@@ -101,8 +101,9 @@ class GridGame(entity.Entity):
         self._mov_stage = -1
         self._clicked = False
 
-        # Cria o deck
+        # Cria o deck e a carta de seleção
         self._deck = deck
+        self._selected_card = None
 
         # Cria o jogador
         self._player = rider.Player(1, (WIDTH / 2 - 1, GRID_Y / 2 - 2), (RIDER_X, RIDER_Y), self._deck)
@@ -215,6 +216,10 @@ class GridGame(entity.Entity):
         for rider in self._all_riders.sprites():
             pygame.draw.lines(screen, rider._color, False, rider._path + [rider.rect.center], width=6)
 
+        # Desenha a carta selecionada, caso exista
+        if self._selected_card:
+            self._selected_card.draw(screen)
+
         # Desenha o contorno e as cartas
         for rider in self._all_riders:
             self.choice_preview(screen, rider)
@@ -246,14 +251,14 @@ class GridGame(entity.Entity):
         for card in rider._hand.sprites():
             if card.update():
                 # Desenha o contorno
-                self.__preview_selected_card(card, screen, rider._color)
+                self.__preview_selected_card(card, rider._color).draw(screen)
 
                 # Se não houver clicado antes, mostra a trajetória da carta
                 if not self._clicked:
                     self.__preview_selected_path(card, screen, rider)
 
     @staticmethod
-    def __preview_selected_card(card, screen, color):
+    def __preview_selected_card(card, color):
         """
         Draw the outline of the selected card.
 
@@ -272,9 +277,17 @@ class GridGame(entity.Entity):
         rect_pos = (card.rect.left - CARD_SELECTED_WIDTH, card.rect.top - CARD_SELECTED_WIDTH)
         rect_size = (card.rect.width + 2 * CARD_SELECTED_WIDTH, card.rect.height + 2 * CARD_SELECTED_WIDTH)
 
-        rectangle = pygame.Rect(rect_pos, rect_size)
+        # Cria um rect e uma surf para o contorno
+        rect = pygame.Rect(rect_pos, rect_size)
+        surf = pygame.Surface(rect.size)
+        surf.fill(color)
 
-        pygame.draw.rect(screen, color, rectangle, width=2 * CARD_SELECTED_WIDTH)
+        # E retorna o sprite delas
+        selection = pygame.sprite.Sprite()
+        selection.image = surf
+        selection.rect = rect
+
+        return pygame.sprite.Group(selection)
 
     def __preview_selected_path(self, card, screen, rider):
         """
@@ -315,11 +328,18 @@ class GridGame(entity.Entity):
         # Verifica em qual carta clicou
         player_card = self.__card_clicked()
 
-        # Se tiver clicado, prepara o movimento do player
+        # Se tiver clicado, prepara o movimento do player ou seleciona a carta
         if player_card:
-            self._clicked = True
-            self.sound[3].play()
-            self.next_turn(player_card)
+            if self._selected_card:
+                if self._selected_card.sprites()[0].rect.center == player_card.rect.center:
+                    self._clicked = True
+                    self.sound[3].play()
+                    self.next_turn(player_card)
+
+                    return
+            
+            rider = self._all_riders.sprites()[self._mov_stage + 1]
+            self._selected_card = self.__preview_selected_card(player_card, rider._color)
 
     def __card_clicked(self):
         """
@@ -391,6 +411,7 @@ class GridGame(entity.Entity):
 
     def end_move(self):
         self._clicked = False
+        self._selected_card = None
 
         # Para o som do movimento
         self.channel.stop()
@@ -441,6 +462,7 @@ class GridGame(entity.Entity):
         # Testa colisão com a fronteira
         if utilities.check_border_collision(rider.rect.center):
             rider.kill_rider()
+            self._selected_card = None
             self.sound[0].play()
             return
 
@@ -452,12 +474,14 @@ class GridGame(entity.Entity):
             if utilities.check_riders_collision(rider, enemy) and self._game_turn:
                 rider.kill_rider()
                 enemy.kill_rider()
+                self._selected_card = None
                 self.sound[0].play()
                 return
 
         # Testa colisão com as linhas
         if utilities.check_line_collision(self._all_riders, rider) and self._game_turn:
             rider.kill_rider()
+            self._selected_card = None
             self.sound[0].play()
             return
         
