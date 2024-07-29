@@ -64,7 +64,7 @@ class Vectrun:
                     pygame.mixer.music.play(-1, 0, 2)
 
                 if isinstance(self.curr_menu, game.GridGame):
-                    self.curr_menu.end()
+                    self.curr_menu.close()
 
                 self.curr_menu = self.__menus[1]
                 return

@@ -57,7 +57,7 @@ class GridGame(entity.Entity):
         Draw the outline of the selected card.
     __preview_selected_path(card, screen)
         Preview the selected path on the screen.
-    __validate_click(self)
+    validate_click(self)
         Verifies if the player clicked on a card and prepares the player's movement.
     __card_clicked(self)
         Verifies if a card has been clicked by the player.
@@ -116,7 +116,7 @@ class GridGame(entity.Entity):
         self._bots = pygame.sprite.OrderedUpdates(__bot_list[::-1])
 
         # Grupo com todos personagens animados (bots e player)
-        self._all_riders = pygame.sprite.Group((self._player.sprite()), self._bots.sprites()[::-1])
+        self._all_riders = pygame.sprite.OrderedUpdates((self._player.sprite()), self._bots.sprites()[::-1])
 
         # Carrega efeitos sonoros pra memória
         self.volume = volume * 3 / 4
@@ -161,8 +161,8 @@ class GridGame(entity.Entity):
                 
             # Cliques
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 1 and not self._clicked and self._player:
-                    self.__validate_click()
+                if event.button == 1 and not self._clicked:
+                    self.validate_click()
 
             # Animações de movimento
             for rider in self._all_riders:
@@ -304,7 +304,7 @@ class GridGame(entity.Entity):
             segment_end = start + card_value * (i + 1) * DISTANCE / num_segments
             pygame.draw.line(screen, rider._color, segment_start, segment_end, width=5)
         
-    def __validate_click(self):
+    def validate_click(self):
         """
         Verifies if the player clicked on a card and prepares the player's movement.
 
@@ -319,7 +319,7 @@ class GridGame(entity.Entity):
         if player_card:
             self._clicked = True
             self.sound[3].play()
-            self.__next_player_movement(player_card)
+            self.next_turn(player_card)
 
     def __card_clicked(self):
         """
@@ -329,8 +329,11 @@ class GridGame(entity.Entity):
         -------
             Card or None: The clicked card if found, None otherwise.
         """
-        # Se o jogador clicar na carta, _clicked = True
-        for card in self._player._hand.sprites():
+
+        rider = self._all_riders.sprites()[self._mov_stage + 1]
+        
+        # Se o jogador da vez clicar na carta, _clicked = True
+        for card in rider._hand.sprites():
             if card.update():
                 return card
 
@@ -359,7 +362,7 @@ class GridGame(entity.Entity):
             return
         # Se ficou parado, reseta o movimento
         else:
-            self.__next_player_movement()
+            self.end_move()
 
     def __end_turn(self):
         """
@@ -374,65 +377,35 @@ class GridGame(entity.Entity):
         self._clicked = False
         self._mov_stage = -1
 
-        # Quando o jogador estiver morto pula sua vez
-        if not self._player:
-            self._mov_stage += 1
-            self._clicked = True
-
-        # Para o som do movimento
-        self.channel.stop()
-
-    def __next_player_movement(self, card=None):
-        """
-        Perform the movement of the next player in the game.
-
-        Parameters
-        ----------
-        card : Card, optional
-            The card chosen by the player. Defaults to None.
-
-        Returns
-        -------
-            None
-
-        Notes
-        -----
-        This method is responsible for advancing the game to the next player's movement.
-        If all players have completed their movements, the turn ends.
-        In the rare case of a collision on the first turn, a special action is triggered.
-        If the player is not alive, the bots will play among themselves.
-        If all players are dead, the method returns without further actions.
-        """
+    def next_turn(self, card):
         self._mov_stage += 1
 
-        # Se todos jogadores tiverem se movimentado, acaba o turno
-        if self._mov_stage == len(self._all_riders):
-            self.__end_turn()
-
-            # No raro caso de colidirem no primeiro turno
-            if self._game_turn == 1:
-                self.__first_turn_collision()
-
-            # Quando o jogador não estiver vivo os bots jogarão entre si
-            if self._player:
-                return
-            
-            # Se todos morrerem também retorna
-            if not self._all_riders:
-                return
-            
-        # Caso contrário, prepara o jogo para rodar mais uma animação
+        # Prepara o jogo para rodar mais uma animação
         next_player = self._all_riders.sprites()[self._mov_stage]
-
-        # Se não tiver passado uma carta, faz o rider escolher (em geral um bot)
-        if not card:
-            card = next_player.choose_card(self._all_riders)
 
         # Atualiza o estado do próximo jogador
         next_player.select_card(card)
 
         # Toca o som de movimento indefinidamente
         self.channel.play(self.sound[1], -1)
+
+    def end_move(self):
+        self._clicked = False
+
+        # Para o som do movimento
+        self.channel.stop()
+
+        # Se todos jogadores tiverem se movimentado, acaba o turno
+        if self._mov_stage + 1 == len(self._all_riders):
+            self.__end_turn()
+
+            # No raro caso de colidirem no primeiro turno
+            if self._game_turn == 1:
+                self.__first_turn_collision()
+    
+        #Se todos morrerem também retorna
+        if not self._all_riders:
+            return
 
     def __first_turn_collision(self):
         """
@@ -492,13 +465,17 @@ class GridGame(entity.Entity):
         # Termina a rodada se não houver mais nenhuma animação ocorrendo
         for rider in self._all_riders.sprites():
             if not rider.state_alive:
+                # É possível o jogador atual matar um anterior (TODO)
+                if rider._number < self._mov_stage + 1:
+                    self._mov_stage -= 1
+                
                 return
 
         # Se todos que sobraram estiverem vivos, continua a partida
         self._mov_stage -= 1
-        self.__next_player_movement()
+        self.end_move()
 
-    def end(self):
+    def close(self):
         # Desrotaciona as cartas
         for rider in self._all_riders:
             for card in rider._hand:
