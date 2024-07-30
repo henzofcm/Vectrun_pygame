@@ -331,6 +331,7 @@ class GridGame(entity.Entity):
         # Se tiver clicado, prepara o movimento do player ou seleciona a carta
         if player_card:
             if self._selected_card:
+                # Se tiver escolhido a mesma carta que selecionou
                 if self._selected_card.sprites()[0].rect.center == player_card.rect.center:
                     self._clicked = True
                     self.sound[3].play()
