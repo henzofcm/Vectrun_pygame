@@ -11,8 +11,8 @@ CARDS_PATH = TEXTURE_PATH + "cards\\"
 RIDER_PATH = TEXTURE_PATH + "rider\\"
 
 # Tamanho da tela
-WIDTH = 1536
-HEIGHT = 864
+WIDTH = 1600
+HEIGHT = 900
 FULLSCREEN = False
 
 # Tamanho do tabuleiro
@@ -25,8 +25,8 @@ RIDER_X = 50
 RIDER_Y = 25
 
 # Tamanho da carta
-CARD_X = 150
-CARD_Y = 100
+CARD_X = 120
+CARD_Y = 80
 CARD_SELECTED_WIDTH = 5
 
 # Tamanho da logo
@@ -34,8 +34,8 @@ LOGO_X = 810
 LOGO_Y = 180
 
 # Tamanho do botão
-BUTTON_X = 270
-BUTTON_Y = 60
+BUTTON_X = 216
+BUTTON_Y = 98
 BUTTON_SELECTED_WIDTH = 2
 
 # Distância, em pixels, de cada vértice do tabuleiro

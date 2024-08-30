@@ -11,7 +11,7 @@ class Vectrun:
 
     def __init__(self):
         # Cria a tela do jogo
-        self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
+        self.screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN)
         pygame.display.set_caption("Vectrun")
         pygame.display.set_icon(pygame.image.load(TEXTURE_PATH + "icon.png"))
 
@@ -26,7 +26,7 @@ class Vectrun:
 
         # TODO
         self.running = True
-        self.bot_num = 3
+        self.bot_num = 2
 
     def play(self):
         # Loop principal
@@ -83,9 +83,9 @@ class Vectrun:
 
                 self.__deck.reshuffle()
                 self.__menus[4] = game.GridGame(
-                    TEXTURE_PATH + "grid.png",
-                    ((WIDTH - GRID_X) / 2, 0),
-                    (GRID_X, GRID_Y),
+                    TEXTURE_PATH + "tabuleiro.png",
+                    (0, 0),
+                    (WIDTH, HEIGHT),
                     self.bot_num,
                     self.volume,
                     self.__deck
@@ -116,9 +116,9 @@ class Vectrun:
         self.__menus = [0, 0, 0, 0, 0, 0, 0, 0, 0]
 
         self.__menus[1] = menu.MainMenu(
-                    (TEXTURE_MENU_PATH + "vectrun_logo.png"),
-                    (WIDTH / 2, HEIGHT / 5),
-                    (LOGO_X, LOGO_Y),
+                    (TEXTURE_MENU_PATH + "main_logo.png"),
+                    (WIDTH / 2, HEIGHT / 2),
+                    (WIDTH, HEIGHT),
                 )
 
         self.__menus[2] = menu.TutorialScreen(

@@ -195,47 +195,38 @@ class MainMenu(Menu):
     def __init__(self, image_path, x_y, scale_size):
         super().__init__(image_path, x_y, scale_size)
 
-        # Cria o "botão" de seleção
-        font = pygame.font.Font(FONTS_PATH + "DOSVGA2.ttf", 30)
-        self.__selected = font.render("> ", True, WHITE)
-
-        # Muda o titulo
-        self.image = font.render("SolarOS 4.0.1 Generic_50203-02 sun4m i386 Unknown.Unknown", True, WHITE)
-        self.rect.left = 50
-
-        # E extras
-        self.__pretitle = font.render("Vectrun:\> dir", True, WHITE)
+        # Adiciona o background
+        self.background = entity.Entity(TEXTURE_MENU_PATH + "background.png", (0, 0), (WIDTH, HEIGHT))
 
         # Define os botões dessa tela
+        pos_x = WIDTH*0.27 + BUTTON_X / 2
+        pos_y =  HEIGHT*0.8 + BUTTON_Y / 2
+        buff = 0.0243 * WIDTH
+
         btn_the_grid = Button(
-            "grid.exe",
-            (100, HEIGHT / 2),
+            TEXTURE_MENU_PATH + "jogar_logo.png",
+            (pos_x, pos_y),
             (BUTTON_X, BUTTON_Y),
             4,
         )
         btn_tutorial = Button(
-            "tutorial.txt",
-            (100, HEIGHT / 2 + 100),
+            TEXTURE_MENU_PATH + "tutorial_logo.png",
+            (btn_the_grid.rect.right + CARD_X + buff, pos_y),
             (BUTTON_X, BUTTON_Y),
             2,
         )
         btn_options = Button(
-            "options.txt",
-            (100, HEIGHT / 2 + 200),
+            TEXTURE_MENU_PATH + "opcoes_logo.png",
+            (btn_tutorial.rect.right + CARD_X + buff, pos_y),
             (BUTTON_X, BUTTON_Y),
             3,
         )
         btn_credits = Button(
-            "credits.txt",
-            (100, HEIGHT / 2 + 300),
+            TEXTURE_MENU_PATH + "creditos_logo.png",
+            (WIDTH*0.817 + CARD_X / 2, HEIGHT*0.037 + CARD_Y / 2),
             (BUTTON_X, BUTTON_Y),
             8,
         )
-
-        btn_credits.rect.left = 80
-        btn_options.rect.left = 80
-        btn_tutorial.rect.left = 80
-        btn_the_grid.rect.left = 80
 
         # Adiciona os botões a um grupo
         self.buttons_group = pygame.sprite.Group(
@@ -243,15 +234,12 @@ class MainMenu(Menu):
         )
 
     def draw(self, screen):
-        # Exibe o logo do jogo
+        # Exibe o background e a logo do jogo
+        screen.blit(self.background.image, self.background.rect)
         screen.blit(self.image, self.rect)
-        screen.blit(self.__pretitle, (50, HEIGHT/2 - 100))
 
         # Insere os botões na tela
         self.buttons_group.draw(screen)
-
-        # Desenha o contorno
-        self.choice_preview(screen)
 
     def update(self):
         # Loop dos eventos principais
@@ -269,10 +257,6 @@ class MainMenu(Menu):
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     return self._validate_click()
-
-    def _preview_selected_button(self, button, screen):
-        # Desenha > atrás da seleção
-        screen.blit(self.__selected, (button.rect.left - 35, button.rect.top))
 
 
 class OptionsMenu(Menu):
