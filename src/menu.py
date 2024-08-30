@@ -338,15 +338,15 @@ class OptionsMenu(Menu):
         self.btn_fs = Button(TEXTURE_MENU_PATH + "square_full.png", (vol_position[2][0], vol_y + vol_space), (50, 50), 0)
 
         self.bot_buttons_group = pygame.sprite.Group()
-        btn_bot_1 = Button("1", (vol_position[0][0], vol_y + 2 * vol_space), (50, 50), 1)
-        btn_bot_2 = Button("2", (vol_position[1][0], vol_y + 2 * vol_space), (50, 50), 2)
-        btn_bot_3 = Button("3", (vol_position[2][0], vol_y + 2 * vol_space), (50, 50), 3)
+        btn_bot_2 = Button("2", (vol_position[1][0], vol_y + 2 * vol_space), (50, 50), 1)
+        btn_bot_3 = Button("3", (vol_position[2][0], vol_y + 2 * vol_space), (50, 50), 2)
+        btn_bot_4 = Button("4", (vol_position[3][0], vol_y + 2 * vol_space), (50, 50), 3)
         self.btn_select = Button(TEXTURE_MENU_PATH + "square_empty.png", btn_bot_3.rect.center, (50, 50), 1)
 
         # Adiciona os botões a um grupo
         self.options_group.add(volume_logo)
         self.buttons_group.add(self.btn_back)
-        self.bot_buttons_group.add(btn_bot_1, btn_bot_2, btn_bot_3)
+        self.bot_buttons_group.add(btn_bot_2, btn_bot_3, btn_bot_4)
         self.more_buttons_group.add(self.btn_fs, self.btn_select)
 
         self.volume_group = pygame.sprite.Group()
@@ -817,7 +817,6 @@ class LoadingScreen(Menu):
 
     def __init__(self, image_path, x_y, scale_size, state):
         super().__init__(image_path, x_y, scale_size)
-        self.rect = self.image.get_rect(topleft=x_y)
         self.__state = state
 
         # Configura a fonte e o texto inicial
@@ -825,23 +824,15 @@ class LoadingScreen(Menu):
         self.__text = "Loading"
 
         # Cria um evento para a animação
-        self.__clock = pygame.USEREVENT + 5
-        pygame.time.set_timer(self.__clock, 8, 125)
-
-        # Carrega o rider
-        self.__rider = entity.Entity(RIDER_PATH + "rider_1.png", (0, 0), (RIDER_X * 0.6, RIDER_Y * 0.6))
-        self.__rider.rect.center = (-30, HEIGHT * 0.9 - RIDER_Y * 0.6)
+        self.__clock = pygame.event.custom_type()
+        pygame.time.set_timer(self.__clock, 500, 5)
     
     def draw(self, screen):
         # Mostra a logo desta tela
-        screen.blit(self.image, self.rect)
+        screen.fill((0, 0, 0))
 
         # Desenha o texto
-        self.draw_text(self.__text, WIDTH * 0.72, HEIGHT * 0.9, screen)
-
-        # Desenha o rider e sua linha
-        pygame.draw.line(screen, "#258dc2", (-30, HEIGHT * 0.9 - RIDER_Y * 0.6), self.__rider.rect.center, 3)
-        screen.blit(self.__rider.image, self.__rider.rect)
+        self.draw_text(self.__text, WIDTH * 0.05, HEIGHT * 0.9, screen)
 
     def update(self):
         # Loop dos eventos principais
@@ -850,21 +841,13 @@ class LoadingScreen(Menu):
             if event.type == pygame.QUIT:
                 return -1
             
-            # Atualiza a animação
+            # Atualiza o texto
             if event.type == self.__clock:
-                self.__rider.rect.centerx += 2
+                self.__text += "."
 
         # Quando tiver acabado a animação, carrega o jogo
-        if self.__rider.rect.centerx == 220:
+        if self.__text.endswith("....."):
             self.__state._load()
-            self.__rider.rect.centerx += 2
-
-        # Quando acabar o loading, termina a animação
-        if self.__rider.rect.centerx == 222:
-            pygame.time.set_timer(self.__clock, 5, 800)
-
-        # Quando acabar a animação, troca de tela
-        if self.__rider.rect.left > WIDTH + 10:
             return 1
 
         return 0
