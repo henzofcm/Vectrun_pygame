@@ -461,106 +461,42 @@ class TutorialScreen(Menu):
         super().__init__(image_path, x_y, scale_size)
 
         # Atributos de interesse
-        self.__page = 1
-        self.__page_num = 3
-        self.__font_size = 19
-
-        # Variáveis de posicionamento
-        self.__size = 200
-        self.__img_x = WIDTH / 2 - self.__size / 2
-        self.__img_y = 360
-        self.__space = 120
-
-        # Define a fonte a ser usada
-        self.font_name = FONTS_PATH + "tron.ttf"
+        self._page = 1
+        self.__page_num = 2
 
         # Carrega as imagens que serão usadas
-        img_wall = entity.Entity(
-            IMG_MANUAL_PATH + "collision_with_side_walls.png",
-            (self.__img_x - self.__size - self.__space, self.__img_y),
-            (self.__size, self.__size),
-        )
-        img_moto = entity.Entity(
-            IMG_MANUAL_PATH + "intersection_with_motorcycle.png",
-            (self.__img_x, self.__img_y),
-            (self.__size, self.__size),
-        )
-        img_line = entity.Entity(
-            IMG_MANUAL_PATH + "intersection_with_the_line.png",
-            (self.__img_x + self.__size + self.__space, self.__img_y),
-            (self.__size, self.__size),
-        )
-
-        self.__imgs = pygame.sprite.Group(img_moto, img_line, img_wall)
+        self.page_1 = entity.Entity(TEXTURE_MENU_PATH + "tutorial_1.png", (0, 0), (WIDTH, HEIGHT))
+        self.page_2 = entity.Entity(TEXTURE_MENU_PATH + "tutorial_2.png", (0, 0), (WIDTH, HEIGHT))
 
         # Define os botões dessa tela
         self.btn_right = Button(
             TEXTURE_MENU_PATH + "right_arrow.png",
-            (WIDTH - 70, HEIGHT / 2),
-            (60, 60),
+            (WIDTH * 9 / 10, HEIGHT / 2),
+            (WIDTH / 5, HEIGHT),
             21,
         )
         self.btn_left = Button(
             TEXTURE_MENU_PATH + "left_arrow.png",
-            (70, HEIGHT / 2),
-            (60, 60),
+            (WIDTH / 10, HEIGHT / 2),
+            (WIDTH / 5, HEIGHT),
             20,
         )
 
-        self.btn_back = Button(
-            TEXTURE_MENU_PATH + "back_button.png",
-            (WIDTH / 2, HEIGHT - 80),
-            (BUTTON_X, BUTTON_Y),
-            1,
-        )
-
         # Adiciona os botões a um grupo
-        self.buttons_group.add(self.btn_back, self.btn_right)
+        self.buttons_group.add(self.btn_left, self.btn_right)
 
     def draw(self, screen):
-        # Exibe a logo e os botões principais
-        screen.blit(self.image, self.rect)
+        # Botões
         self.buttons_group.draw(screen)
 
         # Telas de tutorial
-        if self.__page == 1:
-            self.__draw_text(
-                txt.txt_regra_1, self.__font_size, WIDTH / 2, 210, 55, screen
-            )
-            self.__draw_text(
-                txt.txt_regra_2, self.__font_size, WIDTH / 2, 440, 55, screen
-            )
-        elif self.__page == 2:
-            self.__draw_text(
-                txt.txt_regra_3, self.__font_size, WIDTH / 2, 210, 55, screen
-            )
-            self.__draw_text(
-                txt.txt_regra_4, self.__font_size, WIDTH / 2, 440, 55, screen
-            )
-        else:
-            new_y = self.__img_y - 60
-            new_x = self.__img_x + self.__size / 2
-            new_space = self.__space + self.__size
-
-            self.__draw_text(
-                txt.txt_regra_5, self.__font_size, WIDTH / 2, 210, 55, screen
-            )
-            self.__draw_text(
-                txt.txt_collision_1, self.__font_size, new_x - new_space, new_y, 12, screen
-            )
-            self.__draw_text(txt.txt_collision_2, self.__font_size, new_x, new_y, 12, screen)
-            self.__draw_text(
-                txt.txt_collision_3, self.__font_size, new_x + new_space, new_y, 12, screen
-            )
-
-            # Imagens de colisões
-            self.__imgs.draw(screen)
+        if self._page == 1:
+            screen.blit(self.page_1.image, self.page_1.rect)
+        elif self._page == 2:
+            screen.blit(self.page_2.image, self.page_2.rect)
 
         # Exibe o número da página
-        self.__draw_text(str(self.__page), 30, WIDTH - 100, HEIGHT - 75, 20,screen)
-
-        # Desenha o contorno
-        self.choice_preview(screen)
+        self.__draw_text(str(self._page), 40, WIDTH - 100, HEIGHT - 65, 20,screen)
 
     def update(self):
         # Loop dos eventos principais
@@ -574,12 +510,19 @@ class TutorialScreen(Menu):
                 if event.key == pygame.K_ESCAPE:
                     return 1
                 
+                # Verifica se saiu do menu
+                if event.key == pygame.K_RIGHT and self._page == self.__page_num:
+                    return 1
+                
+                if event.key == pygame.K_LEFT and self._page == 1:
+                    return 1
+                
                 # RIGHT
-                if event.key == pygame.K_RIGHT and self.__page < self.__page_num:
+                if event.key == pygame.K_RIGHT and self._page < self.__page_num:
                     self.__change_page(True)
 
                 # LEFT
-                if event.key == pygame.K_LEFT and self.__page > 1:
+                if event.key == pygame.K_LEFT and self._page > 1:
                     self.__change_page(False)
 
             # Clique dos botões
@@ -595,43 +538,32 @@ class TutorialScreen(Menu):
             if button.update():
                 # Se clicar para a direita
                 if button.value == 21:
-                    self.__change_page(True)
-                    return 0
+                    return self.__change_page(True)
 
                 # Se clicar para a esquerda
                 if button.value == 20:
-                    self.__change_page(False)
-                    return 0
-
-                # Se tiver sido nenhum, retorna
-                return button.value
+                    return self.__change_page(False)
 
     def __change_page(self, right=True):
-        # Adiciona o botão esquerdo para exibi-lo se necessário
-        if self.__page == 1:
-            self.buttons_group.add(self.btn_left)
-
-        # Adiciona o botão direito para exibi-lo se necessário
-        if self.__page == self.__page_num:
-            self.buttons_group.add(self.btn_right)
-
         # Clique para a direita
-        if self.__page < self.__page_num and right:
+        if self._page < self.__page_num and right:
             # Muda de página
-            self.__page += 1
-
-            # Remove o botão direito para deixar de exibi-lo se atingir a última página
-            if self.__page == self.__page_num:
-                self.buttons_group.remove(self.btn_right)
+            self._page += 1
+            return 0
 
         # Clique para a esquerda
-        if self.__page >= 2 and not right:
+        if self._page >= 2 and not right:
             # Muda a página
-            self.__page -= 1
+            self._page -= 1
+            return 0
 
-            # Remove o botão esquerdo para deixar de exibi-lo
-            if self.__page == 1:
-                self.buttons_group.remove(self.btn_left)
+        # Caso saia do menu pela direita
+        if self._page == self.__page_num and right:
+            return 1
+        
+        # Caso saia do menu pela esquerda
+        if self._page == 1 and not right:
+            return 1
 
     def __draw_text(self, text, size, x, y, max_line_length, screen):
         # Cria o texto separado em linhas de uma lista
@@ -716,8 +648,8 @@ class CreditsMenu(Menu):
         # Define os botões dessa tela
         btn_back = Button(
             TEXTURE_MENU_PATH + "back_button.png",
-            (WIDTH / 2, (HEIGHT - 100)),
-            (BUTTON_X, BUTTON_Y),
+            (WIDTH / 2, HEIGHT - BUTTON_Y / 2),
+            (BUTTON_X + 46, BUTTON_Y),
             1,
         )
 
@@ -730,51 +662,6 @@ class CreditsMenu(Menu):
 
         # Insere os botões na tela:
         self.buttons_group.draw(screen)
-
-        # Define variáveis com valores recorrentes no menu
-        font_size = [20, 24, 30]
-        space_size = [40, 30]
-        txt_x = WIDTH / 2
-        txt_y = HEIGHT / 4 + 20
-
-        # Desenha os textos na tela
-        self.draw_text("VECTRUN", font_size[2], txt_x, txt_y, screen)
-        self.draw_text(
-            "Art, concept and design",
-            font_size[1],
-            txt_x,
-            (txt_y + 2 * space_size[0]), screen
-        )
-        self.draw_text(
-            "Tulio Konecny",
-            font_size[0],
-            txt_x,
-            (txt_y + 3 * space_size[0]), screen
-        )
-        self.draw_text(
-            "Programming",
-            font_size[1],
-            txt_x,
-            (txt_y + 5 * space_size[0]), screen
-        )
-        self.draw_text(
-            "Beatriz Miranda Bezerra",
-            font_size[0],
-            txt_x,
-            (txt_y + 6 * space_size[0]), screen
-        )
-        self.draw_text(
-            "Gustavo Murilo Cavalcante Carvalho",
-            font_size[0],
-            txt_x,
-            (txt_y + 7 * space_size[0]), screen
-        )
-        self.draw_text(
-            "Henzo Felipe Carvalho de Mattos",
-            font_size[0],
-            txt_x,
-            (txt_y + 8 * space_size[0]), screen
-        )
 
         # Desenha o contorno
         self.choice_preview(screen)

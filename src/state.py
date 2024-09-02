@@ -19,7 +19,7 @@ class Vectrun:
         self.fps_clock = pygame.time.Clock()
 
         # Define a tela inicial
-        self.curr_menu = menu.LoadingScreen(TEXTURE_MENU_PATH + "loading2.jpg", (0, 0), (WIDTH, HEIGHT), self)
+        self.curr_menu = menu.LoadingScreen(TEXTURE_MENU_PATH + "foo.png", (0, 0), (WIDTH, HEIGHT), self)
 
         # Salva o volume
         self.volume = VOLUME_START
@@ -66,6 +66,9 @@ class Vectrun:
                 if isinstance(self.curr_menu, game.GridGame):
                     self.curr_menu.close()
 
+                if isinstance(self.curr_menu, menu.TutorialScreen):
+                    self.curr_menu._page = 1
+
                 self.curr_menu = self.__menus[1]
                 return
             # Tutorial
@@ -83,9 +86,9 @@ class Vectrun:
 
                 self.__deck.reshuffle()
                 self.__menus[4] = game.GridGame(
-                    TEXTURE_PATH + "tabuleiro.png",
-                    (0, 0),
-                    (WIDTH, HEIGHT),
+                    TEXTURE_PATH + "grid.png",
+                    ((WIDTH - GRID_X) / 2, (HEIGHT - GRID_Y) / 2),
+                    (GRID_X, GRID_Y),
                     self.bot_num,
                     self.volume,
                     self.__deck
@@ -122,9 +125,9 @@ class Vectrun:
                 )
 
         self.__menus[2] = menu.TutorialScreen(
-                    (TEXTURE_MENU_PATH + "tutorial_button.png"),
-                    (WIDTH / 2, HEIGHT / 6 - 50),
-                    (2 * BUTTON_X, 2 * BUTTON_Y),
+                    (TEXTURE_MENU_PATH + "foo.png"),
+                    (0, 0),
+                    (32, 32),
                 )
         
         self.__menus[3] = menu.OptionsMenu(
@@ -135,23 +138,23 @@ class Vectrun:
                 )
         
         self.__menus[5] = menu.ResultScreen(
-                    (TEXTURE_MENU_PATH + "you_win.png"),
+                    (TEXTURE_MENU_PATH + "win_button.png"),
                     (WIDTH / 2, HEIGHT / 5),
                     (LOGO_X, LOGO_Y),
                 )
         
         self.__menus[6] = menu.ResultScreen(
-                    (TEXTURE_MENU_PATH + "you_lose.png"),
+                    (TEXTURE_MENU_PATH + "lose_button.png"),
                     (WIDTH / 2, HEIGHT / 5),
                     (LOGO_X, LOGO_Y),
                 )
         
         self.__menus[8] = menu.CreditsMenu(
-                    (TEXTURE_MENU_PATH + "credits_button.png"),
-                    (WIDTH / 2, (HEIGHT / 6 - 50)),
-                    (2 * BUTTON_X, 2 * BUTTON_Y),
+                    (TEXTURE_MENU_PATH + "creditos.png"),
+                    (WIDTH / 2, HEIGHT / 2),
+                    (WIDTH, HEIGHT),
                 )
-        
+
 
     def __load_deck(self):
         # Cria o deck
