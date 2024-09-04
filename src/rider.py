@@ -399,10 +399,11 @@ class Rider(entity.Entity):
 
                 card.rect = card.image.get_rect(topleft=(0, 0))
             
+            num = self._number
             self.kill()
-            return True
+            return num
         
-        return False
+        return 0
 
     def __remove_rider(self):
         # Esconde a imagem da animação

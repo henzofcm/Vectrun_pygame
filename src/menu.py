@@ -275,7 +275,7 @@ class OptionsMenu(Menu):
         self.btn_back = Button(
             TEXTURE_MENU_PATH + "back_button.png",
             (WIDTH / 2, HEIGHT - BUTTON_Y / 2),
-            (BUTTON_X + 46, BUTTON_Y),
+            (BUTTON_Y * 2.6742, BUTTON_Y),
             1,
         )
         self.btn_vol_1 = Button(
@@ -645,7 +645,7 @@ class CreditsMenu(Menu):
         btn_back = Button(
             TEXTURE_MENU_PATH + "back_button.png",
             (WIDTH / 2, HEIGHT - BUTTON_Y / 2),
-            (BUTTON_X + 46, BUTTON_Y),
+            (BUTTON_Y * 2.6742, BUTTON_Y),
             1,
         )
 

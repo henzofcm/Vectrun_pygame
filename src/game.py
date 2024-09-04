@@ -99,6 +99,26 @@ class GridGame(entity.Entity):
         self.table = entity.Entity(TEXTURE_PATH + "table_" + str(bot_number + 1) + ".png", (0, 0), (WIDTH, HEIGHT))
         self.border = entity.Entity(TEXTURE_PATH + "border.png", (0, 0), (WIDTH, HEIGHT))
 
+        # Carrega os botões de vitória/derrota
+        self.__dead = [0, 0, 0, 0]
+        self.__lose_group = pygame.sprite.OrderedUpdates()
+
+        for x in range(4):
+            if x == 0:
+                lose_button = entity.Entity(TEXTURE_MENU_PATH + "lose_button.png", (WIDTH * 0.089 + CARD_Y, 3 * HEIGHT * 0.037 / 2 + CARD_X), (BUTTON_Y * 1.5564, BUTTON_Y))
+                lose_button.image = pygame.transform.rotate(lose_button.image, 270)
+            elif x == 1:
+                lose_button = entity.Entity(TEXTURE_MENU_PATH + "lose_button.png", (WIDTH - 2 * CARD_Y - WIDTH * 0.089, 3 * HEIGHT * 0.037 / 2 + CARD_X), (BUTTON_Y * 1.5564, BUTTON_Y))
+                lose_button.image = pygame.transform.rotate(lose_button.image, 90)
+            elif x == 2:
+                lose_button = entity.Entity(TEXTURE_MENU_PATH + "lose_button.png", (WIDTH * 0.089 + CARD_Y, HEIGHT * 0.537 + CARD_X), (BUTTON_Y * 1.5564, BUTTON_Y))
+                lose_button.image = pygame.transform.rotate(lose_button.image, 270)
+            elif x == 3:
+                lose_button = entity.Entity(TEXTURE_MENU_PATH + "lose_button.png", (WIDTH - 2 * CARD_Y - WIDTH * 0.089, HEIGHT * 0.537 + CARD_X), (BUTTON_Y * 1.5564, BUTTON_Y))
+                lose_button.image = pygame.transform.rotate(lose_button.image, 90)
+
+            self.__lose_group.add(lose_button)
+
         # Atributos para o estado do jogo
         self._game_turn = 0
         self._mov_stage = -1
@@ -107,6 +127,7 @@ class GridGame(entity.Entity):
         # Cria o deck e a carta de seleção
         self._deck = deck
         self._selected_card = None
+        self._drawn_card = entity.Entity(TEXTURE_MENU_PATH + "foo.png", (0, 0), (32, 32))
 
         # Cria o jogador
         self._player = rider.Player(1, (WIDTH / 2, HEIGHT / 2), (RIDER_X, RIDER_Y), self._deck)
@@ -194,8 +215,10 @@ class GridGame(entity.Entity):
         for rider in self._all_riders:
             if not rider.state_alive:
                 # Quando acabar continua a rodada
-                if rider.update_death():
-                    self.__end_death()
+                dead_num = rider.update_death()
+
+                if dead_num:
+                    self.__end_death(dead_num)
 
         return 0
 
@@ -225,11 +248,20 @@ class GridGame(entity.Entity):
         # Desenha a carta selecionada, caso exista
         if self._selected_card:
             self._selected_card.draw(screen)
+            
+            if self._clicked:
+                screen.blit(self._drawn_card.image, self._drawn_card.rect)
 
         # Desenha o contorno e as cartas
         for rider in self._all_riders:
             self.choice_preview(screen, rider)
             rider._hand.draw(screen)
+
+        # Caso alguém tenha morrido
+        for idx, num in enumerate(self.__dead):
+            if num:
+                button = self.__lose_group.sprites()[idx]
+                screen.blit(button.image, button.rect)
 
         # Faz blit no jogador e nos bots
         self._bots.draw(screen)
@@ -342,6 +374,20 @@ class GridGame(entity.Entity):
                     self._clicked = True
                     self.sound[3].play()
                     self.next_turn(player_card)
+
+                    # Salva a imagem da carta clicada rotacionada
+                    self._drawn_card.image = pygame.transform.rotate(player_card.image, 180)
+                    player_num = self._all_riders.sprites()[self._mov_stage]._number
+                    
+                    # E posiciona para que seja possível os demais jogadores verem
+                    if player_num == 1:
+                        self._drawn_card.rect.topleft = (WIDTH * 0.089 + CARD_Y, 3 * HEIGHT * 0.037 / 2 + CARD_X)
+                    elif player_num == 2:
+                        self._drawn_card.rect.topleft = (WIDTH - 2 * CARD_Y - WIDTH * 0.089, 3 * HEIGHT * 0.037 / 2 + CARD_X)
+                    elif player_num == 3:
+                        self._drawn_card.rect.topleft = (WIDTH * 0.089 + CARD_Y, HEIGHT * 0.537 + CARD_X)
+                    elif player_num == 4:
+                        self._drawn_card.rect.topleft = (WIDTH - 2 * CARD_Y - WIDTH * 0.089, HEIGHT * 0.537 + CARD_X)
 
                     return
             
@@ -492,7 +538,10 @@ class GridGame(entity.Entity):
             self.sound[0].play()
             return
         
-    def __end_death(self):
+    def __end_death(self, dead_num):
+        # Atualiza a lista de mortos
+        self.__dead[dead_num - 1] = 1
+        
         # Termina a rodada se não houver mais nenhuma animação ocorrendo
         for rider in self._all_riders.sprites():
             if not rider.state_alive:
