@@ -1,5 +1,6 @@
 import pygame
 import sys
+import pickle
 
 import entity
 import rider
@@ -100,6 +101,9 @@ class GridGame(entity.Entity):
         self.table = entity.Entity(TEXTURE_PATH + "table_" + str(bot_number + 1) + ".png", (0, 0), (WIDTH, HEIGHT))
         self.border = entity.Entity(TEXTURE_PATH + "border.png", (0, 0), (WIDTH, HEIGHT))
         self.btn_back = Button(TEXTURE_MENU_PATH + "back_button.png", (WIDTH / 2, BUTTON_Y / 4), (BUTTON_Y * 2.6742 / 2, BUTTON_Y / 2), 1)
+
+        # Lê o arquivo do score
+        self.__win_list = pickle.load(open('score.pkl', 'rb'))
 
         # Carrega o botão de vitória e os de derrota
         self.__win = None
@@ -211,15 +215,23 @@ class GridGame(entity.Entity):
             self.__win.image = pygame.transform.rotate(self.__win.image, 270)
 
             # E então altera o botão de quem ganhou
-            if self._all_riders.sprites()[0]._number == 2:
+            if self._all_riders.sprites()[0]._number == 1:
+                self.__win_list[0] += 1
+            elif self._all_riders.sprites()[0]._number == 2:
+                self.__win_list[1] += 1
                 self.__win.rect.left = WIDTH - 2 * CARD_Y - WIDTH * 0.089
                 self.__win.image = pygame.transform.rotate(self.__win.image, 180)
             elif self._all_riders.sprites()[0]._number == 3:
+                self.__win_list[2] += 1
                 self.__win.rect.top = HEIGHT * 0.537 + CARD_X
             elif self._all_riders.sprites()[0]._number == 4:
-                self.__win.image = pygame.transform.rotate(self.__win.image, 180)
+                self.__win_list[3] += 1
                 self.__win.rect.left = WIDTH - 2 * CARD_Y - WIDTH * 0.089
                 self.__win.rect.top = HEIGHT * 0.537 + CARD_X
+                self.__win.image = pygame.transform.rotate(self.__win.image, 180)
+
+            # Salva o score em um arquivo
+            pickle.dump(self.__win_list, open('score.pkl', 'wb'))
 
         # Se tiver clicado, roda o movimento do jogador ou dos bots e testa colisão
         if self._clicked and self._all_riders and not self.__win:
