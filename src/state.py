@@ -76,6 +76,12 @@ class Vectrun:
                 return
             # Tutorial
             case 2:
+                self.__menus[2] = menu.TutorialScreen(
+                    (TEXTURE_MENU_PATH + "foo.png"),
+                    (0, 0),
+                    (32, 32),
+                    self.bot_num
+                )
                 self.curr_menu = self.__menus[2]
                 return
             # Opções
@@ -131,6 +137,7 @@ class Vectrun:
                     (TEXTURE_MENU_PATH + "foo.png"),
                     (0, 0),
                     (32, 32),
+                    self.bot_num
                 )
         
         self.__menus[3] = menu.OptionsMenu(

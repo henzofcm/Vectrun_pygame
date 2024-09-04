@@ -453,16 +453,17 @@ class OptionsMenu(Menu):
 
 class TutorialScreen(Menu):
 
-    def __init__(self, image_path, x_y, scale_size):
+    def __init__(self, image_path, x_y, scale_size, bot_num):
         super().__init__(image_path, x_y, scale_size)
 
         # Atributos de interesse
         self._page = 1
-        self.__page_num = 2
+        self.__page_num = 3
 
         # Carrega as imagens que serão usadas
         self.page_1 = entity.Entity(TEXTURE_MENU_PATH + "tutorial_1.png", (0, 0), (WIDTH, HEIGHT))
         self.page_2 = entity.Entity(TEXTURE_MENU_PATH + "tutorial_2.png", (0, 0), (WIDTH, HEIGHT))
+        self.page_3 = entity.Entity(TEXTURE_MENU_PATH + "player_" + str(bot_num + 1) + ".png", (0, 0), (WIDTH, HEIGHT))
 
         # Define os botões dessa tela
         self.btn_right = Button(
@@ -490,6 +491,8 @@ class TutorialScreen(Menu):
             screen.blit(self.page_1.image, self.page_1.rect)
         elif self._page == 2:
             screen.blit(self.page_2.image, self.page_2.rect)
+        elif self._page == 3:
+            screen.blit(self.page_3.image, self.page_3.rect)
 
         # Exibe o número da página
         self.__draw_text(str(self._page), 40, WIDTH - 100, HEIGHT - 65, 20,screen)
