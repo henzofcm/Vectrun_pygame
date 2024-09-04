@@ -89,23 +89,25 @@ class Rider(entity.Entity):
 
         # Salva a mão de cartas do jogador
         self._hand = pygame.sprite.Group()
-        buff = (GRID_Y - 3 * CARD_X) / 4
+        buff1 = HEIGHT * 0.037
+        buff2 = WIDTH * 0.052
 
         for foo in range(3):
             card = deck.draw_card()
 
-            # TODO: mudar posição das cartas do 4º player
+            # Posiciona as cartas rotacionadas de acordo
             if number == 1:
-                card.image = pygame.transform.rotate(card.image, 90)
-                card.rect = card.image.get_rect(topleft=((WIDTH + GRID_X) / 2 + 50, buff + foo * (buff + CARD_X)))
-            elif number == 2:
                 card.image = pygame.transform.rotate(card.image, 270)
-                card.rect = card.image.get_rect(topleft=((WIDTH - GRID_X) / 2 - 50 - CARD_Y, buff + foo * (buff + CARD_X)))
+                card.rect = card.image.get_rect(topleft=(buff2, buff1 + foo * (buff1 / 2 + CARD_X)))
+            elif number == 2:
+                card.image = pygame.transform.rotate(card.image, 90)
+                card.rect = card.image.get_rect(topleft=(WIDTH - CARD_Y - buff2, buff1 + foo * (buff1 / 2 + CARD_X)))
             elif number == 3:
-                card.rect.topleft = ((WIDTH - GRID_X) / 2 + buff + foo * (buff + CARD_X), GRID_Y + 5)
+                card.image = pygame.transform.rotate(card.image, 270)
+                card.rect = card.image.get_rect(topleft=(buff2, (HEIGHT + buff1) / 2 + foo * (buff1 / 2 + CARD_X)))
             elif number == 4:
-                card.image = pygame.transform.rotate(card.image, 180)
-                card.rect.topleft = ((WIDTH - GRID_X) / 2 + (1 + foo) * buff, - CARD_Y - 5)
+                card.image = pygame.transform.rotate(card.image, 90)
+                card.rect = card.image.get_rect(topleft=(WIDTH - CARD_Y - buff2, (HEIGHT + buff1) / 2 + foo * (buff1 / 2 + CARD_X)))
             
             self._hand.add(card)
 
@@ -113,11 +115,11 @@ class Rider(entity.Entity):
         if number == 1:
             self._color = "#258dc2"
         elif number == 2:
-            self._color = "#ec6716"
+            self._color = "#ffb001"
         elif number == 3:
             self._color = "#cb101a"
         elif number == 4:
-            self._color = "#ffb001"
+            self._color = "#ec6716"
 
         # Atributos de estado
         self.__timer = 0
@@ -287,14 +289,17 @@ class Rider(entity.Entity):
 
         # Gira a carta atual e desrotaciona a antiga
         if self._number == 1:
+            card.image = pygame.transform.rotate(card.image, 270)
+            self.clicked_card.image = pygame.transform.rotate(self.clicked_card.image, -270)
+        elif self._number == 2:
             card.image = pygame.transform.rotate(card.image, 90)
             self.clicked_card.image = pygame.transform.rotate(self.clicked_card.image, -90)
-        elif self._number == 2:
+        elif self._number == 3:
             card.image = pygame.transform.rotate(card.image, 270)
             self.clicked_card.image = pygame.transform.rotate(self.clicked_card.image, -270)
         elif self._number == 4:
-            card.image = pygame.transform.rotate(card.image, 180)
-            self.clicked_card.image = pygame.transform.rotate(self.clicked_card.image, -180)
+            card.image = pygame.transform.rotate(card.image, 90)
+            self.clicked_card.image = pygame.transform.rotate(self.clicked_card.image, -90)
 
         self._hand.add(card)
 
@@ -384,11 +389,13 @@ class Rider(entity.Entity):
             # Mas antes desrotaciona as cartas
             for card in self._hand:
                 if self._number == 1:
-                    card.image = pygame.transform.rotate(card.image, -90)
+                    card.image = pygame.transform.rotate(card.image, -270)
                 elif self._number == 2:
+                    card.image = pygame.transform.rotate(card.image, -90)
+                elif self._number == 3:
                     card.image = pygame.transform.rotate(card.image, -270)
                 elif self._number == 4:
-                    card.image = pygame.transform.rotate(card.image, -180)
+                    card.image = pygame.transform.rotate(card.image, -90)
 
                 card.rect = card.image.get_rect(topleft=(0, 0))
             

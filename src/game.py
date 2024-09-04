@@ -95,6 +95,9 @@ class GridGame(entity.Entity):
         None
         """
         super().__init__(image_path, x_y, scale_size)
+        self.background = entity.Entity(TEXTURE_MENU_PATH + "background.png", (0, 0), (WIDTH, HEIGHT))
+        self.table = entity.Entity(TEXTURE_PATH + "table_" + str(bot_number + 1) + ".png", (0, 0), (WIDTH, HEIGHT))
+        self.border = entity.Entity(TEXTURE_PATH + "border.png", (0, 0), (WIDTH, HEIGHT))
 
         # Atributos para o estado do jogo
         self._game_turn = 0
@@ -106,13 +109,13 @@ class GridGame(entity.Entity):
         self._selected_card = None
 
         # Cria o jogador
-        self._player = rider.Player(1, (WIDTH / 2 - 1, GRID_Y / 2 - 2), (RIDER_X, RIDER_Y), self._deck)
+        self._player = rider.Player(1, (WIDTH / 2, HEIGHT / 2), (RIDER_X, RIDER_Y), self._deck)
 
         # Cria os bots
         __bot_list = []
 
         for bot in range(bot_number):
-            __bot_list.append(rider.Bot(bot + 2, (WIDTH / 2 - 1, GRID_Y / 2 - 2), (RIDER_X, RIDER_Y), self._deck))
+            __bot_list.append(rider.Bot(bot + 2, (WIDTH / 2 , HEIGHT / 2), (RIDER_X, RIDER_Y), self._deck))
 
         self._bots = pygame.sprite.OrderedUpdates(__bot_list[::-1])
 
@@ -209,8 +212,11 @@ class GridGame(entity.Entity):
         -------
             None
         """
-        # Desenha o tabuleiro no layer mais baixo
+        # Desenha o background, o tabuleiro e a mesa
+        screen.blit(self.background.image, self.background.rect)
         screen.blit(self.image, self.rect)
+        #screen.blit(self.border.image, self.border.rect)
+        screen.blit(self.table.image, self.table.rect)
 
         # Desenha as linhas dos riders
         for rider in self._all_riders.sprites():
@@ -505,8 +511,10 @@ class GridGame(entity.Entity):
         for rider in self._all_riders:
             for card in rider._hand:
                 if rider._number == 1:
-                    card.image = pygame.transform.rotate(card.image, -90)
+                    card.image = pygame.transform.rotate(card.image, -270)
                 elif rider._number == 2:
+                    card.image = pygame.transform.rotate(card.image, -90)
+                elif rider._number == 3:
                     card.image = pygame.transform.rotate(card.image, -270)
                 elif rider._number == 4:
-                    card.image = pygame.transform.rotate(card.image, -180)
+                    card.image = pygame.transform.rotate(card.image, -90)
