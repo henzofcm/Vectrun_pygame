@@ -53,7 +53,7 @@ class Button(entity.Entity):
         # Ou caso precise criar com texto
         else:
             super().__init__(TEXTURE_MENU_PATH + "square_full.png", x_y, scale_size)
-            font = pygame.font.Font(FONTS_PATH + "DOSVGA2.ttf", 30)
+            font = pygame.font.Font(FONTS_PATH + "DOSVGA2.ttf", 50)
 
             self.image = font.render(image_path, True, WHITE)
         
@@ -265,70 +265,63 @@ class OptionsMenu(Menu):
         self.state = state
 
         # Define variáveis com valores recorrentes no menu
-        vol_space = 80
-        vol_y = HEIGHT / 3 + 30
-        vol_x = WIDTH / 3 + 5
-        vol_position = tuple((vol_x + x * vol_space, vol_y) for x in range(2, 7))
-
-        # Carrega as imagens a exibir
-        volume_logo = Button(
-            TEXTURE_MENU_PATH + "volume_text.png",
-            (vol_x - 30, vol_y),
-            (BUTTON_X, BUTTON_Y),
-            0,
-        )
-        volume_logo.rect = volume_logo.image.get_rect(center=(vol_x - 30, vol_y))
+        self.button_size = (75, 75)
+        vol_space = self.button_size[0] + 0.025*WIDTH
+        vol_y = HEIGHT * 0.395
+        vol_x = WIDTH / 2
+        vol_position = tuple((vol_x + x * vol_space, vol_y) for x in range(0, 5))
 
         # Define os botões dessa tela
         self.btn_back = Button(
             TEXTURE_MENU_PATH + "back_button.png",
-            (WIDTH / 2, (HEIGHT - 100)),
-            (BUTTON_X, BUTTON_Y),
+            (WIDTH / 2, HEIGHT - BUTTON_Y / 2),
+            (BUTTON_X + 46, BUTTON_Y),
             1,
         )
         self.btn_vol_1 = Button(
             TEXTURE_MENU_PATH + "square_empty.png",
             vol_position[0],
-            (50, 50),
+            self.button_size,
             1,
         )
         self.btn_vol_2 = Button(
             TEXTURE_MENU_PATH + "square_empty.png",
             vol_position[1],
-            (50, 50),
+            self.button_size,
             2,
         )
         self.btn_vol_3 = Button(
             TEXTURE_MENU_PATH + "square_full.png",
             vol_position[2],
-            (50, 50),
+            self.button_size,
             3,
         )
         self.btn_vol_4 = Button(
             TEXTURE_MENU_PATH + "square_empty.png",
             vol_position[3],
-            (50, 50),
+            self.button_size,
             4,
         )
         self.btn_vol_5 = Button(
             TEXTURE_MENU_PATH + "square_empty.png",
             vol_position[4],
-            (50, 50),
+            self.button_size,
             5,
         )
 
         # Mais botões
+        vol_y = HEIGHT * 0.5833
         self.more_buttons_group = pygame.sprite.Group()
-        self.btn_fs = Button(TEXTURE_MENU_PATH + "square_full.png", (vol_position[2][0], vol_y + vol_space), (50, 50), 0)
+        self.btn_fs = Button(TEXTURE_MENU_PATH + "square_full.png", (vol_position[2][0], vol_y), self.button_size, FULLSCREEN)
 
+        vol_y = HEIGHT * 0.7777
         self.bot_buttons_group = pygame.sprite.Group()
-        btn_bot_2 = Button("2", (vol_position[1][0], vol_y + 2 * vol_space), (50, 50), 1)
-        btn_bot_3 = Button("3", (vol_position[2][0], vol_y + 2 * vol_space), (50, 50), 2)
-        btn_bot_4 = Button("4", (vol_position[3][0], vol_y + 2 * vol_space), (50, 50), 3)
-        self.btn_select = Button(TEXTURE_MENU_PATH + "square_empty.png", btn_bot_3.rect.center, (50, 50), 1)
+        btn_bot_2 = Button("2", (vol_position[1][0], vol_y), self.button_size, 1)
+        btn_bot_3 = Button("3", (vol_position[2][0], vol_y), self.button_size, 2)
+        btn_bot_4 = Button("4", (vol_position[3][0], vol_y), self.button_size, 3)
+        self.btn_select = Button(TEXTURE_MENU_PATH + "square_empty.png", btn_bot_3.rect.center, self.button_size, 1)
 
         # Adiciona os botões a um grupo
-        self.options_group.add(volume_logo)
         self.buttons_group.add(self.btn_back)
         self.bot_buttons_group.add(btn_bot_2, btn_bot_3, btn_bot_4)
         self.more_buttons_group.add(self.btn_fs, self.btn_select)
@@ -343,14 +336,17 @@ class OptionsMenu(Menu):
         )
 
     def draw(self, screen):
-        # Exibe a imagem "Options"
+        # Exibe o menu
         screen.blit(self.image, self.rect)
 
         # Exibe a imagem das opções
         self.options_group.draw(screen)
         self.buttons_group.draw(screen)
 
-        self.bot_buttons_group.draw(screen)
+        # O nº de jogadores
+        self.draw_text("2", 35, self.bot_buttons_group.sprites()[0].rect.centerx, self.bot_buttons_group.sprites()[0].rect.centery, screen)
+        self.draw_text("3", 35, self.bot_buttons_group.sprites()[1].rect.centerx, self.bot_buttons_group.sprites()[0].rect.centery, screen)
+        self.draw_text("4", 35, self.bot_buttons_group.sprites()[2].rect.centerx, self.bot_buttons_group.sprites()[0].rect.centery, screen)
         self.more_buttons_group.draw(screen)
 
         # E os volumes
@@ -437,7 +433,7 @@ class OptionsMenu(Menu):
 
         # Cria a imagem
         img = pygame.image.load(TEXTURE_MENU_PATH + "square_" + click).convert_alpha()
-        img = pygame.transform.smoothscale(img, (50, 50))
+        img = pygame.transform.smoothscale(img, self.button_size)
 
         # E altera
         exec("self.btn_vol_" + str(num) + ".image = img", None, locals())
@@ -449,7 +445,7 @@ class OptionsMenu(Menu):
             click = "empty.png"
 
         self.btn_fs.image = pygame.image.load(TEXTURE_MENU_PATH + "square_" + click).convert_alpha()
-        self.btn_fs.image = pygame.transform.smoothscale(self.btn_fs.image, (50, 50))
+        self.btn_fs.image = pygame.transform.smoothscale(self.btn_fs.image, self.button_size)
         
         self.btn_fs.value = not self.btn_fs.value
         pygame.display.toggle_fullscreen()

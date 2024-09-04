@@ -11,9 +11,13 @@ class Vectrun:
 
     def __init__(self):
         # Cria a tela do jogo
-        self.screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN)
+        self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         pygame.display.set_caption("Vectrun")
         pygame.display.set_icon(pygame.image.load(TEXTURE_PATH + "icon.png"))
+
+        # Caso entre em tela cheia
+        if FULLSCREEN:
+            pygame.display.toggle_fullscreen()
 
         # Cria o relógio interno do FPS
         self.fps_clock = pygame.time.Clock()
@@ -131,9 +135,9 @@ class Vectrun:
                 )
         
         self.__menus[3] = menu.OptionsMenu(
-                    (TEXTURE_MENU_PATH + "options_button.png"),
-                    (WIDTH / 2, (HEIGHT / 6 - 50)),
-                    (2 * BUTTON_X, 2 * BUTTON_Y),
+                    (TEXTURE_MENU_PATH + "opcoes.png"),
+                    (WIDTH / 2, HEIGHT / 2),
+                    (WIDTH, HEIGHT),
                     self,
                 )
         

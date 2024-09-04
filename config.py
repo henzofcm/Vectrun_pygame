@@ -13,7 +13,7 @@ RIDER_PATH = TEXTURE_PATH + "rider\\"
 # Tamanho da tela
 WIDTH = 1600
 HEIGHT = 900
-FULLSCREEN = False
+FULLSCREEN = True
 
 # Tamanho do tabuleiro
 GRID_X = 750
