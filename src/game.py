@@ -4,6 +4,7 @@ import sys
 import entity
 import rider
 import utilities
+from menu import Button
 
 from deck import *
 from config import *
@@ -98,8 +99,11 @@ class GridGame(entity.Entity):
         self.background = entity.Entity(TEXTURE_MENU_PATH + "background.png", (0, 0), (WIDTH, HEIGHT))
         self.table = entity.Entity(TEXTURE_PATH + "table_" + str(bot_number + 1) + ".png", (0, 0), (WIDTH, HEIGHT))
         self.border = entity.Entity(TEXTURE_PATH + "border.png", (0, 0), (WIDTH, HEIGHT))
+        self.btn_back = Button(TEXTURE_MENU_PATH + "back_button.png", (WIDTH / 2, BUTTON_Y / 4), (BUTTON_Y * 2.6742 / 2, BUTTON_Y / 2), 1)
 
-        # Carrega os botões de vitória/derrota
+        # Carrega o botão de vitória e os de derrota
+        self.__win = None
+
         self.__dead = [0, 0, 0, 0]
         self.__lose_group = pygame.sprite.OrderedUpdates()
 
@@ -186,8 +190,14 @@ class GridGame(entity.Entity):
                 
             # Cliques
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 1 and not self._clicked:
-                    self.validate_click()
+                if event.button == 1:
+                    # Caso saia do jogo
+                    if self.btn_back.update():
+                        return 1
+                    
+                    # Caso clique em alguma carta
+                    if not self._clicked:
+                        self.validate_click()
 
             # Animações de movimento
             for rider in self._all_riders:
@@ -195,15 +205,24 @@ class GridGame(entity.Entity):
                     rider.update()
 
         # Verifica se sobrou apenas um, que será o vencedor
-        if len(self._all_riders) == 1:
-            # E então retorna o código do menu win ou lose
-            if self._all_riders.sprites()[0]._number == 1:
-                return 5
-            else:
-                return 6
+        if len(self._all_riders) == 1 and not self.__win:
+            self._clicked = True
+            self.__win = entity.Entity(TEXTURE_MENU_PATH + "win_button.png", (WIDTH * 0.089 + CARD_Y, 3 * HEIGHT * 0.037 / 2 + CARD_X), (BUTTON_Y * 1.5564, BUTTON_Y))
+            self.__win.image = pygame.transform.rotate(self.__win.image, 270)
+
+            # E então altera o botão de quem ganhou
+            if self._all_riders.sprites()[0]._number == 2:
+                self.__win.rect.left = WIDTH - 2 * CARD_Y - WIDTH * 0.089
+                self.__win.image = pygame.transform.rotate(self.__win.image, 180)
+            elif self._all_riders.sprites()[0]._number == 3:
+                self.__win.rect.top = HEIGHT * 0.537 + CARD_X
+            elif self._all_riders.sprites()[0]._number == 4:
+                self.__win.image = pygame.transform.rotate(self.__win.image, 180)
+                self.__win.rect.left = WIDTH - 2 * CARD_Y - WIDTH * 0.089
+                self.__win.rect.top = HEIGHT * 0.537 + CARD_X
 
         # Se tiver clicado, roda o movimento do jogador ou dos bots e testa colisão
-        if self._clicked and self._all_riders:
+        if self._clicked and self._all_riders and not self.__win:
             rider = self._all_riders.sprites()[self._mov_stage]
 
             # Só movimenta se o jogador estiver vivo
@@ -240,6 +259,7 @@ class GridGame(entity.Entity):
         screen.blit(self.image, self.rect)
         #screen.blit(self.border.image, self.border.rect)
         screen.blit(self.table.image, self.table.rect)
+        screen.blit(self.btn_back.image, self.btn_back.rect)
 
         # Desenha as linhas dos riders
         for rider in self._all_riders.sprites():
@@ -262,6 +282,10 @@ class GridGame(entity.Entity):
             if num:
                 button = self.__lose_group.sprites()[idx]
                 screen.blit(button.image, button.rect)
+
+        # Caso alguém tenha ganho
+        if self.__win:
+            screen.blit(self.__win.image, self.__win.rect)
 
         # Faz blit no jogador e nos bots
         self._bots.draw(screen)
@@ -376,18 +400,18 @@ class GridGame(entity.Entity):
                     self.next_turn(player_card)
 
                     # Salva a imagem da carta clicada rotacionada
-                    self._drawn_card.image = pygame.transform.rotate(player_card.image, 180)
+                    self._drawn_card.image = pygame.transform.rotozoom(player_card.image, 180, 1.2)
                     player_num = self._all_riders.sprites()[self._mov_stage]._number
                     
                     # E posiciona para que seja possível os demais jogadores verem
                     if player_num == 1:
-                        self._drawn_card.rect.topleft = (WIDTH * 0.089 + CARD_Y, 3 * HEIGHT * 0.037 / 2 + CARD_X)
+                        self._drawn_card.rect.topleft = (WIDTH * 0.089 + CARD_Y, 3 * HEIGHT * 0.037 / 2 + CARD_X * 5 / 6)
                     elif player_num == 2:
-                        self._drawn_card.rect.topleft = (WIDTH - 2 * CARD_Y - WIDTH * 0.089, 3 * HEIGHT * 0.037 / 2 + CARD_X)
+                        self._drawn_card.rect.topleft = (WIDTH - 2 * CARD_Y * 1.2 - WIDTH * 0.089, 3 * HEIGHT * 0.037 / 2 + CARD_X * 5 / 6)
                     elif player_num == 3:
-                        self._drawn_card.rect.topleft = (WIDTH * 0.089 + CARD_Y, HEIGHT * 0.537 + CARD_X)
+                        self._drawn_card.rect.topleft = (WIDTH * 0.089 + CARD_Y, HEIGHT * 0.537 + CARD_X * 5 / 6)
                     elif player_num == 4:
-                        self._drawn_card.rect.topleft = (WIDTH - 2 * CARD_Y - WIDTH * 0.089, HEIGHT * 0.537 + CARD_X)
+                        self._drawn_card.rect.topleft = (WIDTH - 2 * CARD_Y * 1.2 - WIDTH * 0.089, HEIGHT * 0.537 + CARD_X * 5 / 6)
 
                     return
             

@@ -139,7 +139,7 @@ class Deck(entity.Entity):
                     continue
 
                 # Nome do arquivo da carta
-                card_name = "card_" + str(__card_count) + ".png"
+                card_name = "Card_" + str(__card_count) + ".png"
 
                 # Cria a carta em si
                 card = Card(card_path + card_name, (0, 0), scale_size, value=(x, y))
