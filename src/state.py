@@ -28,9 +28,8 @@ class Vectrun:
         # Salva o volume
         self.volume = VOLUME_START
 
-        # TODO
         self.running = True
-        self.bot_num = 2
+        self.bot_num = 3
 
     def play(self):
         # Loop principal

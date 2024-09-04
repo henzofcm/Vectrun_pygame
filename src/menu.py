@@ -319,7 +319,7 @@ class OptionsMenu(Menu):
         btn_bot_2 = Button("2", (vol_position[1][0], vol_y), self.button_size, 1)
         btn_bot_3 = Button("3", (vol_position[2][0], vol_y), self.button_size, 2)
         btn_bot_4 = Button("4", (vol_position[3][0], vol_y), self.button_size, 3)
-        self.btn_select = Button(TEXTURE_MENU_PATH + "square_empty.png", btn_bot_3.rect.center, self.button_size, 1)
+        self.btn_select = Button(TEXTURE_MENU_PATH + "square_empty.png", btn_bot_4.rect.center, self.button_size, 1)
 
         # Adiciona os botões a um grupo
         self.buttons_group.add(self.btn_back)
@@ -688,7 +688,7 @@ class LoadingScreen(Menu):
 
         # Configura a fonte e o texto inicial
         self.__font = pygame.font.Font(FONTS_PATH + "zig.ttf", 40)
-        self.__text = "Loading"
+        self.__text = "Carregando"
 
         # Cria um evento para a animação
         self.__clock = pygame.event.custom_type()
